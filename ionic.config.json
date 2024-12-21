@@ -1,0 +1,7 @@
+{
+  "name": "ColorCard",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
