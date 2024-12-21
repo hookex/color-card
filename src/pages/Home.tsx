@@ -58,7 +58,7 @@ const Home: React.FC = () => {
   return (
     <IonPage>
       <animated.div style={springProps} className="flex-1">
-        <IonContent fullscreen className="ion-content-transparent">
+        <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
               {colorCards.map((card, index) => (

@@ -46,17 +46,29 @@ $colors: (
 .card-container {
   @include flex-center;
   height: 100%;
-  padding: 1rem;
+  padding: 0;
   overflow-y: auto;
+  
+  // 移除 iOS 安全区域的顶部空白
+  --padding-top: 0px !important;
 }
 
 .card-grid {
   width: 100%;
-  max-width: 28rem;
+  max-width: 64rem;
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin: 0 auto;
   padding: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 // Color card
