@@ -104,7 +104,6 @@ const Home: React.FC = () => {
     <IonPage>
       <div className="flex-1">
         <Background color={bgColor} texture={texture} debug={debug} />
-        <DevTools debug={debug} onDebugChange={handleDebugChange} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
@@ -139,6 +138,9 @@ const Home: React.FC = () => {
           currentTexture={texture}
           onTextureChange={handleTextureChange}
         />
+        <DevTools debug={debug} onDebugChange={handleDebugChange}>
+          {null}
+        </DevTools>
       </div>
     </IonPage>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonFab, IonFabButton, IonIcon, IonFabList, IonPopover, IonContent, IonToast } from '@ionic/react';
-import { buildOutline, languageOutline, cameraOutline } from 'ionicons/icons';
+import { buildOutline, languageOutline, cameraOutline, cubeOutline } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -11,9 +11,11 @@ const InspectorWrapper = Inspector;
 
 interface Props {
   children: React.ReactNode;
+  debug?: boolean;
+  onDebugChange?: (debug: boolean) => void;
 }
 
-const DevTools: React.FC<Props> = ({ children }) => {
+const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) => {
   const { i18n } = useTranslation();
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -35,6 +37,12 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'en' ? 'zh' : 'en';
     i18n.changeLanguage(nextLang);
+  };
+
+  const toggle3DMode = () => {
+    if (onDebugChange) {
+      onDebugChange(!debug);
+    }
   };
 
   const showTooltip = (event: any, content: string) => {
@@ -152,6 +160,14 @@ const DevTools: React.FC<Props> = ({ children }) => {
               onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={cameraOutline} />
+            </IonFabButton>
+            <IonFabButton 
+              onClick={toggle3DMode}
+              className={debug ? 'bg-primary' : 'bg-orange-600'}
+              onMouseEnter={(e) => showTooltip(e, debug ? 'Switch to 2D Mode' : 'Switch to 3D Mode')}
+              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
+            >
+              <IonIcon icon={cubeOutline} />
             </IonFabButton>
           </IonFabList>
         </IonFab>
