@@ -44,7 +44,6 @@ const DevTools: React.FC<Props> = ({ children }) => {
 
   const saveToGallery = async (base64Data: string, fileName: string) => {
     try {
-      // 保存文件到缓存
       await Filesystem.writeFile({
         path: fileName,
         data: base64Data,
@@ -52,13 +51,11 @@ const DevTools: React.FC<Props> = ({ children }) => {
         recursive: true
       });
 
-      // 获取缓存文件的 URI
       const savedFile = await Filesystem.getUri({
         path: fileName,
         directory: Directory.Cache
       });
 
-      // 复制到相册
       await Filesystem.copy({
         from: savedFile.uri,
         to: `PHOTO_${new Date().getTime()}.png`,
@@ -88,44 +85,22 @@ const DevTools: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const createColorImage = (color: string): string => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1000;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    return canvas.toDataURL('image/png');
-  };
-
   const takeScreenshot = async () => {
     try {
-      // 获取背景元素
-      const element = document.querySelector('.flex-1') as HTMLElement;
-      if (!element) {
-        throw new Error('Background element not found');
+      const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+      if (!canvas) {
+        throw new Error('Canvas element not found');
       }
 
-      // 获取背景色
-      const computedStyle = window.getComputedStyle(element);
-      const backgroundColor = computedStyle.backgroundColor;
-
-      // 生成纯色图片
-      const dataUrl = createColorImage(backgroundColor);
-      const base64Data = dataUrl.split(',')[1];
-
-      // 生成文件名
       const timestamp = new Date().getTime();
       const fileName = `colorcard_${timestamp}.png`;
 
-      // 根据平台选择保存方式
+      const dataUrl = canvas.toDataURL('image/png');
+      const base64Data = dataUrl.split(',')[1];
+
       if (Capacitor.isNativePlatform()) {
-        // 移动设备：保存到相册
         await saveToGallery(base64Data, fileName);
       } else {
-        // 浏览器：下载文件
         downloadInBrowser(dataUrl, fileName);
       }
     } catch (error) {

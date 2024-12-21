@@ -3,6 +3,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
+import Background from '../components/Background';
 import './Home.scss';
 
 const Home: React.FC = () => {
@@ -44,22 +45,10 @@ const Home: React.FC = () => {
     }
   };
 
-  const [springProps, api] = useSpring(() => ({
-    from: { backgroundColor: '#f5f5f5' },
-  }));
-
-  useEffect(() => {
-    api.start({
-      to: {
-        backgroundColor: bgColor,
-      },
-      config: { tension: 200, friction: 20 },
-    });
-  }, [bgColor, api]);
-
   return (
     <IonPage>
-      <animated.div style={springProps} className="flex-1">
+      <div className="flex-1">
+        <Background color={bgColor} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
@@ -86,7 +75,7 @@ const Home: React.FC = () => {
             </div>
           </animated.div>
         </IonContent>
-      </animated.div>
+      </div>
     </IonPage>
   );
 };
