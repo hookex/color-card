@@ -1,0 +1,44 @@
+{
+  "colors": {
+    "hermes": {
+      "title": "爱马仕橙",
+      "brand": "爱马仕"
+    },
+    "tiffany": {
+      "title": "蒂芙尼蓝",
+      "brand": "蒂芙尼"
+    },
+    "valentino": {
+      "title": "华伦天奴红",
+      "brand": "华伦天奴"
+    },
+    "burberry": {
+      "title": "巴宝莉棕",
+      "brand": "巴宝莉"
+    },
+    "dior": {
+      "title": "迪奥灰",
+      "brand": "克里斯汀·迪奥"
+    },
+    "fendi": {
+      "title": "芬迪黄",
+      "brand": "芬迪"
+    },
+    "cartier": {
+      "title": "卡地亚红",
+      "brand": "卡地亚"
+    },
+    "chanel": {
+      "title": "香奈儿白",
+      "brand": "香奈儿"
+    },
+    "louboutin": {
+      "title": "鲁布托红底",
+      "brand": "克里斯提·鲁布托"
+    },
+    "veuve": {
+      "title": "凯歌香槟金",
+      "brand": "凯歌"
+    }
+  }
+}

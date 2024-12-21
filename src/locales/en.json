@@ -1,0 +1,44 @@
+{
+  "colors": {
+    "hermes": {
+      "title": "Hermès Orange",
+      "brand": "Hermès"
+    },
+    "tiffany": {
+      "title": "Tiffany Blue",
+      "brand": "Tiffany & Co."
+    },
+    "valentino": {
+      "title": "Valentino Red",
+      "brand": "Valentino"
+    },
+    "burberry": {
+      "title": "Burberry Brown",
+      "brand": "Burberry"
+    },
+    "dior": {
+      "title": "Dior Gray",
+      "brand": "Christian Dior"
+    },
+    "fendi": {
+      "title": "Fendi Yellow",
+      "brand": "Fendi"
+    },
+    "cartier": {
+      "title": "Cartier Red",
+      "brand": "Cartier"
+    },
+    "chanel": {
+      "title": "Chanel White",
+      "brand": "Chanel"
+    },
+    "louboutin": {
+      "title": "Louboutin Red",
+      "brand": "Christian Louboutin"
+    },
+    "veuve": {
+      "title": "Veuve Gold",
+      "brand": "Veuve Clicquot"
+    }
+  }
+}
