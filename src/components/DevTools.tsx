@@ -5,7 +5,6 @@ import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import html2canvas from 'html2canvas';
 import './DevTools.scss';
 
 const InspectorWrapper = Inspector;
@@ -67,7 +66,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
         toDirectory: Directory.External
       });
 
-      setToastMessage('Screenshot saved to gallery');
+      setToastMessage('Color saved to gallery');
       setShowToast(true);
     } catch (error) {
       console.error('Save to gallery error:', error);
@@ -75,18 +74,30 @@ const DevTools: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const downloadInBrowser = (canvas: HTMLCanvasElement, fileName: string) => {
+  const downloadInBrowser = (dataUrl: string, fileName: string) => {
     try {
       const link = document.createElement('a');
       link.download = fileName;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
-      setToastMessage('Screenshot downloaded');
+      setToastMessage('Color downloaded');
       setShowToast(true);
     } catch (error) {
       console.error('Download error:', error);
       throw error;
     }
+  };
+
+  const createColorImage = (color: string): string => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1000;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    return canvas.toDataURL('image/png');
   };
 
   const takeScreenshot = async () => {
@@ -97,12 +108,13 @@ const DevTools: React.FC<Props> = ({ children }) => {
         throw new Error('Background element not found');
       }
 
-      // 使用 html2canvas 捕获元素
-      const canvas = await html2canvas(element, {
-        backgroundColor: null,
-        logging: false,
-        useCORS: true
-      });
+      // 获取背景色
+      const computedStyle = window.getComputedStyle(element);
+      const backgroundColor = computedStyle.backgroundColor;
+
+      // 生成纯色图片
+      const dataUrl = createColorImage(backgroundColor);
+      const base64Data = dataUrl.split(',')[1];
 
       // 生成文件名
       const timestamp = new Date().getTime();
@@ -111,15 +123,14 @@ const DevTools: React.FC<Props> = ({ children }) => {
       // 根据平台选择保存方式
       if (Capacitor.isNativePlatform()) {
         // 移动设备：保存到相册
-        const base64Data = canvas.toDataURL('image/png').split(',')[1];
         await saveToGallery(base64Data, fileName);
       } else {
         // 浏览器：下载文件
-        downloadInBrowser(canvas, fileName);
+        downloadInBrowser(dataUrl, fileName);
       }
     } catch (error) {
       console.error('Screenshot error:', error);
-      setToastMessage('Failed to save screenshot');
+      setToastMessage('Failed to save color');
       setShowToast(true);
     }
   };
@@ -162,7 +173,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
             <IonFabButton 
               onClick={takeScreenshot}
               className="bg-purple-600"
-              onMouseEnter={(e) => showTooltip(e, Capacitor.isNativePlatform() ? 'Save to Gallery' : 'Download Screenshot')}
+              onMouseEnter={(e) => showTooltip(e, Capacitor.isNativePlatform() ? 'Save Color to Gallery' : 'Download Color')}
               onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={cameraOutline} />
