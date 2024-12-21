@@ -3,6 +3,22 @@
     ion-fab-button {
       --size: 40px;
       margin: 8px 0;
+
+      &.bg-blue-600 {
+        --background: #2563eb;
+      }
+
+      &.bg-green-600 {
+        --background: #059669;
+      }
+
+      &.bg-purple-600 {
+        --background: #9333ea;
+      }
+
+      &.bg-gray-800 {
+        --background: #1f2937;
+      }
     }
   }
 }

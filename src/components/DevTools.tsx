@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { IonFab, IonFabButton, IonIcon, IonFabList, IonPopover, IonContent } from '@ionic/react';
-import { buildOutline, languageOutline } from 'ionicons/icons';
+import { IonFab, IonFabButton, IonIcon, IonFabList, IonPopover, IonContent, IonToast } from '@ionic/react';
+import { buildOutline, languageOutline, cameraOutline } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import html2canvas from 'html2canvas';
 import './DevTools.scss';
 
 const InspectorWrapper = Inspector;
@@ -14,6 +16,8 @@ interface Props {
 const DevTools: React.FC<Props> = ({ children }) => {
   const { i18n } = useTranslation();
   const [showInspector, setShowInspector] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const [popoverState, setPopoverState] = useState<{
     open: boolean;
     event: any;
@@ -36,6 +40,61 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const showTooltip = (event: any, content: string) => {
     event.persist();
     setPopoverState({ open: true, event, content });
+  };
+
+  const takeScreenshot = async () => {
+    try {
+      // 获取背景元素
+      const element = document.querySelector('.flex-1') as HTMLElement;
+      if (!element) {
+        throw new Error('Background element not found');
+      }
+
+      // 使用 html2canvas 捕获元素
+      const canvas = await html2canvas(element, {
+        backgroundColor: null,
+        logging: false,
+        useCORS: true
+      });
+
+      // 转换为 base64
+      const base64Data = canvas.toDataURL('image/png').split(',')[1];
+
+      // 生成文件名
+      const timestamp = new Date().getTime();
+      const fileName = `colorcard_${timestamp}.png`;
+
+      // 保存文件
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache,
+        recursive: true
+      });
+
+      // 将文件从缓存复制到相册
+      const savedFile = await Filesystem.getUri({
+        path: fileName,
+        directory: Directory.Cache
+      });
+
+      // 使用 Capacitor API 保存到相册
+      await Filesystem.copy({
+        from: savedFile.uri,
+        to: `PHOTO_${timestamp}.png`,
+        directory: Directory.Photos,
+        toDirectory: Directory.External
+      });
+
+      // 显示成功消息
+      setToastMessage('Screenshot saved to gallery');
+      setShowToast(true);
+
+    } catch (error) {
+      console.error('Screenshot error:', error);
+      setToastMessage('Failed to save screenshot');
+      setShowToast(true);
+    }
   };
 
   return (
@@ -73,6 +132,14 @@ const DevTools: React.FC<Props> = ({ children }) => {
             >
               <IonIcon icon={languageOutline} />
             </IonFabButton>
+            <IonFabButton 
+              onClick={takeScreenshot}
+              className="bg-purple-600"
+              onMouseEnter={(e) => showTooltip(e, 'Take Screenshot')}
+              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
+            >
+              <IonIcon icon={cameraOutline} />
+            </IonFabButton>
           </IonFabList>
         </IonFab>
         <IonPopover
@@ -87,6 +154,14 @@ const DevTools: React.FC<Props> = ({ children }) => {
             {popoverState.content}
           </IonContent>
         </IonPopover>
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={2000}
+          position="top"
+          color={toastMessage.includes('Failed') ? 'danger' : 'success'}
+        />
       </div>
     </>
   );
