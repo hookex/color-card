@@ -11,7 +11,7 @@ interface ColorCardState {
   setDebug: (debug: boolean) => void;
 }
 
-const useStore = create<ColorCardState>()(
+export const useStore = create<ColorCardState>()(
   persist(
     (set) => ({
       color: '#f5f5f5',
@@ -26,3 +26,5 @@ const useStore = create<ColorCardState>()(
     }
   )
 );
+
+export default useStore;
