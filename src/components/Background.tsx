@@ -9,23 +9,22 @@ import {
   StandardMaterial,
   ArcRotateCamera,
   HemisphericLight,
-  Texture,
   PBRMaterial,
-  CubeTexture,
 } from '@babylonjs/core';
 import { TextureType } from './TextureTools';
 
 interface Props {
   color: string;
   texture: TextureType;
-  onSceneReady?: (scene: Scene) => void;
+  debug?: boolean;
 }
 
-const Background: React.FC<Props> = ({ color, texture }) => {
+const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
   const sphereRef = useRef<any>(null);
+  const cameraRef = useRef<ArcRotateCamera | null>(null);
 
   // 将十六进制颜色转换为 Babylon Color3
   const hexToColor3 = (hex: string): Color3 => {
@@ -108,56 +107,60 @@ const Background: React.FC<Props> = ({ color, texture }) => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // 创建引擎
     engineRef.current = new Engine(canvasRef.current, true, {
       preserveDrawingBuffer: true,
       stencil: true,
       antialias: true,
     });
 
-    // 创建场景
     const scene = new Scene(engineRef.current);
     sceneRef.current = scene;
 
-    // 设置场景背景色
     scene.clearColor = new Color4(0, 0, 0, 0);
 
     // 创建相机
     const camera = new ArcRotateCamera(
       'camera',
-      0,
-      Math.PI / 2,
-      10,
+      debug ? Math.PI / 4 : 0,
+      debug ? Math.PI / 3 : Math.PI / 2,
+      debug ? 30 : 10,
       Vector3.Zero(),
       scene
     );
+    cameraRef.current = camera;
     camera.attachControl(canvasRef.current, true);
-    camera.lowerRadiusLimit = 8;
-    camera.upperRadiusLimit = 12;
+    
+    // 根据模式设置相机限制
+    if (debug) {
+      camera.lowerRadiusLimit = 15;
+      camera.upperRadiusLimit = 45;
+      camera.lowerBetaLimit = 0.1;
+      camera.upperBetaLimit = Math.PI - 0.1;
+    } else {
+      camera.lowerRadiusLimit = 8;
+      camera.upperRadiusLimit = 12;
+      camera.lowerBetaLimit = Math.PI / 2;
+      camera.upperBetaLimit = Math.PI / 2;
+    }
+    
     camera.wheelDeltaPercentage = 0.01;
 
-    // 创建光源
     const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), scene);
     mainLight.intensity = 0.8;
     mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
 
-    // 创建一个大球体作为背景
     sphereRef.current = MeshBuilder.CreateSphere(
       'sphere',
       { diameter: 20, segments: 64 },
       scene
     );
     sphereRef.current.position = Vector3.Zero();
-
-    // 设置初始材质
     sphereRef.current.material = createMaterial(scene, color, texture);
 
-    // 渲染循环
     engineRef.current.runRenderLoop(() => {
       scene.render();
     });
 
-    // 处理窗口大小变化
     const handleResize = () => {
       engineRef.current?.resize();
     };
@@ -168,13 +171,38 @@ const Background: React.FC<Props> = ({ color, texture }) => {
       scene.dispose();
       engineRef.current?.dispose();
     };
-  }, []);
+  }, [debug]);
 
   // 当颜色或材质改变时更新材质
   useEffect(() => {
     if (!sceneRef.current || !sphereRef.current) return;
     sphereRef.current.material = createMaterial(sceneRef.current, color, texture);
   }, [color, texture]);
+
+  // 当调试模式改变时更新相机
+  useEffect(() => {
+    if (!cameraRef.current) return;
+    
+    const camera = cameraRef.current;
+    
+    if (debug) {
+      camera.radius = 30;
+      camera.alpha = Math.PI / 4;
+      camera.beta = Math.PI / 3;
+      camera.lowerRadiusLimit = 15;
+      camera.upperRadiusLimit = 45;
+      camera.lowerBetaLimit = 0.1;
+      camera.upperBetaLimit = Math.PI - 0.1;
+    } else {
+      camera.radius = 10;
+      camera.alpha = 0;
+      camera.beta = Math.PI / 2;
+      camera.lowerRadiusLimit = 8;
+      camera.upperRadiusLimit = 12;
+      camera.lowerBetaLimit = Math.PI / 2;
+      camera.upperBetaLimit = Math.PI / 2;
+    }
+  }, [debug]);
 
   return (
     <canvas

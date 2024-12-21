@@ -5,6 +5,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
+import DevTools from '../components/DevTools';
 import './Home.scss';
 
 // 计算对比色
@@ -36,6 +37,11 @@ const Home: React.FC = () => {
     return savedTexture;
   });
 
+  const [debug, setDebug] = useState(() => {
+    const savedDebug = localStorage.getItem('debug') === 'true';
+    return savedDebug;
+  });
+
   const colorCards = [
     { color: '#ff7c32', name: 'hermes' },
     { color: '#81d8d0', name: 'tiffany' },
@@ -63,6 +69,10 @@ const Home: React.FC = () => {
     localStorage.setItem('selectedTexture', texture);
   }, [texture]);
 
+  useEffect(() => {
+    localStorage.setItem('debug', debug.toString());
+  }, [debug]);
+
   const handleCardClick = async (color: string) => {
     setBgColor(color);
     try {
@@ -81,10 +91,20 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleDebugChange = (newDebug: boolean) => {
+    setDebug(newDebug);
+    try {
+      Haptics.impact({ style: ImpactStyle.Light });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+  };
+
   return (
     <IonPage>
       <div className="flex-1">
-        <Background color={bgColor} texture={texture} />
+        <Background color={bgColor} texture={texture} debug={debug} />
+        <DevTools debug={debug} onDebugChange={handleDebugChange} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
