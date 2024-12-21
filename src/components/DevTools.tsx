@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { IonFab, IonFabButton, IonIcon, IonFabList, IonLabel } from '@ionic/react';
+import { IonFab, IonFabButton, IonIcon, IonFabList, IonTooltip } from '@ionic/react';
 import { buildOutline, languageOutline } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
+import './DevTools.scss';
 
 const InspectorWrapper = Inspector;
 
@@ -36,25 +37,35 @@ const DevTools: React.FC<Props> = ({ children }) => {
       ) : (
         children
       )}
-      <IonFab vertical="bottom" horizontal="end" slot="fixed">
-        <IonFabButton size="small" className="bg-gray-800">
-          <IonIcon icon={buildOutline} />
-        </IonFabButton>
-        <IonFabList side="top">
-          <IonFabButton onClick={toggleInspector} className="bg-blue-600">
+      <div className="dev-tools">
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton size="small" className="bg-gray-800">
             <IonIcon icon={buildOutline} />
-            <IonLabel className="ml-2 text-xs">
-              {showInspector ? 'Disable' : 'Enable'} Inspector
-            </IonLabel>
           </IonFabButton>
-          <IonFabButton onClick={toggleLanguage} className="bg-green-600">
-            <IonIcon icon={languageOutline} />
-            <IonLabel className="ml-2 text-xs">
-              {i18n.language === 'en' ? '切换到中文' : 'Switch to English'}
-            </IonLabel>
-          </IonFabButton>
-        </IonFabList>
-      </IonFab>
+          <IonFabList side="top">
+            <IonFabButton 
+              onClick={toggleInspector} 
+              className="bg-blue-600"
+              id="inspector-btn"
+            >
+              <IonIcon icon={buildOutline} />
+              <IonTooltip trigger="inspector-btn" side="start">
+                {showInspector ? 'Disable' : 'Enable'} Inspector
+              </IonTooltip>
+            </IonFabButton>
+            <IonFabButton 
+              onClick={toggleLanguage} 
+              className="bg-green-600"
+              id="language-btn"
+            >
+              <IonIcon icon={languageOutline} />
+              <IonTooltip trigger="language-btn" side="start">
+                {i18n.language === 'en' ? '切换到中文' : 'Switch to English'}
+              </IonTooltip>
+            </IonFabButton>
+          </IonFabList>
+        </IonFab>
+      </div>
     </>
   );
 };

@@ -1,0 +1,16 @@
+.dev-tools {
+  ion-fab {
+    ion-fab-button {
+      --size: 40px;
+      margin: 8px 0;
+    }
+  }
+}
+
+// 调整 tooltip 样式
+ion-tooltip {
+  --background: rgba(0, 0, 0, 0.8);
+  --color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+}
