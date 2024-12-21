@@ -11,18 +11,41 @@ interface ColorCardState {
   setDebug: (debug: boolean) => void;
 }
 
+const initialState = {
+  color: '#f5f5f5',
+  texture: 'solid' as TextureType,
+  debug: false,
+};
+
 export const useStore = create<ColorCardState>()(
   persist(
     (set) => ({
-      color: '#f5f5f5',
-      texture: 'solid',
-      debug: false,
-      setColor: (color) => set({ color }),
-      setTexture: (texture) => set({ texture }),
-      setDebug: (debug) => set({ debug }),
+      ...initialState,
+      setColor: (color) => {
+        console.log('Store: Setting color to', color);
+        set((state) => {
+          console.log('Store: Previous state', state);
+          return { ...state, color };
+        });
+      },
+      setTexture: (texture) => {
+        console.log('Store: Setting texture to', texture);
+        set((state) => {
+          console.log('Store: Previous state', state);
+          return { ...state, texture };
+        });
+      },
+      setDebug: (debug) => {
+        console.log('Store: Setting debug to', debug);
+        set((state) => {
+          console.log('Store: Previous state', state);
+          return { ...state, debug };
+        });
+      },
     }),
     {
       name: 'color-card-storage',
+      version: 1,
     }
   )
 );

@@ -50,6 +50,7 @@ const Home: React.FC = () => {
   });
 
   const handleCardClick = async (newColor: string) => {
+    console.log('Setting new color:', newColor); 
     setColor(newColor);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
@@ -59,6 +60,7 @@ const Home: React.FC = () => {
   };
 
   const handleTextureChange = (newTexture: TextureType) => {
+    console.log('Setting new texture:', newTexture); 
     setTexture(newTexture);
     try {
       Haptics.impact({ style: ImpactStyle.Light });

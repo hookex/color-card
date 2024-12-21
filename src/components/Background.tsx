@@ -73,7 +73,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 创建纯色材质
   const createSolidMaterial = (scene: Scene, color: string): StandardMaterial => {
     const material = new StandardMaterial('solidMaterial', scene);
-    material.diffuseColor = hexToColor3(color);
+    const colorValue = hexToColor3(color);
+    material.diffuseColor = colorValue;
     material.specularColor = new Color3(0.2, 0.2, 0.2);
     material.emissiveColor = new Color3(0, 0, 0);
     material.ambientColor = new Color3(0, 0, 0);
@@ -85,7 +86,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 创建金属材质
   const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial => {
     const material = new PBRMaterial('metallicMaterial', scene);
-    material.albedoColor = hexToColor3(color);
+    const colorValue = hexToColor3(color);
+    material.albedoColor = colorValue;
     material.metallic = 0.8;
     material.roughness = 0.2;
     material.environmentIntensity = 0.5;
@@ -95,7 +97,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 创建光泽材质
   const createGlossyMaterial = (scene: Scene, color: string): StandardMaterial => {
     const material = new StandardMaterial('glossyMaterial', scene);
-    material.diffuseColor = hexToColor3(color);
+    const colorValue = hexToColor3(color);
+    material.diffuseColor = colorValue;
     material.specularColor = new Color3(1, 1, 1);
     material.specularPower = 32;
     material.emissiveColor = new Color3(0, 0, 0);
@@ -220,28 +223,37 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 当颜色改变时，创建并执行过渡动画
   useEffect(() => {
     if (!sceneRef.current || !materialRef.current || !sphereRef.current) return;
+    console.log('Color changed to:', color); // 添加日志
 
     const targetColor = hexToColor3(color);
-    const animation = createColorAnimation(currentColorRef.current, targetColor);
     
-    // 停止之前的动画（如果有）
-    materialRef.current.animations = [];
+    if (materialRef.current instanceof StandardMaterial) {
+      const animation = createColorAnimation(materialRef.current.diffuseColor, targetColor);
+      materialRef.current.animations = [];
+      materialRef.current.animations.push(animation);
+      sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
+    } else if (materialRef.current instanceof PBRMaterial) {
+      // 对于 PBR 材质，直接更新颜色
+      materialRef.current.albedoColor = targetColor;
+    }
     
-    // 开始新的动画
-    materialRef.current.animations.push(animation);
-    sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
-    
-    // 更新当前颜色引用
     currentColorRef.current = targetColor;
   }, [color]);
 
   // 当纹理改变时更新材质
   useEffect(() => {
     if (!sceneRef.current || !sphereRef.current) return;
+    console.log('Texture changed to:', texture); // 添加日志
+    console.log('Current color:', color); // 添加日志
+    
     const newMaterial = createMaterial(sceneRef.current, color, texture);
+    if (materialRef.current) {
+      // 停止当前材质的所有动画
+      materialRef.current.animations = [];
+    }
     materialRef.current = newMaterial;
     sphereRef.current.material = newMaterial;
-  }, [texture]);
+  }, [texture, color]); // 添加 color 作为依赖项
 
   return (
     <canvas
