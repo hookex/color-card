@@ -2,18 +2,17 @@ import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import './Home.scss';
 
 const Home: React.FC = () => {
   const [bgColor, setBgColor] = useState(() => {
     const savedColor = localStorage.getItem('selectedColor');
-    return savedColor || 'bg-gray-100';
+    return savedColor || '#f3f4f6';
   });
 
   const colorCards = [
-    { color: 'bg-red-500', name: 'Red', value: '#ef4444' },
-    { color: 'bg-blue-500', name: 'Blue', value: '#3b82f6' },
-    { color: 'bg-green-500', name: 'Green', value: '#22c55e' },
+    { color: '#ef4444', name: 'Red' },
+    { color: '#3b82f6', name: 'Blue' },
+    { color: '#22c55e', name: 'Green' },
   ];
 
   const fadeIn = useSpring({
@@ -36,18 +35,13 @@ const Home: React.FC = () => {
   };
 
   const [springProps, api] = useSpring(() => ({
-    from: { backgroundColor: 'rgb(243, 244, 246)' }, // gray-100
+    from: { backgroundColor: '#f3f4f6' }, // gray-100
   }));
 
   useEffect(() => {
-    const color = bgColor.includes('red') ? '#ef4444' : 
-                 bgColor.includes('blue') ? '#3b82f6' : 
-                 bgColor.includes('green') ? '#22c55e' : 
-                 '#f3f4f6';
-    
     api.start({
       to: {
-        backgroundColor: color,
+        backgroundColor: bgColor,
       },
       config: { tension: 200, friction: 20 },
     });
@@ -57,21 +51,25 @@ const Home: React.FC = () => {
     <IonPage>
       <animated.div style={springProps} className="flex-1">
         <IonContent fullscreen className="ion-content-transparent">
-          <animated.div style={fadeIn} className="color-card-container">
-            <div className="card-grid">
+          <animated.div style={fadeIn} className="p-4 h-full flex items-center">
+            <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
               {colorCards.map((card, index) => (
                 <animated.div
                   key={card.name}
-                  style={useSpring({
-                    from: { opacity: 0, transform: 'scale(0.8)' },
-                    to: { opacity: 1, transform: 'scale(1)' },
-                    delay: 200 + index * 100,
-                  })}
-                  className={`color-card ${card.color}`}
+                  style={{
+                    ...useSpring({
+                      from: { opacity: 0, transform: 'scale(0.8)' },
+                      to: { opacity: 1, transform: 'scale(1)' },
+                      delay: 200 + index * 100,
+                    }),
+                    backgroundColor: card.color,
+                  }}
+                  className="rounded-lg shadow-lg p-6 cursor-pointer 
+                    transform transition-transform hover:scale-105 active:scale-95"
                   onClick={() => handleCardClick(card.color)}
                 >
-                  <h3 className="card-title">{card.name}</h3>
-                  <p className="card-value">{card.value}</p>
+                  <h3 className="text-white font-semibold text-xl">{card.name}</h3>
+                  <p className="text-white opacity-80 mt-2">{card.color}</p>
                 </animated.div>
               ))}
             </div>
