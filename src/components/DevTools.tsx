@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonFab, IonFabButton, IonIcon, IonFabList, IonPopover, IonContent, IonToast } from '@ionic/react';
+import { IonFab, IonFabButton, IonIcon, IonFabList, IonToast } from '@ionic/react';
 import { buildOutline, languageOutline, cameraOutline, cubeOutline } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
@@ -20,15 +20,6 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [popoverState, setPopoverState] = useState<{
-    open: boolean;
-    event: any;
-    content: string;
-  }>({
-    open: false,
-    event: undefined,
-    content: '',
-  });
 
   const toggleInspector = () => {
     setShowInspector(!showInspector);
@@ -43,11 +34,6 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
     if (onDebugChange) {
       onDebugChange(!debug);
     }
-  };
-
-  const showTooltip = (event: any, content: string) => {
-    event.persist();
-    setPopoverState({ open: true, event, content });
   };
 
   const saveToGallery = async (base64Data: string, fileName: string) => {
@@ -140,49 +126,29 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
             <IonFabButton 
               onClick={toggleInspector} 
               className="bg-blue-600"
-              onMouseEnter={(e) => showTooltip(e, showInspector ? 'Disable Inspector' : 'Enable Inspector')}
-              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={buildOutline} />
             </IonFabButton>
             <IonFabButton 
               onClick={toggleLanguage} 
               className="bg-green-600"
-              onMouseEnter={(e) => showTooltip(e, i18n.language === 'en' ? '切换到中文' : 'Switch to English')}
-              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={languageOutline} />
             </IonFabButton>
             <IonFabButton 
               onClick={takeScreenshot}
               className="bg-purple-600"
-              onMouseEnter={(e) => showTooltip(e, Capacitor.isNativePlatform() ? 'Save Color to Gallery' : 'Download Color')}
-              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={cameraOutline} />
             </IonFabButton>
             <IonFabButton 
               onClick={toggle3DMode}
               className={debug ? 'bg-primary' : 'bg-orange-600'}
-              onMouseEnter={(e) => showTooltip(e, debug ? 'Switch to 2D Mode' : 'Switch to 3D Mode')}
-              onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={cubeOutline} />
             </IonFabButton>
           </IonFabList>
         </IonFab>
-        <IonPopover
-          isOpen={popoverState.open}
-          event={popoverState.event}
-          onDidDismiss={() => setPopoverState({ ...popoverState, open: false })}
-          side="start"
-          alignment="center"
-          className="dev-tools-popover"
-        >
-          <IonContent className="ion-padding">
-            {popoverState.content}
-          </IonContent>
-        </IonPopover>
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
