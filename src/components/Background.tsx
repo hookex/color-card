@@ -30,8 +30,7 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   const sceneRef = useRef<Scene | null>(null);
   const sphereRef = useRef<any>(null);
   const cameraRef = useRef<ArcRotateCamera | null>(null);
-  const materialRef = useRef<StandardMaterial | null>(null);
-  const currentColorRef = useRef<Color3>(new Color3(1, 1, 1));
+  const materialRef = useRef<StandardMaterial | PBRMaterial | null>(null);
 
   // 将十六进制颜色转换为 Babylon Color3
   const hexToColor3 = (hex: string): Color3 => {
@@ -42,11 +41,11 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   };
 
   // 创建颜色过渡动画
-  const createColorAnimation = (fromColor: Color3, toColor: Color3): Animation => {
+  const createColorAnimation = (fromColor: Color3, toColor: Color3, property: string): Animation => {
     const colorAnimation = new Animation(
       'colorAnimation',
-      'diffuseColor',
-      60, // 每秒帧数
+      property,
+      60,
       Animation.ANIMATIONTYPE_COLOR3,
       Animation.ANIMATIONLOOPMODE_CONSTANT
     );
@@ -57,13 +56,12 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
       value: fromColor
     });
     keyFrames.push({
-      frame: 30, // 0.5秒的过渡时间
+      frame: 30,
       value: toColor
     });
 
-    // 添加缓动函数
     const easingFunction = new CircleEase();
-    easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEOUT);
+    easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
     colorAnimation.setEasingFunction(easingFunction);
 
     colorAnimation.setKeys(keyFrames);
@@ -79,7 +77,6 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     material.emissiveColor = new Color3(0, 0, 0);
     material.ambientColor = new Color3(0, 0, 0);
     material.roughness = 0.3;
-    material.metallic = 0.3;
     return material;
   };
 
@@ -107,7 +104,7 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   };
 
   // 创建材质
-  const createMaterial = (scene: Scene, color: string, textureType: TextureType) => {
+  const createMaterial = (scene: Scene, color: string, textureType: TextureType): StandardMaterial | PBRMaterial => {
     switch (textureType) {
       case 'metallic':
         return createMetallicMaterial(scene, color);
@@ -115,6 +112,16 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
         return createGlossyMaterial(scene, color);
       default:
         return createSolidMaterial(scene, color);
+    }
+  };
+
+  // 更新材质颜色
+  const updateMaterialColor = (material: StandardMaterial | PBRMaterial, color: string) => {
+    const colorValue = hexToColor3(color);
+    if (material instanceof StandardMaterial) {
+      material.diffuseColor = colorValue;
+    } else if (material instanceof PBRMaterial) {
+      material.albedoColor = colorValue;
     }
   };
 
@@ -130,10 +137,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     const scene = new Scene(engineRef.current);
     sceneRef.current = scene;
 
-    // 设置场景背景色
     scene.clearColor = new Color4(0, 0, 0, 0);
 
-    // 创建相机
     const camera = new ArcRotateCamera(
       'camera',
       debug ? -Math.PI / 2 : 0,
@@ -145,7 +150,6 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     cameraRef.current = camera;
     camera.attachControl(canvasRef.current, true);
     
-    // 根据模式设置相机限制
     if (debug) {
       camera.lowerRadiusLimit = 15;
       camera.upperRadiusLimit = 40;
@@ -165,12 +169,10 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
       camera.upperAlphaLimit = 0;
     }
 
-    // 创建主光源
     const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), scene);
     mainLight.intensity = 0.7;
     mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
 
-    // 在 3D 模式下添加额外的光源
     if (debug) {
       const pointLight1 = new PointLight('pointLight1', new Vector3(10, 10, 10), scene);
       pointLight1.intensity = 0.3;
@@ -185,7 +187,6 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
       gl.intensity = 0.5;
     }
 
-    // 创建球体
     sphereRef.current = MeshBuilder.CreateSphere(
       'sphere',
       { 
@@ -196,18 +197,15 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     );
     sphereRef.current.position = Vector3.Zero();
 
-    // 设置初始材质
-    const initialColor = hexToColor3(color);
-    currentColorRef.current = initialColor;
-    materialRef.current = createSolidMaterial(scene, color);
-    sphereRef.current.material = materialRef.current;
+    // 创建初始材质
+    const newMaterial = createMaterial(scene, color, texture);
+    materialRef.current = newMaterial;
+    sphereRef.current.material = newMaterial;
 
-    // 渲染循环
     engineRef.current.runRenderLoop(() => {
       scene.render();
     });
 
-    // 处理窗口大小变化
     const handleResize = () => {
       engineRef.current?.resize();
     };
@@ -223,37 +221,34 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 当颜色改变时，创建并执行过渡动画
   useEffect(() => {
     if (!sceneRef.current || !materialRef.current || !sphereRef.current) return;
-    console.log('Color changed to:', color); // 添加日志
 
     const targetColor = hexToColor3(color);
+    const currentColor = materialRef.current instanceof StandardMaterial
+      ? materialRef.current.diffuseColor
+      : materialRef.current.albedoColor;
+
+    const property = materialRef.current instanceof StandardMaterial
+      ? 'diffuseColor'
+      : 'albedoColor';
+
+    const animation = createColorAnimation(currentColor, targetColor, property);
     
-    if (materialRef.current instanceof StandardMaterial) {
-      const animation = createColorAnimation(materialRef.current.diffuseColor, targetColor);
-      materialRef.current.animations = [];
-      materialRef.current.animations.push(animation);
-      sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
-    } else if (materialRef.current instanceof PBRMaterial) {
-      // 对于 PBR 材质，直接更新颜色
-      materialRef.current.albedoColor = targetColor;
-    }
-    
-    currentColorRef.current = targetColor;
+    materialRef.current.animations = [];
+    materialRef.current.animations.push(animation);
+    sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
   }, [color]);
 
   // 当纹理改变时更新材质
   useEffect(() => {
     if (!sceneRef.current || !sphereRef.current) return;
-    console.log('Texture changed to:', texture); // 添加日志
-    console.log('Current color:', color); // 添加日志
     
     const newMaterial = createMaterial(sceneRef.current, color, texture);
     if (materialRef.current) {
-      // 停止当前材质的所有动画
       materialRef.current.animations = [];
     }
     materialRef.current = newMaterial;
     sphereRef.current.material = newMaterial;
-  }, [texture, color]); // 添加 color 作为依赖项
+  }, [texture]);
 
   return (
     <canvas
