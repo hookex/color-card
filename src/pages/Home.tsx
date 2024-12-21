@@ -2,17 +2,18 @@ import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import './Home.scss';
 
 const Home: React.FC = () => {
   const [bgColor, setBgColor] = useState(() => {
-    const savedColor = localStorage.getItem('selectedColor');
-    return savedColor || '#f3f4f6';
+    const savedColor = localStorage.getItem('selectedColor') || '#f3f4f6';
+    return savedColor;
   });
 
   const colorCards = [
-    { color: '#ef4444', name: 'Red' },
-    { color: '#3b82f6', name: 'Blue' },
-    { color: '#22c55e', name: 'Green' },
+    { color: '#ef4444', name: 'red' },
+    { color: '#3b82f6', name: 'blue' },
+    { color: '#22c55e', name: 'green' },
   ];
 
   const fadeIn = useSpring({
@@ -35,7 +36,7 @@ const Home: React.FC = () => {
   };
 
   const [springProps, api] = useSpring(() => ({
-    from: { backgroundColor: '#f3f4f6' }, // gray-100
+    from: { backgroundColor: '#f3f4f6' },
   }));
 
   useEffect(() => {
@@ -51,25 +52,21 @@ const Home: React.FC = () => {
     <IonPage>
       <animated.div style={springProps} className="flex-1">
         <IonContent fullscreen className="ion-content-transparent">
-          <animated.div style={fadeIn} className="p-4 h-full flex items-center">
-            <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
+          <animated.div style={fadeIn} className="card-container">
+            <div className="card-grid">
               {colorCards.map((card, index) => (
                 <animated.div
                   key={card.name}
-                  style={{
-                    ...useSpring({
-                      from: { opacity: 0, transform: 'scale(0.8)' },
-                      to: { opacity: 1, transform: 'scale(1)' },
-                      delay: 200 + index * 100,
-                    }),
-                    backgroundColor: card.color,
-                  }}
-                  className="rounded-lg shadow-lg p-6 cursor-pointer 
-                    transform transition-transform hover:scale-105 active:scale-95"
+                  style={useSpring({
+                    from: { opacity: 0, transform: 'scale(0.8)' },
+                    to: { opacity: 1, transform: 'scale(1)' },
+                    delay: 200 + index * 100,
+                  })}
+                  className={`color-card color-card--${card.name}`}
                   onClick={() => handleCardClick(card.color)}
                 >
-                  <h3 className="text-white font-semibold text-xl">{card.name}</h3>
-                  <p className="text-white opacity-80 mt-2">{card.color}</p>
+                  <h3 className="color-card__title">{card.name.toUpperCase()}</h3>
+                  <p className="color-card__value">{card.color}</p>
                 </animated.div>
               ))}
             </div>

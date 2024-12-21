@@ -1,0 +1,81 @@
+// Variables
+$colors: (
+  red: #ef4444,
+  blue: #3b82f6,
+  green: #22c55e,
+  gray: #f3f4f6
+);
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card-hover {
+  transition: transform 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Base styles
+.ion-content-transparent {
+  --background: transparent;
+}
+
+.flex-1 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+// Card container
+.card-container {
+  @include flex-center;
+  height: 100%;
+  padding: 1rem;
+}
+
+.card-grid {
+  width: 100%;
+  max-width: 28rem;
+  display: grid;
+  gap: 1rem;
+  margin: 0 auto;
+}
+
+// Color card
+.color-card {
+  @include card-hover;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+  }
+
+  &__value {
+    margin-top: 0.5rem;
+    color: white;
+    opacity: 0.8;
+  }
+}
+
+// Generate color classes
+@each $name, $color in $colors {
+  .color-card--#{$name} {
+    background-color: $color;
+  }
+}
