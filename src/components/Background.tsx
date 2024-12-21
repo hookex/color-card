@@ -10,6 +10,8 @@ import {
   ArcRotateCamera,
   HemisphericLight,
   PBRMaterial,
+  PointLight,
+  GlowLayer,
 } from '@babylonjs/core';
 import { TextureType } from './TextureTools';
 
@@ -116,14 +118,15 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     const scene = new Scene(engineRef.current);
     sceneRef.current = scene;
 
+    // 设置场景背景色
     scene.clearColor = new Color4(0, 0, 0, 0);
 
     // 创建相机
     const camera = new ArcRotateCamera(
       'camera',
-      debug ? Math.PI / 4 : 0,
-      debug ? Math.PI / 3 : Math.PI / 2,
-      debug ? 30 : 10,
+      debug ? -Math.PI / 2 : 0,
+      debug ? Math.PI / 2.5 : Math.PI / 2,
+      debug ? 25 : 10,
       Vector3.Zero(),
       scene
     );
@@ -132,35 +135,68 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     
     // 根据模式设置相机限制
     if (debug) {
+      // 3D 模式：允许自由旋转和缩放
       camera.lowerRadiusLimit = 15;
-      camera.upperRadiusLimit = 45;
+      camera.upperRadiusLimit = 40;
       camera.lowerBetaLimit = 0.1;
       camera.upperBetaLimit = Math.PI - 0.1;
+      camera.angularSensibilityX = 500;
+      camera.angularSensibilityY = 500;
+      camera.wheelPrecision = 50;
+      camera.pinchPrecision = 50;
+      camera.panningSensibility = 50;
     } else {
+      // 2D 模式：固定视角
       camera.lowerRadiusLimit = 8;
       camera.upperRadiusLimit = 12;
       camera.lowerBetaLimit = Math.PI / 2;
       camera.upperBetaLimit = Math.PI / 2;
+      camera.lowerAlphaLimit = 0;
+      camera.upperAlphaLimit = 0;
     }
-    
-    camera.wheelDeltaPercentage = 0.01;
 
+    // 创建主光源
     const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), scene);
-    mainLight.intensity = 0.8;
+    mainLight.intensity = 0.7;
     mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
 
+    // 在 3D 模式下添加额外的光源
+    if (debug) {
+      // 添加点光源以增强材质效果
+      const pointLight1 = new PointLight('pointLight1', new Vector3(10, 10, 10), scene);
+      pointLight1.intensity = 0.3;
+
+      const pointLight2 = new PointLight('pointLight2', new Vector3(-10, -10, -10), scene);
+      pointLight2.intensity = 0.3;
+
+      // 添加辉光效果
+      const gl = new GlowLayer('glow', scene, {
+        mainTextureFixedSize: 512,
+        blurKernelSize: 32
+      });
+      gl.intensity = 0.5;
+    }
+
+    // 创建球体
     sphereRef.current = MeshBuilder.CreateSphere(
       'sphere',
-      { diameter: 20, segments: 64 },
+      { 
+        diameter: debug ? 15 : 20,
+        segments: debug ? 128 : 64 
+      },
       scene
     );
     sphereRef.current.position = Vector3.Zero();
+
+    // 设置初始材质
     sphereRef.current.material = createMaterial(scene, color, texture);
 
+    // 渲染循环
     engineRef.current.runRenderLoop(() => {
       scene.render();
     });
 
+    // 处理窗口大小变化
     const handleResize = () => {
       engineRef.current?.resize();
     };
@@ -186,21 +222,26 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     const camera = cameraRef.current;
     
     if (debug) {
-      camera.radius = 30;
-      camera.alpha = Math.PI / 4;
-      camera.beta = Math.PI / 3;
+      // 3D 模式：动画过渡到新视角
+      camera.setPosition(new Vector3(25 * Math.cos(-Math.PI / 2), 25 * Math.sin(Math.PI / 2.5), 25 * Math.sin(-Math.PI / 2)));
       camera.lowerRadiusLimit = 15;
-      camera.upperRadiusLimit = 45;
+      camera.upperRadiusLimit = 40;
       camera.lowerBetaLimit = 0.1;
       camera.upperBetaLimit = Math.PI - 0.1;
+      camera.angularSensibilityX = 500;
+      camera.angularSensibilityY = 500;
+      camera.wheelPrecision = 50;
+      camera.pinchPrecision = 50;
+      camera.panningSensibility = 50;
     } else {
-      camera.radius = 10;
-      camera.alpha = 0;
-      camera.beta = Math.PI / 2;
+      // 2D 模式：动画过渡回原始视角
+      camera.setPosition(new Vector3(0, 0, 10));
       camera.lowerRadiusLimit = 8;
       camera.upperRadiusLimit = 12;
       camera.lowerBetaLimit = Math.PI / 2;
       camera.upperBetaLimit = Math.PI / 2;
+      camera.lowerAlphaLimit = 0;
+      camera.upperAlphaLimit = 0;
     }
   }, [debug]);
 
