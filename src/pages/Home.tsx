@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
+import TextureTools, { TextureType } from '../components/TextureTools';
 import './Home.scss';
 
 const Home: React.FC = () => {
@@ -11,6 +12,11 @@ const Home: React.FC = () => {
   const [bgColor, setBgColor] = useState(() => {
     const savedColor = localStorage.getItem('selectedColor') || '#f5f5f5';
     return savedColor;
+  });
+
+  const [texture, setTexture] = useState<TextureType>(() => {
+    const savedTexture = localStorage.getItem('selectedTexture') as TextureType || 'solid';
+    return savedTexture;
   });
 
   const colorCards = [
@@ -36,6 +42,10 @@ const Home: React.FC = () => {
     localStorage.setItem('selectedColor', bgColor);
   }, [bgColor]);
 
+  useEffect(() => {
+    localStorage.setItem('selectedTexture', texture);
+  }, [texture]);
+
   const handleCardClick = async (color: string) => {
     setBgColor(color);
     try {
@@ -45,10 +55,19 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleTextureChange = (newTexture: TextureType) => {
+    setTexture(newTexture);
+    try {
+      Haptics.impact({ style: ImpactStyle.Light });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+  };
+
   return (
     <IonPage>
       <div className="flex-1">
-        <Background color={bgColor} />
+        <Background color={bgColor} texture={texture} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
@@ -75,6 +94,10 @@ const Home: React.FC = () => {
             </div>
           </animated.div>
         </IonContent>
+        <TextureTools
+          currentTexture={texture}
+          onTextureChange={handleTextureChange}
+        />
       </div>
     </IonPage>
   );

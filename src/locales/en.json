@@ -1,44 +1,62 @@
 {
   "colors": {
     "hermes": {
-      "title": "Hermès Orange",
+      "title": "Orange Box",
       "brand": "Hermès"
     },
     "tiffany": {
-      "title": "Tiffany Blue",
+      "title": "Blue Box",
       "brand": "Tiffany & Co."
     },
     "valentino": {
-      "title": "Valentino Red",
+      "title": "Red Box",
       "brand": "Valentino"
     },
     "burberry": {
-      "title": "Burberry Brown",
+      "title": "Brown Box",
       "brand": "Burberry"
     },
     "dior": {
-      "title": "Dior Gray",
-      "brand": "Christian Dior"
+      "title": "Gray Box",
+      "brand": "Dior"
     },
     "fendi": {
-      "title": "Fendi Yellow",
+      "title": "Yellow Box",
       "brand": "Fendi"
     },
     "cartier": {
-      "title": "Cartier Red",
+      "title": "Red Box",
       "brand": "Cartier"
     },
     "chanel": {
-      "title": "Chanel White",
+      "title": "White Box",
       "brand": "Chanel"
     },
     "louboutin": {
-      "title": "Louboutin Red",
-      "brand": "Christian Louboutin"
+      "title": "Red Box",
+      "brand": "Louboutin"
     },
     "veuve": {
-      "title": "Veuve Gold",
+      "title": "Yellow Box",
       "brand": "Veuve Clicquot"
+    }
+  },
+  "textures": {
+    "solid": {
+      "name": "Solid Color",
+      "description": "Pure solid color"
+    },
+    "leather": {
+      "name": "Calfskin",
+      "description": "Natural leather texture"
+    },
+    "paint": {
+      "name": "Car Paint",
+      "description": "Metallic car paint"
+    },
+    "glass": {
+      "name": "Frosted Glass",
+      "description": "Translucent frosted glass"
     }
   }
 }

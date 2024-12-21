@@ -9,17 +9,23 @@ import {
   StandardMaterial,
   ArcRotateCamera,
   HemisphericLight,
+  Texture,
+  PBRMaterial,
+  CubeTexture,
 } from '@babylonjs/core';
+import { TextureType } from './TextureTools';
 
 interface Props {
   color: string;
+  texture: TextureType;
   onSceneReady?: (scene: Scene) => void;
 }
 
-const Background: React.FC<Props> = ({ color }) => {
+const Background: React.FC<Props> = ({ color, texture }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
+  const sphereRef = useRef<any>(null);
 
   // 将十六进制颜色转换为 Babylon Color3
   const hexToColor3 = (hex: string): Color3 => {
@@ -27,6 +33,68 @@ const Background: React.FC<Props> = ({ color }) => {
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
     return new Color3(r, g, b);
+  };
+
+  // 创建纯色材质
+  const createSolidMaterial = (scene: Scene, color: string): StandardMaterial => {
+    const material = new StandardMaterial('solidMaterial', scene);
+    material.diffuseColor = hexToColor3(color);
+    material.specularColor = new Color3(0.1, 0.1, 0.1);
+    material.emissiveColor = hexToColor3(color).scale(0.3);
+    material.backFaceCulling = false;
+    return material;
+  };
+
+  // 创建皮革材质
+  const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial => {
+    const material = new PBRMaterial('leatherMaterial', scene);
+    material.albedoColor = hexToColor3(color);
+    material.metallic = 0;
+    material.roughness = 0.8;
+    material.bumpTexture = new Texture('/assets/textures/leather_normal.jpg', scene);
+    material.microSurfaceTexture = new Texture('/assets/textures/leather_roughness.jpg', scene);
+    material.backFaceCulling = false;
+    return material;
+  };
+
+  // 创建车漆材质
+  const createCarPaintMaterial = (scene: Scene, color: string): PBRMaterial => {
+    const material = new PBRMaterial('carPaintMaterial', scene);
+    material.albedoColor = hexToColor3(color);
+    material.metallic = 0.8;
+    material.roughness = 0.2;
+    material.clearCoat.isEnabled = true;
+    material.clearCoat.intensity = 1;
+    material.clearCoat.roughness = 0.1;
+    material.backFaceCulling = false;
+    return material;
+  };
+
+  // 创建毛玻璃材质
+  const createFrostedGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
+    const material = new PBRMaterial('glassMaterial', scene);
+    material.albedoColor = hexToColor3(color);
+    material.alpha = 0.8;
+    material.metallic = 0;
+    material.roughness = 0.3;
+    material.subSurface.isRefractionEnabled = true;
+    material.subSurface.refractionIntensity = 0.8;
+    material.backFaceCulling = false;
+    return material;
+  };
+
+  // 根据类型创建材质
+  const createMaterial = (scene: Scene, color: string, textureType: TextureType) => {
+    switch (textureType) {
+      case 'leather':
+        return createLeatherMaterial(scene, color);
+      case 'paint':
+        return createCarPaintMaterial(scene, color);
+      case 'glass':
+        return createFrostedGlassMaterial(scene, color);
+      default:
+        return createSolidMaterial(scene, color);
+    }
   };
 
   useEffect(() => {
@@ -60,20 +128,15 @@ const Background: React.FC<Props> = ({ color }) => {
     new HemisphericLight('light', new Vector3(0, 1, 0), scene);
 
     // 创建一个大球体作为背景
-    const sphere = MeshBuilder.CreateSphere(
+    sphereRef.current = MeshBuilder.CreateSphere(
       'sphere',
       { diameter: 20, segments: 32 },
       scene
     );
-    sphere.position = Vector3.Zero();
+    sphereRef.current.position = Vector3.Zero();
 
-    // 创建材质
-    const material = new StandardMaterial('sphereMaterial', scene);
-    material.backFaceCulling = false;
-    material.diffuseColor = hexToColor3(color);
-    material.specularColor = new Color3(0.1, 0.1, 0.1);
-    material.emissiveColor = hexToColor3(color).scale(0.3);
-    sphere.material = material;
+    // 设置初始材质
+    sphereRef.current.material = createMaterial(scene, color, texture);
 
     // 渲染循环
     engineRef.current.runRenderLoop(() => {
@@ -93,19 +156,12 @@ const Background: React.FC<Props> = ({ color }) => {
     };
   }, []);
 
-  // 当颜色改变时更新材质
+  // 当颜色或材质改变时更新材质
   useEffect(() => {
-    if (!sceneRef.current) return;
+    if (!sceneRef.current || !sphereRef.current) return;
 
-    const sphere = sceneRef.current.getMeshByName('sphere');
-    if (sphere) {
-      const material = sphere.material as StandardMaterial;
-      if (material) {
-        material.diffuseColor = hexToColor3(color);
-        material.emissiveColor = hexToColor3(color).scale(0.3);
-      }
-    }
-  }, [color]);
+    sphereRef.current.material = createMaterial(sceneRef.current, color, texture);
+  }, [color, texture]);
 
   return (
     <canvas
