@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -55,21 +55,10 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle className="text-2xl font-bold">ColorCard</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <animated.div style={springProps} className="flex-1">
         <IonContent fullscreen className="ion-content-transparent">
-          <IonHeader collapse="condense">
-            <IonToolbar>
-              <IonTitle size="large" className="text-3xl font-bold">ColorCard</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          
-          <animated.div style={fadeIn} className="p-4">
-            <div className="grid grid-cols-1 gap-4 max-w-md mx-auto">
+          <animated.div style={fadeIn} className="p-4 h-full flex items-center">
+            <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
               {colorCards.map((card, index) => (
                 <animated.div
                   key={card.name}
