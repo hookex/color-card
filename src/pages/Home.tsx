@@ -1,11 +1,12 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
 import DevTools from '../components/DevTools';
+import useStore from '../stores/useStore';
 import './Home.scss';
 
 // 计算对比色
@@ -27,20 +28,7 @@ const getContrastColor = (hexcolor: string): string => {
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  const [bgColor, setBgColor] = useState(() => {
-    const savedColor = localStorage.getItem('selectedColor') || '#f5f5f5';
-    return savedColor;
-  });
-
-  const [texture, setTexture] = useState<TextureType>(() => {
-    const savedTexture = localStorage.getItem('selectedTexture') as TextureType || 'solid';
-    return savedTexture;
-  });
-
-  const [debug, setDebug] = useState(() => {
-    const savedDebug = localStorage.getItem('debug') === 'true';
-    return savedDebug;
-  });
+  const { color, texture, debug, setColor, setTexture, setDebug } = useStore();
 
   const colorCards = [
     { color: '#ff7c32', name: 'hermes' },
@@ -61,20 +49,8 @@ const Home: React.FC = () => {
     config: { tension: 280, friction: 20 }
   });
 
-  useEffect(() => {
-    localStorage.setItem('selectedColor', bgColor);
-  }, [bgColor]);
-
-  useEffect(() => {
-    localStorage.setItem('selectedTexture', texture);
-  }, [texture]);
-
-  useEffect(() => {
-    localStorage.setItem('debug', debug.toString());
-  }, [debug]);
-
-  const handleCardClick = async (color: string) => {
-    setBgColor(color);
+  const handleCardClick = async (newColor: string) => {
+    setColor(newColor);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
@@ -103,7 +79,7 @@ const Home: React.FC = () => {
   return (
     <IonPage>
       <div className="flex-1">
-        <Background color={bgColor} texture={texture} debug={debug} />
+        <Background color={color} texture={texture} debug={debug} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
