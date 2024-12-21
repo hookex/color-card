@@ -7,6 +7,24 @@
   }
 }
 
+.dev-tools-popover {
+  --width: auto;
+  --min-width: 100px;
+  --max-width: 200px;
+  --background: rgba(0, 0, 0, 0.8);
+  --color: white;
+  
+  ion-content {
+    --background: transparent;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --padding-top: 4px;
+    --padding-bottom: 4px;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+
 // 调整 tooltip 样式
 ion-tooltip {
   --background: rgba(0, 0, 0, 0.8);
