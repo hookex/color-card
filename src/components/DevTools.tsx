@@ -4,6 +4,7 @@ import { buildOutline, languageOutline, cameraOutline } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
 import './DevTools.scss';
 
@@ -42,6 +43,52 @@ const DevTools: React.FC<Props> = ({ children }) => {
     setPopoverState({ open: true, event, content });
   };
 
+  const saveToGallery = async (base64Data: string, fileName: string) => {
+    try {
+      // 保存文件到缓存
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache,
+        recursive: true
+      });
+
+      // 获取缓存文件的 URI
+      const savedFile = await Filesystem.getUri({
+        path: fileName,
+        directory: Directory.Cache
+      });
+
+      // 复制到相册
+      await Filesystem.copy({
+        from: savedFile.uri,
+        to: `PHOTO_${new Date().getTime()}.png`,
+        directory: Directory.Photos,
+        toDirectory: Directory.External
+      });
+
+      setToastMessage('Screenshot saved to gallery');
+      setShowToast(true);
+    } catch (error) {
+      console.error('Save to gallery error:', error);
+      throw error;
+    }
+  };
+
+  const downloadInBrowser = (canvas: HTMLCanvasElement, fileName: string) => {
+    try {
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setToastMessage('Screenshot downloaded');
+      setShowToast(true);
+    } catch (error) {
+      console.error('Download error:', error);
+      throw error;
+    }
+  };
+
   const takeScreenshot = async () => {
     try {
       // 获取背景元素
@@ -57,39 +104,19 @@ const DevTools: React.FC<Props> = ({ children }) => {
         useCORS: true
       });
 
-      // 转换为 base64
-      const base64Data = canvas.toDataURL('image/png').split(',')[1];
-
       // 生成文件名
       const timestamp = new Date().getTime();
       const fileName = `colorcard_${timestamp}.png`;
 
-      // 保存文件
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Cache,
-        recursive: true
-      });
-
-      // 将文件从缓存复制到相册
-      const savedFile = await Filesystem.getUri({
-        path: fileName,
-        directory: Directory.Cache
-      });
-
-      // 使用 Capacitor API 保存到相册
-      await Filesystem.copy({
-        from: savedFile.uri,
-        to: `PHOTO_${timestamp}.png`,
-        directory: Directory.Photos,
-        toDirectory: Directory.External
-      });
-
-      // 显示成功消息
-      setToastMessage('Screenshot saved to gallery');
-      setShowToast(true);
-
+      // 根据平台选择保存方式
+      if (Capacitor.isNativePlatform()) {
+        // 移动设备：保存到相册
+        const base64Data = canvas.toDataURL('image/png').split(',')[1];
+        await saveToGallery(base64Data, fileName);
+      } else {
+        // 浏览器：下载文件
+        downloadInBrowser(canvas, fileName);
+      }
     } catch (error) {
       console.error('Screenshot error:', error);
       setToastMessage('Failed to save screenshot');
@@ -135,7 +162,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
             <IonFabButton 
               onClick={takeScreenshot}
               className="bg-purple-600"
-              onMouseEnter={(e) => showTooltip(e, 'Take Screenshot')}
+              onMouseEnter={(e) => showTooltip(e, Capacitor.isNativePlatform() ? 'Save to Gallery' : 'Download Screenshot')}
               onMouseLeave={() => setPopoverState({ ...popoverState, open: false })}
             >
               <IonIcon icon={cameraOutline} />
