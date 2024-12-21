@@ -57,7 +57,7 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
         toDirectory: Directory.External
       });
 
-      setToastMessage('Color saved to gallery');
+      setToastMessage('Wallpaper saved to gallery');
       setShowToast(true);
     } catch (error) {
       console.error('Save to gallery error:', error);
@@ -71,7 +71,7 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
       link.download = fileName;
       link.href = dataUrl;
       link.click();
-      setToastMessage('Color downloaded');
+      setToastMessage('Wallpaper downloaded');
       setShowToast(true);
     } catch (error) {
       console.error('Download error:', error);
@@ -86,10 +86,44 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
         throw new Error('Canvas element not found');
       }
 
-      const timestamp = new Date().getTime();
-      const fileName = `colorcard_${timestamp}.png`;
+      // 创建一个临时画布
+      const tempCanvas = document.createElement('canvas');
+      const ctx = tempCanvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
 
-      const dataUrl = canvas.toDataURL('image/png');
+      // 设置 iPhone 壁纸尺寸
+      tempCanvas.width = 1170;
+      tempCanvas.height = 2532;
+
+      // 填充背景色（可选，防止透明）
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+      // 计算缩放和位置以保持宽高比
+      const scale = Math.max(
+        tempCanvas.width / canvas.width,
+        tempCanvas.height / canvas.height
+      );
+      
+      const scaledWidth = canvas.width * scale;
+      const scaledHeight = canvas.height * scale;
+      const x = (tempCanvas.width - scaledWidth) / 2;
+      const y = (tempCanvas.height - scaledHeight) / 2;
+
+      // 绘制并缩放原始画布内容
+      ctx.drawImage(
+        canvas,
+        x, y,
+        scaledWidth,
+        scaledHeight
+      );
+
+      const timestamp = new Date().getTime();
+      const fileName = `wallpaper_${timestamp}.png`;
+
+      const dataUrl = tempCanvas.toDataURL('image/png');
       const base64Data = dataUrl.split(',')[1];
 
       if (Capacitor.isNativePlatform()) {
@@ -99,7 +133,7 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange }) =
       }
     } catch (error) {
       console.error('Screenshot error:', error);
-      setToastMessage('Failed to save color');
+      setToastMessage('Failed to save wallpaper');
       setShowToast(true);
     }
   };
