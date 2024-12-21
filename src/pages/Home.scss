@@ -46,11 +46,9 @@ $colors: (
 .card-container {
   @include flex-center;
   height: 100%;
-  padding: 0;
+  padding: 1rem;
   overflow-y: auto;
-  
-  // 移除 iOS 安全区域的顶部空白
-  --padding-top: 0px !important;
+  padding-top: 2rem; // 增加顶部间距
 }
 
 .card-grid {
@@ -58,16 +56,18 @@ $colors: (
   max-width: 64rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: 1.5rem; // 增加卡片间距
   margin: 0 auto;
   padding: 1rem;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem; // 平板上稍微减小间距
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
+    gap: 1rem; // 手机上进一步减小间距
   }
 }
 
