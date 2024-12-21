@@ -43,20 +43,16 @@
   },
   "textures": {
     "solid": {
-      "name": "Solid Color",
-      "description": "Pure solid color"
+      "name": "Solid"
     },
     "leather": {
-      "name": "Calfskin",
-      "description": "Natural leather texture"
+      "name": "Leather"
     },
     "paint": {
-      "name": "Car Paint",
-      "description": "Metallic car paint"
+      "name": "Paint"
     },
     "glass": {
-      "name": "Frosted Glass",
-      "description": "Translucent frosted glass"
+      "name": "Glass"
     }
   }
 }

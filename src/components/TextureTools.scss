@@ -38,19 +38,9 @@
         font-size: 24px;
       }
 
-      .texture-label {
-        text-align: left;
-        line-height: 1.2;
-
-        .texture-name {
-          font-weight: 500;
-          font-size: 14px;
-        }
-
-        .texture-description {
-          font-size: 12px;
-          opacity: 0.8;
-        }
+      .texture-name {
+        font-size: 14px;
+        font-weight: 500;
       }
     }
   }

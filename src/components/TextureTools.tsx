@@ -38,9 +38,8 @@ const TextureTools: React.FC<Props> = ({ currentTexture, onTextureChange }) => {
           >
             <div className="texture-button-content">
               <IonIcon icon={icon} />
-              <div className="texture-label">
-                <div className="texture-name">{t(`textures.${type}.name`)}</div>
-                <div className="texture-description">{t(`textures.${type}.description`)}</div>
+              <div className="texture-name">
+                {t(`textures.${type}.name`)}
               </div>
             </div>
           </IonButton>
