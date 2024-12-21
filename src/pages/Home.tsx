@@ -1,4 +1,4 @@
-import { IonContent, IonPage, IonButton } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import './Home.scss';
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [bgColor, setBgColor] = useState(() => {
     const savedColor = localStorage.getItem('selectedColor') || '#f5f5f5';
     return savedColor;
@@ -44,11 +44,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === 'en' ? 'zh' : 'en';
-    i18n.changeLanguage(nextLang);
-  };
-
   const [springProps, api] = useSpring(() => ({
     from: { backgroundColor: '#f5f5f5' },
   }));
@@ -66,15 +61,6 @@ const Home: React.FC = () => {
     <IonPage>
       <animated.div style={springProps} className="flex-1">
         <IonContent className="ion-content-transparent">
-          <div className="absolute top-4 right-4 z-10">
-            <IonButton
-              fill="clear"
-              onClick={toggleLanguage}
-              className="font-semibold"
-            >
-              {i18n.language === 'en' ? '中文' : 'EN'}
-            </IonButton>
-          </div>
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
               {colorCards.map((card, index) => (
