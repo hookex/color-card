@@ -2,7 +2,7 @@ import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
 import { useState, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import './Home.css';
+import './Home.scss';
 
 const Home: React.FC = () => {
   const [bgColor, setBgColor] = useState(() => {
@@ -57,8 +57,8 @@ const Home: React.FC = () => {
     <IonPage>
       <animated.div style={springProps} className="flex-1">
         <IonContent fullscreen className="ion-content-transparent">
-          <animated.div style={fadeIn} className="p-4 h-full flex items-center">
-            <div className="grid grid-cols-1 gap-4 max-w-md mx-auto w-full">
+          <animated.div style={fadeIn} className="color-card-container">
+            <div className="card-grid">
               {colorCards.map((card, index) => (
                 <animated.div
                   key={card.name}
@@ -67,12 +67,11 @@ const Home: React.FC = () => {
                     to: { opacity: 1, transform: 'scale(1)' },
                     delay: 200 + index * 100,
                   })}
-                  className={`${card.color} rounded-lg shadow-lg p-6 cursor-pointer 
-                    transform transition-transform hover:scale-105 active:scale-95`}
+                  className={`color-card ${card.color}`}
                   onClick={() => handleCardClick(card.color)}
                 >
-                  <h3 className="text-white font-semibold text-xl">{card.name}</h3>
-                  <p className="text-white opacity-80 mt-2">{card.value}</p>
+                  <h3 className="card-title">{card.name}</h3>
+                  <p className="card-value">{card.value}</p>
                 </animated.div>
               ))}
             </div>
