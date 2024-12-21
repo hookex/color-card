@@ -21,7 +21,6 @@
 /.nx/cache
 /.vscode/*
 !/.vscode/extensions.json
-.idea
 
 npm-debug.log*
 yarn-debug.log*
@@ -29,3 +28,22 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Capacitor
+/ios/App/Pods/
+/ios/App/App/public/
+/ios/App/App/capacitor.config.json
+/ios/DerivedData
+/ios/App/App.xcarchive
+/android/app/build/
+/android/app/capacitor.config.json
+/android/app/src/main/assets/public/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
