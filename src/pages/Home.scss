@@ -1,9 +1,15 @@
 // Variables
 $colors: (
-  red: #ef4444,
-  blue: #3b82f6,
-  green: #22c55e,
-  gray: #f3f4f6
+  hermes: #ff7c32,    // 爱马仕橙
+  tiffany: #81d8d0,   // 蒂芙尼蓝
+  valentino: #cc0033, // 华伦天奴红
+  burberry: #593d1c,  // 巴宝莉棕
+  dior: #e5e4e2,      // 迪奥灰
+  fendi: #fed700,     // 芬迪黄
+  cartier: #b01d2e,   // 卡地亚红
+  chanel: #f5f5f5,    // 香奈儿白
+  louboutin: #ec1d24, // 鲁布托红底
+  veuve: #eeb422      // 凯歌香槟金
 );
 
 // Mixins
@@ -41,6 +47,7 @@ $colors: (
   @include flex-center;
   height: 100%;
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .card-grid {
@@ -49,6 +56,7 @@ $colors: (
   display: grid;
   gap: 1rem;
   margin: 0 auto;
+  padding: 1rem;
 }
 
 // Color card
@@ -64,12 +72,23 @@ $colors: (
     font-weight: 600;
     color: white;
     margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  &__brand {
+    color: white;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-style: italic;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
   &__value {
     margin-top: 0.5rem;
     color: white;
     opacity: 0.8;
+    font-family: monospace;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
 

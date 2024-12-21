@@ -6,14 +6,21 @@ import './Home.scss';
 
 const Home: React.FC = () => {
   const [bgColor, setBgColor] = useState(() => {
-    const savedColor = localStorage.getItem('selectedColor') || '#f3f4f6';
+    const savedColor = localStorage.getItem('selectedColor') || '#f5f5f5';
     return savedColor;
   });
 
   const colorCards = [
-    { color: '#ef4444', name: 'red' },
-    { color: '#3b82f6', name: 'blue' },
-    { color: '#22c55e', name: 'green' },
+    { color: '#ff7c32', name: 'hermes', brand: 'Hermès', title: '爱马仕橙' },
+    { color: '#81d8d0', name: 'tiffany', brand: 'Tiffany & Co.', title: '蒂芙尼蓝' },
+    { color: '#cc0033', name: 'valentino', brand: 'Valentino', title: '华伦天奴红' },
+    { color: '#593d1c', name: 'burberry', brand: 'Burberry', title: '巴宝莉棕' },
+    { color: '#e5e4e2', name: 'dior', brand: 'Christian Dior', title: '迪奥灰' },
+    { color: '#fed700', name: 'fendi', brand: 'Fendi', title: '芬迪黄' },
+    { color: '#b01d2e', name: 'cartier', brand: 'Cartier', title: '卡地亚红' },
+    { color: '#f5f5f5', name: 'chanel', brand: 'Chanel', title: '香奈儿白' },
+    { color: '#ec1d24', name: 'louboutin', brand: 'Christian Louboutin', title: '鲁布托红底' },
+    { color: '#eeb422', name: 'veuve', brand: 'Veuve Clicquot', title: '凯歌香槟金' },
   ];
 
   const fadeIn = useSpring({
@@ -36,7 +43,7 @@ const Home: React.FC = () => {
   };
 
   const [springProps, api] = useSpring(() => ({
-    from: { backgroundColor: '#f3f4f6' },
+    from: { backgroundColor: '#f5f5f5' },
   }));
 
   useEffect(() => {
@@ -65,7 +72,8 @@ const Home: React.FC = () => {
                   className={`color-card color-card--${card.name}`}
                   onClick={() => handleCardClick(card.color)}
                 >
-                  <h3 className="color-card__title">{card.name.toUpperCase()}</h3>
+                  <h3 className="color-card__title">{card.title}</h3>
+                  <p className="color-card__brand">{card.brand}</p>
                   <p className="color-card__value">{card.color}</p>
                 </animated.div>
               ))}
