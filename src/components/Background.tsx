@@ -40,7 +40,7 @@ const Background: React.FC<Props> = ({ color, texture }) => {
     const material = new StandardMaterial('solidMaterial', scene);
     material.diffuseColor = hexToColor3(color);
     material.specularColor = new Color3(0.1, 0.1, 0.1);
-    material.emissiveColor = hexToColor3(color).scale(0.3);
+    material.emissiveColor = hexToColor3(color).scale(0.2);
     material.backFaceCulling = false;
     return material;
   };
@@ -50,9 +50,13 @@ const Background: React.FC<Props> = ({ color, texture }) => {
     const material = new PBRMaterial('leatherMaterial', scene);
     material.albedoColor = hexToColor3(color);
     material.metallic = 0;
-    material.roughness = 0.8;
-    material.bumpTexture = new Texture('/assets/textures/leather_normal.jpg', scene);
-    material.microSurfaceTexture = new Texture('/assets/textures/leather_roughness.jpg', scene);
+    material.roughness = 0.7;
+    material.microSurface = 0.8;
+    material.useRoughnessFromMetallicTextureAlpha = false;
+    material.useMetallnessFromMetallicTextureBlue = false;
+    material.useRoughnessFromMetallicTextureGreen = false;
+    material.emissiveColor = hexToColor3(color).scale(0.1);
+    material.ambientColor = hexToColor3(color).scale(0.5);
     material.backFaceCulling = false;
     return material;
   };
@@ -62,10 +66,13 @@ const Background: React.FC<Props> = ({ color, texture }) => {
     const material = new PBRMaterial('carPaintMaterial', scene);
     material.albedoColor = hexToColor3(color);
     material.metallic = 0.8;
-    material.roughness = 0.2;
+    material.roughness = 0.15;
+    material.microSurface = 0.95;
     material.clearCoat.isEnabled = true;
-    material.clearCoat.intensity = 1;
-    material.clearCoat.roughness = 0.1;
+    material.clearCoat.intensity = 0.8;
+    material.clearCoat.roughness = 0.15;
+    material.emissiveColor = hexToColor3(color).scale(0.2);
+    material.ambientColor = hexToColor3(color).scale(0.5);
     material.backFaceCulling = false;
     return material;
   };
@@ -74,11 +81,12 @@ const Background: React.FC<Props> = ({ color, texture }) => {
   const createFrostedGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
     const material = new PBRMaterial('glassMaterial', scene);
     material.albedoColor = hexToColor3(color);
-    material.alpha = 0.8;
-    material.metallic = 0;
+    material.alpha = 0.92;
+    material.metallic = 0.2;
     material.roughness = 0.3;
-    material.subSurface.isRefractionEnabled = true;
-    material.subSurface.refractionIntensity = 0.8;
+    material.microSurface = 0.8;
+    material.emissiveColor = hexToColor3(color).scale(0.1);
+    material.ambientColor = hexToColor3(color).scale(0.5);
     material.backFaceCulling = false;
     return material;
   };
@@ -104,6 +112,7 @@ const Background: React.FC<Props> = ({ color, texture }) => {
     engineRef.current = new Engine(canvasRef.current, true, {
       preserveDrawingBuffer: true,
       stencil: true,
+      antialias: true,
     });
 
     // 创建场景
@@ -123,14 +132,19 @@ const Background: React.FC<Props> = ({ color, texture }) => {
       scene
     );
     camera.attachControl(canvasRef.current, true);
+    camera.lowerRadiusLimit = 8;
+    camera.upperRadiusLimit = 12;
+    camera.wheelDeltaPercentage = 0.01;
 
     // 创建光源
-    new HemisphericLight('light', new Vector3(0, 1, 0), scene);
+    const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), scene);
+    mainLight.intensity = 0.8;
+    mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
 
     // 创建一个大球体作为背景
     sphereRef.current = MeshBuilder.CreateSphere(
       'sphere',
-      { diameter: 20, segments: 32 },
+      { diameter: 20, segments: 64 },
       scene
     );
     sphereRef.current.position = Vector3.Zero();
@@ -159,7 +173,6 @@ const Background: React.FC<Props> = ({ color, texture }) => {
   // 当颜色或材质改变时更新材质
   useEffect(() => {
     if (!sceneRef.current || !sphereRef.current) return;
-
     sphereRef.current.material = createMaterial(sceneRef.current, color, texture);
   }, [color, texture]);
 
