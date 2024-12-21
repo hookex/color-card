@@ -22,9 +22,10 @@ interface Props {
   color: string;
   texture: TextureType;
   debug?: boolean;
+  mode?: 'canvas' | 'div';
 }
 
-const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
+const Background: React.FC<Props> = ({ color, texture, debug = false, mode = 'canvas' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
@@ -106,10 +107,13 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 创建材质
   const createMaterial = (scene: Scene, color: string, textureType: TextureType): StandardMaterial | PBRMaterial => {
     switch (textureType) {
-      case 'metallic':
+      case 'leather':
         return createMetallicMaterial(scene, color);
-      case 'glossy':
+      case 'paint':
         return createGlossyMaterial(scene, color);
+      case 'glass':
+        return createGlossyMaterial(scene, color);
+      case 'solid':
       default:
         return createSolidMaterial(scene, color);
     }
@@ -126,6 +130,17 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   };
 
   useEffect(() => {
+    if (mode === 'canvas') {
+      initScene();
+    }
+    return () => {
+      if (engineRef.current) {
+        engineRef.current.dispose();
+      }
+    };
+  }, [mode]);
+
+  const initScene = () => {
     if (!canvasRef.current) return;
 
     engineRef.current = new Engine(canvasRef.current, true, {
@@ -214,9 +229,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
       scene.dispose();
-      engineRef.current?.dispose();
     };
-  }, [debug]);
+  };
 
   // 当颜色改变时，创建并执行过渡动画
   useEffect(() => {
@@ -251,18 +265,36 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   }, [texture]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: -1,
-        display: 'block',
-      }}
-    />
+    <>
+      {mode === 'canvas' ? (
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+            touchAction: 'none',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: -1,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: color,
+            transition: 'background-color 0.3s ease',
+            zIndex: -1,
+          }}
+        />
+      )}
+    </>
   );
 };
 

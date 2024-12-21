@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
 import DevTools from '../components/DevTools';
-import useStore from '../stores/useStore';
 import './Home.scss';
 
 // 计算对比色
@@ -28,7 +27,10 @@ const getContrastColor = (hexcolor: string): string => {
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  const { color, texture, debug, setColor, setTexture, setDebug } = useStore();
+  const [debug, setDebug] = useState(false);
+  const [mode, setMode] = useState<'canvas' | 'div'>('div');
+  const [color, setColor] = useState('#ff0000');
+  const [texture, setTexture] = useState<TextureType>('solid');
 
   const colorCards = [
     { color: '#ff7c32', name: 'hermes' },
@@ -80,8 +82,15 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <div className="flex-1">
-        <Background color={color} texture={texture} debug={debug} />
+      <DevTools 
+        debug={debug} 
+        onDebugChange={setDebug} 
+        mode={mode} 
+        onModeChange={(newMode) => {
+          setMode(newMode);
+        }}
+      >
+        <Background color={color} texture={texture} debug={debug} mode={mode} />
         <IonContent className="ion-content-transparent">
           <animated.div style={fadeIn} className="card-container">
             <div className="card-grid">
@@ -112,14 +121,8 @@ const Home: React.FC = () => {
             </div>
           </animated.div>
         </IonContent>
-        <TextureTools
-          currentTexture={texture}
-          onTextureChange={handleTextureChange}
-        />
-        <DevTools debug={debug} onDebugChange={handleDebugChange}>
-          {null}
-        </DevTools>
-      </div>
+        <TextureTools color={color} onColorChange={setColor} texture={texture} onTextureChange={setTexture} />
+      </DevTools>
     </IonPage>
   );
 };

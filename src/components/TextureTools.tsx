@@ -12,11 +12,13 @@ import './TextureTools.scss';
 export type TextureType = 'solid' | 'leather' | 'paint' | 'glass';
 
 interface Props {
-  currentTexture: TextureType;
+  color: string;
+  onColorChange: (color: string) => void;
+  texture: TextureType;
   onTextureChange: (texture: TextureType) => void;
 }
 
-const TextureTools: React.FC<Props> = ({ currentTexture, onTextureChange }) => {
+const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextureChange }) => {
   const { t } = useTranslation();
 
   const textures: { type: TextureType; icon: string }[] = [
@@ -32,9 +34,9 @@ const TextureTools: React.FC<Props> = ({ currentTexture, onTextureChange }) => {
         {textures.map(({ type, icon }) => (
           <IonButton
             key={type}
-            fill={currentTexture === type ? 'solid' : 'clear'}
+            fill={texture === type ? 'solid' : 'clear'}
             onClick={() => onTextureChange(type)}
-            className={`texture-button ${currentTexture === type ? 'active' : ''}`}
+            className={`texture-button ${texture === type ? 'active' : ''}`}
           >
             <div className="texture-button-content">
               <IonIcon icon={icon} />
