@@ -13,6 +13,8 @@ import {
   PointLight,
   GlowLayer,
   Animation,
+  EasingFunction,
+  CircleEase,
 } from '@babylonjs/core';
 import { TextureType } from './TextureTools';
 
@@ -28,6 +30,7 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   const sceneRef = useRef<Scene | null>(null);
   const sphereRef = useRef<any>(null);
   const cameraRef = useRef<ArcRotateCamera | null>(null);
+  const materialRef = useRef<StandardMaterial | null>(null);
   const currentColorRef = useRef<Color3>(new Color3(1, 1, 1));
 
   // 将十六进制颜色转换为 Babylon Color3
@@ -42,7 +45,7 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   const createColorAnimation = (fromColor: Color3, toColor: Color3): Animation => {
     const colorAnimation = new Animation(
       'colorAnimation',
-      'material.albedoColor',
+      'diffuseColor',
       60, // 每秒帧数
       Animation.ANIMATIONTYPE_COLOR3,
       Animation.ANIMATIONLOOPMODE_CONSTANT
@@ -58,6 +61,11 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
       value: toColor
     });
 
+    // 添加缓动函数
+    const easingFunction = new CircleEase();
+    easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEOUT);
+    colorAnimation.setEasingFunction(easingFunction);
+
     colorAnimation.setKeys(keyFrames);
     return colorAnimation;
   };
@@ -66,67 +74,42 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   const createSolidMaterial = (scene: Scene, color: string): StandardMaterial => {
     const material = new StandardMaterial('solidMaterial', scene);
     material.diffuseColor = hexToColor3(color);
-    material.specularColor = new Color3(0.1, 0.1, 0.1);
-    material.emissiveColor = hexToColor3(color).scale(0.2);
-    material.backFaceCulling = false;
+    material.specularColor = new Color3(0.2, 0.2, 0.2);
+    material.emissiveColor = new Color3(0, 0, 0);
+    material.ambientColor = new Color3(0, 0, 0);
+    material.roughness = 0.3;
+    material.metallic = 0.3;
     return material;
   };
 
-  // 创建皮革材质
-  const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial => {
-    const material = new PBRMaterial('leatherMaterial', scene);
-    material.albedoColor = hexToColor3(color);
-    material.metallic = 0;
-    material.roughness = 0.7;
-    material.microSurface = 0.8;
-    material.useRoughnessFromMetallicTextureAlpha = false;
-    material.useMetallnessFromMetallicTextureBlue = false;
-    material.useRoughnessFromMetallicTextureGreen = false;
-    material.emissiveColor = hexToColor3(color).scale(0.1);
-    material.ambientColor = hexToColor3(color).scale(0.5);
-    material.backFaceCulling = false;
-    return material;
-  };
-
-  // 创建车漆材质
-  const createCarPaintMaterial = (scene: Scene, color: string): PBRMaterial => {
-    const material = new PBRMaterial('carPaintMaterial', scene);
+  // 创建金属材质
+  const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial => {
+    const material = new PBRMaterial('metallicMaterial', scene);
     material.albedoColor = hexToColor3(color);
     material.metallic = 0.8;
-    material.roughness = 0.15;
-    material.microSurface = 0.95;
-    material.clearCoat.isEnabled = true;
-    material.clearCoat.intensity = 0.8;
-    material.clearCoat.roughness = 0.15;
-    material.emissiveColor = hexToColor3(color).scale(0.2);
-    material.ambientColor = hexToColor3(color).scale(0.5);
-    material.backFaceCulling = false;
+    material.roughness = 0.2;
+    material.environmentIntensity = 0.5;
     return material;
   };
 
-  // 创建毛玻璃材质
-  const createFrostedGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
-    const material = new PBRMaterial('glassMaterial', scene);
-    material.albedoColor = hexToColor3(color);
-    material.alpha = 0.92;
-    material.metallic = 0.2;
-    material.roughness = 0.3;
-    material.microSurface = 0.8;
-    material.emissiveColor = hexToColor3(color).scale(0.1);
-    material.ambientColor = hexToColor3(color).scale(0.5);
-    material.backFaceCulling = false;
+  // 创建光泽材质
+  const createGlossyMaterial = (scene: Scene, color: string): StandardMaterial => {
+    const material = new StandardMaterial('glossyMaterial', scene);
+    material.diffuseColor = hexToColor3(color);
+    material.specularColor = new Color3(1, 1, 1);
+    material.specularPower = 32;
+    material.emissiveColor = new Color3(0, 0, 0);
+    material.ambientColor = new Color3(0, 0, 0);
     return material;
   };
 
-  // 根据类型创建材质
+  // 创建材质
   const createMaterial = (scene: Scene, color: string, textureType: TextureType) => {
     switch (textureType) {
-      case 'leather':
-        return createLeatherMaterial(scene, color);
-      case 'paint':
-        return createCarPaintMaterial(scene, color);
-      case 'glass':
-        return createFrostedGlassMaterial(scene, color);
+      case 'metallic':
+        return createMetallicMaterial(scene, color);
+      case 'glossy':
+        return createGlossyMaterial(scene, color);
       default:
         return createSolidMaterial(scene, color);
     }
@@ -213,7 +196,8 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
     // 设置初始材质
     const initialColor = hexToColor3(color);
     currentColorRef.current = initialColor;
-    sphereRef.current.material = createMaterial(scene, color, texture);
+    materialRef.current = createSolidMaterial(scene, color);
+    sphereRef.current.material = materialRef.current;
 
     // 渲染循环
     engineRef.current.runRenderLoop(() => {
@@ -235,17 +219,17 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
 
   // 当颜色改变时，创建并执行过渡动画
   useEffect(() => {
-    if (!sceneRef.current || !sphereRef.current) return;
+    if (!sceneRef.current || !materialRef.current || !sphereRef.current) return;
 
     const targetColor = hexToColor3(color);
     const animation = createColorAnimation(currentColorRef.current, targetColor);
     
     // 停止之前的动画（如果有）
-    sphereRef.current.material.animations = [];
+    materialRef.current.animations = [];
     
     // 开始新的动画
-    sphereRef.current.material.animations.push(animation);
-    sceneRef.current.beginAnimation(sphereRef.current.material, 0, 30, false);
+    materialRef.current.animations.push(animation);
+    sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
     
     // 更新当前颜色引用
     currentColorRef.current = targetColor;
@@ -254,38 +238,10 @@ const Background: React.FC<Props> = ({ color, texture, debug = false }) => {
   // 当纹理改变时更新材质
   useEffect(() => {
     if (!sceneRef.current || !sphereRef.current) return;
-    sphereRef.current.material = createMaterial(sceneRef.current, color, texture);
+    const newMaterial = createMaterial(sceneRef.current, color, texture);
+    materialRef.current = newMaterial;
+    sphereRef.current.material = newMaterial;
   }, [texture]);
-
-  // 当调试模式改变时更新相机
-  useEffect(() => {
-    if (!cameraRef.current) return;
-    
-    const camera = cameraRef.current;
-    
-    if (debug) {
-      // 3D 模式：动画过渡到新视角
-      camera.setPosition(new Vector3(25 * Math.cos(-Math.PI / 2), 25 * Math.sin(Math.PI / 2.5), 25 * Math.sin(-Math.PI / 2)));
-      camera.lowerRadiusLimit = 15;
-      camera.upperRadiusLimit = 40;
-      camera.lowerBetaLimit = 0.1;
-      camera.upperBetaLimit = Math.PI - 0.1;
-      camera.angularSensibilityX = 500;
-      camera.angularSensibilityY = 500;
-      camera.wheelPrecision = 50;
-      camera.pinchPrecision = 50;
-      camera.panningSensibility = 50;
-    } else {
-      // 2D 模式：动画过渡回原始视角
-      camera.setPosition(new Vector3(0, 0, 10));
-      camera.lowerRadiusLimit = 8;
-      camera.upperRadiusLimit = 12;
-      camera.lowerBetaLimit = Math.PI / 2;
-      camera.upperBetaLimit = Math.PI / 2;
-      camera.lowerAlphaLimit = 0;
-      camera.upperAlphaLimit = 0;
-    }
-  }, [debug]);
 
   return (
     <canvas
