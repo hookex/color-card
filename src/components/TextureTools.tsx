@@ -1,14 +1,14 @@
 import React from 'react';
 import { IonToolbar, IonButtons, IonButton, IonIcon } from '@ionic/react';
 import { 
-  colorPaletteOutline,
-  colorPalette, 
-  carSportOutline,
-  carSport,
+  squareOutline,
+  square,
+  prismOutline,
+  prism,
   sparklesOutline,
   sparkles,
-  contrastOutline,
-  contrast,
+  ellipseOutline,
+  ellipse,
   waterOutline,
   water,
   leafOutline,
@@ -30,11 +30,11 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
   const { t } = useTranslation();
 
   const allTextures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
-    { type: 'solid', icon: colorPaletteOutline, activeIcon: colorPalette, label: '原色' },
-    { type: 'linear', icon: contrastOutline, activeIcon: contrast, label: '线性' },
+    { type: 'solid', icon: squareOutline, activeIcon: square, label: '原色' },
+    { type: 'linear', icon: ellipseOutline, activeIcon: ellipse, label: '平滑' },
     { type: 'glow', icon: sparklesOutline, activeIcon: sparkles, label: '光芒' },
     { type: 'leather', icon: leafOutline, activeIcon: leaf, label: '小羊皮' },
-    { type: 'paint', icon: carSportOutline, activeIcon: carSport, label: '车漆' },
+    { type: 'paint', icon: prismOutline, activeIcon: prism, label: '玉石' },
     { type: 'frosted', icon: waterOutline, activeIcon: water, label: '毛玻璃' },
   ];
 
