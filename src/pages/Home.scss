@@ -64,6 +64,22 @@ $content-width: 1200px;
 }
 
 // Layout
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  
+  canvas {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}
+
 .container {
   position: relative;
   width: 100%;
@@ -72,7 +88,8 @@ $content-width: 1200px;
   flex-direction: column;
   z-index: 1;
   font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
-  overflow: hidden; // 防止内容溢出
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .color-cards {
@@ -349,7 +366,12 @@ $content-width: 1200px;
 }
 
 ion-content {
+  --overflow: hidden;
   font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+  
+  &::part(scroll) {
+    overflow: hidden;
+  }
 }
 
 .toolbar-wrapper {

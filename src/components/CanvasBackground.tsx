@@ -78,16 +78,19 @@ const CanvasBackground: React.FC = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
+    const canvas = canvasRef.current;
+    canvas.style.pointerEvents = 'none';  // 禁用 canvas 的鼠标事件
+
     // 初始化引擎和场景
-    const engine = new Engine(canvasRef.current, true, { 
+    const engine = new Engine(canvas, true, { 
       preserveDrawingBuffer: true, 
       stencil: true,
-      antialias: true
     });
     engineRef.current = engine;
 
     // 初始化场景
     const scene = new Scene(engine);
+    scene.clearColor = new Color4(0, 0, 0, 0);
     sceneRef.current = scene;
 
     // 设置场景

@@ -10,6 +10,7 @@ import TextureTools from '../components/TextureTools';
 import ColorCard from '../components/ColorCard';
 import { getContrastColor } from '../utils/backgroundUtils';
 import createLogger from '../utils/logger';
+import { useState, useEffect } from 'react';
 import './Home.scss';
 
 const logger = createLogger('home');
@@ -37,22 +38,83 @@ const Home: React.FC = () => {
     config: { duration: 1000 }
   });
 
+  const [bounds, setBounds] = useState(() => {
+    const width = window.innerWidth;
+    const dragWidth = width * 0.4; // 40vw
+    return { left: -dragWidth, right: dragWidth };
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const dragWidth = width * 0.4; // 40vw
+      setBounds({ left: -dragWidth, right: dragWidth });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [{ x }, api] = useSpring(() => ({
-    x: 0,
-    config: { ...config.stiff }
+    x: hideColorCard ? -window.innerWidth : 0,  // 根据初始状态设置位置
+    config: {
+      mass: 1,
+      tension: 200,
+      friction: 20,
+    }
   }));
 
-  const bind = useDrag(({ active, movement: [mx], last }) => {
+  const bind = useDrag(({ active, movement: [mx], offset: [ox], last, velocity: [vx], direction: [dx] }) => {
+    const threshold = window.innerWidth * 0.15;
+    const shouldSlideOut = Math.abs(ox) > threshold;
+    
     if (active) {
-      api.start({ x: mx, immediate: true });
+      api.start({ 
+        x: ox,
+        immediate: true,
+      });
     } else if (last) {
-      api.start({ x: 0, config: { tension: 200, friction: 20 } });
+      const isSliding = Math.abs(vx) > 0.5;
+      const direction = shouldSlideOut ? Math.sign(ox) : (isSliding ? Math.sign(vx) : 0);
+      const targetX = direction ? direction * window.innerWidth : 0;
+      
+      api.start({ 
+        x: targetX,
+        config: {
+          mass: 1,
+          tension: 150,
+          friction: 16,
+          velocity: vx * 600,
+        },
+        onRest: () => {
+          if (Math.abs(targetX) === window.innerWidth) {
+          }
+        }
+      });
     }
   }, {
     axis: 'x',
     filterTaps: true,
-    bounds: { left: -100, right: 100 }
+    bounds: { left: -window.innerWidth, right: window.innerWidth },
+    threshold: 5,
+    rubberband: true,
+    from: () => [x.get(), 0],
+    preventScroll: true,
+    triggerAllEvents: true,
+    pointer: { touch: true },
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (hideColorCard) {
+        const direction = x.get() > 0 ? 1 : -1;
+        api.start({ x: direction * window.innerWidth });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [hideColorCard]);
 
   const handleCardClick = async (newColor: string) => {
     logger.info('Changing color:', newColor);
@@ -81,17 +143,18 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent fullscreen>
+      <IonContent fullscreen {...bind()} style={{ touchAction: 'none' }}>
         <div className={`canvas-container ${debug ? 'debug-mode' : ''}`}>
           {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
         </div>
 
         <animated.div 
           className="container"
-          {...bind()}
           style={{
-            touchAction: 'none',
-            transform: x.to(value => `translateX(${value}px)`)
+            transform: x.to(value => `translateX(${value}px)`),
+            visibility: x.to(value => 
+              Math.abs(value) >= window.innerWidth ? 'hidden' : 'visible'
+            ),
           }}
         >
           {/* 色卡列表 */}
