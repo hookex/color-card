@@ -16,6 +16,7 @@ import {
 } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { getEnabledTextures } from '../config/textureConfig';
+import { getLuminance } from '../utils/backgroundUtils';
 
 export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | 'glow' | 'frosted';
 
@@ -28,6 +29,13 @@ interface Props {
 
 const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextureChange }) => {
   const { t } = useTranslation();
+
+  // 计算玻璃效果的透明度
+  const getGlassOpacity = () => {
+    const luminance = getLuminance(color);
+    // 亮度越高，透明度越低（颜色越深）
+    return 0.05 + (1 - luminance) * 0.15;
+  };
 
   const allTextures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
     { type: 'solid', icon: squareOutline, activeIcon: square, label: '原色' },
@@ -43,17 +51,13 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
     getEnabledTextures().includes(texture.type)
   );
 
-  // 生成选中态的样式
-  const getSelectedStyle = (isSelected: boolean) => {
-    if (!isSelected) return {};
-    return {
-      '--selected-color': color,
-      '--selected-shadow-color': `${color}b3`, // 70% opacity
-    } as React.CSSProperties;
-  };
-
   return (
-    <div className="glass-toolbar" style={{ '--toolbar-selected-color': color } as React.CSSProperties}>
+    <div 
+      className="glass-toolbar" 
+      style={{ 
+        '--glass-opacity': getGlassOpacity(),
+      } as React.CSSProperties}
+    >
       <IonToolbar>
         <IonButtons slot="start">
           {enabledTextures.map(({ type, icon, activeIcon, label }) => (
@@ -61,7 +65,6 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
               key={type}
               onClick={() => onTextureChange(type)}
               className={texture === type ? 'active' : ''}
-              style={getSelectedStyle(texture === type)}
             >
               <div className="button-content">
                 <IonIcon icon={texture === type ? activeIcon : icon} />
