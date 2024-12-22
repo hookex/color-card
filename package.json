@@ -46,6 +46,7 @@
     "react-dev-inspector": "^2.0.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^15.2.0",
+    "react-joyride": "^2.9.3",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
     "zustand": "^5.0.2"

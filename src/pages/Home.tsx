@@ -1,6 +1,7 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState } from 'react';
+import Joyride, { Step, CallBackProps, STATUS } from 'react-joyride';
 import { IonContent, IonPage, IonFabButton, IonIcon } from '@ionic/react';
+import { useTranslation } from 'react-i18next';
 import { save } from 'ionicons/icons';
 import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
@@ -13,12 +14,10 @@ import createLogger  from '../utils/logger';
 import CanvasBackground from '../components/CanvasBackground';
 import DivBackground from '../components/DivBackground';
 import { getContrastColor, getGlassOpacity } from '../utils/backgroundUtils';
-import { useState, useEffect } from 'react';
 import './Home.scss';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
-
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -35,7 +34,42 @@ const Home: React.FC = () => {
     setTexture: updateTexture,
     setMode,
     setHideColorCard,
+    hasCompletedTutorial,
+    setHasCompletedTutorial,
   } = useStore();
+
+  const [runTutorial, setRunTutorial] = useState(!hasCompletedTutorial);
+
+  const steps: Step[] = [
+    {
+      target: '.color-card',
+      content: '点击选择你喜欢的颜色',
+      placement: 'bottom',
+    },
+    {
+      target: '.glass-toolbar',
+      content: '选择不同的材质效果',
+      placement: 'top',
+    },
+    {
+      target: '.save-button',
+      content: '向右滑动并点击保存按钮',
+      placement: 'left',
+    },
+    {
+      target: '.wallpaper-button',
+      content: '进入相册，设置为壁纸',
+      placement: 'left',
+    },
+  ];
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setHasCompletedTutorial(true);
+      setRunTutorial(false);
+    }
+  };
 
   const fadeIn = useSpring({
     from: { opacity: 0 },
@@ -179,6 +213,46 @@ const Home: React.FC = () => {
 
   return (
     <IonPage className="home-page">
+      <Joyride
+        steps={steps}
+        run={runTutorial}
+        continuous
+        showSkipButton
+        showProgress
+        styles={{
+          options: {
+            primaryColor: '#007AFF',
+            textColor: '#000',
+            backgroundColor: '#fff',
+            arrowColor: '#fff',
+            overlayColor: 'rgba(0, 0, 0, 0.5)',
+          },
+          tooltip: {
+            borderRadius: '8px',
+            fontSize: '14px',
+          },
+          buttonNext: {
+            backgroundColor: '#007AFF',
+            borderRadius: '4px',
+            color: '#fff',
+          },
+          buttonBack: {
+            color: '#666',
+            marginRight: 10,
+          },
+          buttonSkip: {
+            color: '#666',
+          },
+        }}
+        locale={{
+          back: '上一步',
+          close: '关闭',
+          last: '完成',
+          next: '下一步',
+          skip: '跳过',
+        }}
+        callback={handleJoyrideCallback}
+      />
       {mode === 'canvas' ? (
         <CanvasBackground />
       ) : (

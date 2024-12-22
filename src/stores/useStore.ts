@@ -19,6 +19,12 @@ interface ColorCardState {
   mode: 'canvas' | 'div';
   colorCards: ColorCard[];
   hideColorCard: boolean;
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+  selectedTexture: TextureType;
+  setSelectedTexture: (texture: TextureType) => void;
+  hasCompletedTutorial: boolean;
+  setHasCompletedTutorial: (completed: boolean) => void;
   setColor: (color: string) => void;
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
@@ -41,6 +47,9 @@ const useStore = create<ColorCardState>()(
         mode: savedState?.mode || 'canvas',
         colorCards: savedState?.colorCards || initialColorCards,
         hideColorCard: savedState?.hideColorCard || false,
+        selectedColor: savedState?.selectedColor || '#FFFFFF',
+        selectedTexture: savedState?.selectedTexture || 'solid',
+        hasCompletedTutorial: savedState?.hasCompletedTutorial || localStorage.getItem('hasCompletedTutorial') === 'true',
 
         // Actions
         setColor: (color: string) => {
@@ -71,6 +80,25 @@ const useStore = create<ColorCardState>()(
 
         setHideColorCard: (hide: boolean) => {
           set({ hideColorCard: hide });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        setSelectedColor: (color: string) => {
+          set({ selectedColor: color });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        setSelectedTexture: (texture: TextureType) => {
+          set({ selectedTexture: texture });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        setHasCompletedTutorial: (completed: boolean) => {
+          localStorage.setItem('hasCompletedTutorial', String(completed));
+          set({ hasCompletedTutorial: completed });
           const state = useStore.getState();
           saveStoreState(state);
         },
@@ -106,6 +134,9 @@ const useStore = create<ColorCardState>()(
             mode: 'canvas',
             colorCards: initialColorCards,
             hideColorCard: false,
+            selectedColor: '#FFFFFF',
+            selectedTexture: 'solid',
+            hasCompletedTutorial: localStorage.getItem('hasCompletedTutorial') === 'true',
           });
           const state = useStore.getState();
           saveStoreState(state);
