@@ -60,6 +60,17 @@
     "language": "切换中英文显示",
     "screenshot": "保存当前页面截图",
     "debug": "开启3D场景调试",
-    "mode": "切换背景渲染方式"
+    "mode": "切换背景渲染方式",
+    "toast": {
+      "inspector_on": "已开启元素检查器",
+      "inspector_off": "已关闭元素检查器",
+      "language_switch": "已切换到{{lang}}显示",
+      "screenshot_success": "截图已保存",
+      "screenshot_error": "截图保存失败",
+      "debug_on": "已开启3D场景调试",
+      "debug_off": "已关闭3D场景调试",
+      "mode_canvas": "已切换到Canvas渲染模式",
+      "mode_div": "已切换到Div渲染模式"
+    }
   }
 }

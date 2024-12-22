@@ -51,78 +51,24 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [popoverState, setPopoverState] = useState<{ open: boolean, event: Event | undefined }>({
-    open: false,
-    event: undefined
-  });
+
+  // 显示 Toast 提示
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+  };
 
   // 切换调试器
   const toggleInspector = () => {
     setShowInspector(!showInspector);
+    showToastMessage(t(showInspector ? 'devtools.toast.inspector_off' : 'devtools.toast.inspector_on'));
   };
 
   // 切换语言
   const toggleLanguage = () => {
-    const nextLang = i18n.language === 'en' ? 'zh' : 'en';
-    logger.info('Changing language to:', nextLang);
+    const nextLang = i18n.language === 'zh' ? 'en' : 'zh';
     i18n.changeLanguage(nextLang);
-  };
-
-  // 切换3D调试模式
-  const toggle3DMode = () => {
-    if (onDebugChange) {
-      logger.info('Toggling debug mode:', !debug);
-      onDebugChange(!debug);
-    }
-  };
-
-  // 保存到相册
-  const saveToGallery = async (base64Data: string, fileName: string) => {
-    try {
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Cache,
-        recursive: true
-      });
-
-      const savedFile = await Filesystem.getUri({
-        path: fileName,
-        directory: Directory.Cache
-      });
-
-      await Filesystem.copy({
-        from: savedFile.uri,
-        to: `PHOTO_${new Date().getTime()}.png`,
-        directory: Directory.ExternalStorage,
-        toDirectory: Directory.External
-      });
-
-      logger.info('Wallpaper saved to gallery:', fileName);
-      setToastMessage('Wallpaper saved to gallery');
-      setShowToast(true);
-    } catch (error) {
-      console.error('Save to gallery error:', error);
-      logger.error('Save to gallery error:', error);
-      throw error;
-    }
-  };
-
-  // 浏览器中下载
-  const downloadInBrowser = (dataUrl: string, fileName: string) => {
-    try {
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = dataUrl;
-      link.click();
-      logger.info('Wallpaper downloaded:', fileName);
-      setToastMessage('Wallpaper downloaded');
-      setShowToast(true);
-    } catch (error) {
-      console.error('Download error:', error);
-      logger.error('Download error:', error);
-      throw error;
-    }
+    showToastMessage(t('devtools.toast.language_switch', { lang: nextLang === 'zh' ? '中文' : '英文' }));
   };
 
   // 截图
@@ -193,16 +139,54 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
       const fileName = `wallpaper_${timestamp}.png`;
 
       if (Capacitor.isNativePlatform()) {
-        await saveToGallery(base64Data, fileName);
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache,
+          recursive: true
+        });
+
+        const savedFile = await Filesystem.getUri({
+          path: fileName,
+          directory: Directory.Cache
+        });
+
+        await Filesystem.copy({
+          from: savedFile.uri,
+          to: `PHOTO_${new Date().getTime()}.png`,
+          directory: Directory.ExternalStorage,
+          toDirectory: Directory.External
+        });
+
+        logger.info('Wallpaper saved to gallery:', fileName);
+        showToastMessage(t('devtools.toast.screenshot_success'));
       } else {
-        downloadInBrowser(dataUrl, fileName);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+        logger.info('Wallpaper downloaded:', fileName);
+        showToastMessage(t('devtools.toast.screenshot_success'));
       }
     } catch (error) {
       console.error('Screenshot error:', error);
-      logger.error('Screenshot error:', error);
-      setToastMessage('Failed to take screenshot');
-      setShowToast(true);
+      logger.error('Screenshot failed:', error);
+      showToastMessage(t('devtools.toast.screenshot_error'));
     }
+  };
+
+  // 切换调试模式
+  const toggleDebug = () => {
+    const nextDebug = !debug;
+    onDebugChange?.(nextDebug);
+    showToastMessage(t(nextDebug ? 'devtools.toast.debug_on' : 'devtools.toast.debug_off'));
+  };
+
+  // 切换渲染模式
+  const toggleMode = () => {
+    const nextMode = mode === 'canvas' ? 'div' : 'canvas';
+    onModeChange?.(nextMode);
+    showToastMessage(t(nextMode === 'canvas' ? 'devtools.toast.mode_canvas' : 'devtools.toast.mode_div'));
   };
 
   return (
@@ -236,14 +220,14 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
 
           <div className="fab-button-wrapper">
             <IonLabel className="fab-label">{t('devtools.debug')}</IonLabel>
-            <IonFabButton onClick={() => onDebugChange?.(!debug)}>
+            <IonFabButton onClick={toggleDebug}>
               <IonIcon icon={layersOutline} />
             </IonFabButton>
           </div>
 
           <div className="fab-button-wrapper">
             <IonLabel className="fab-label">{t('devtools.mode')}</IonLabel>
-            <IonFabButton onClick={() => onModeChange?.(mode === 'canvas' ? 'div' : 'canvas')}>
+            <IonFabButton onClick={toggleMode}>
               <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
             </IonFabButton>
           </div>
@@ -254,6 +238,8 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
         onDidDismiss={() => setShowToast(false)}
         message={toastMessage}
         duration={2000}
+        position="top"
+        color="primary"
       />
       {children}
     </>
