@@ -62,6 +62,9 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
               <div className="button-content">
                 <IonIcon icon={texture === type ? activeIcon : icon} />
                 <span className="button-label">{label}</span>
+                <div className="color-code">
+                  <span className="hex">HEX {color}</span>
+                </div>
               </div>
             </IonButton>
           ))}

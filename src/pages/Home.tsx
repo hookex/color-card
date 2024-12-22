@@ -136,7 +136,10 @@ const Home: React.FC = () => {
                     <div className="color-info">
                       <div className="zh-name">{card.zhName}</div>
                       <div className="description">{card.description}</div>
-                      <div className="year">{card.year}</div>
+                      <div className="color-code">
+                        <span className="cmyk">CMYK {card.cmyk || '5 30 80 0'}</span>
+                        <span className="rgb">RGB {card.rgb || '241 189 63'}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -152,7 +155,10 @@ const Home: React.FC = () => {
                     <div className="color-info">
                       <div className="zh-name">{card.zhName}</div>
                       <div className="description">{card.description}</div>
-                      <div className="year">{card.year}</div>
+                      <div className="color-code">
+                        <span className="cmyk">CMYK {card.cmyk || '5 30 80 0'}</span>
+                        <span className="rgb">RGB {card.rgb || '241 189 63'}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
