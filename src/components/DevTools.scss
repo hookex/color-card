@@ -54,3 +54,40 @@ ion-tooltip {
   font-size: 12px;
   padding: 4px 8px;
 }
+
+.fab-button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  
+  .fab-label {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.2s ease-in-out;
+    position: absolute;
+    right: 100%;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    .fab-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  
+  &.active {
+    --background: var(--ion-color-secondary);
+  }
+}

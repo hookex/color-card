@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { IonFab, IonFabButton, IonIcon, IonFabList, IonToast } from '@ionic/react';
+import { 
+  IonFab, 
+  IonFabButton, 
+  IonIcon, 
+  IonFabList, 
+  IonToast, 
+  IonPopover,
+  IonContent,
+  IonLabel
+} from '@ionic/react';
 import { 
   buildOutline, 
   languageOutline, 
@@ -38,10 +47,14 @@ interface Props {
 }
 
 const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mode = 'canvas', onModeChange }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [popoverState, setPopoverState] = useState<{ open: boolean, event: Event | undefined }>({
+    open: false,
+    event: undefined
+  });
 
   // 切换调试器
   const toggleInspector = () => {
@@ -194,45 +207,46 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
 
   return (
     <>
-      {showInspector ? (
-        <InspectorWrapper
-          keys={['control', 'shift', 'command', 'c']}
-          disableLaunchEditor={false}
-          onHoverElement={() => {}}
-        >
-          {children}
-        </InspectorWrapper>
-      ) : (
-        children
-      )}
+      {showInspector && <InspectorWrapper />}
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
         <IonFabButton>
           <IonIcon icon={buildOutline} />
         </IonFabButton>
         <IonFabList side="top">
-          {/* 调试器按钮 */}
-          <IonFabButton onClick={toggleInspector}>
-            <IonIcon icon={cubeOutline} />
-          </IonFabButton>
-          {/* 语言切换按钮 */}
-          <IonFabButton onClick={toggleLanguage}>
-            <IonIcon icon={languageOutline} />
-          </IonFabButton>
-          {/* 截图按钮 */}
-          <IonFabButton onClick={takeScreenshot}>
-            <IonIcon icon={cameraOutline} />
-          </IonFabButton>
-          {/* 背景模式切换按钮 */}
-          <IonFabButton 
-            onClick={() => onModeChange?.(mode === 'canvas' ? 'div' : 'canvas')}
-            className={mode === 'canvas' ? 'bg-primary' : 'bg-orange-600'}
-          >
-            <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
-          </IonFabButton>
-          {/* 3D调试模式按钮 */}
-          <IonFabButton onClick={toggle3DMode} className={debug ? 'bg-primary' : 'bg-orange-600'}>
-            <IonIcon icon={cubeOutline} />
-          </IonFabButton>
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.inspector')}</IonLabel>
+            <IonFabButton onClick={toggleInspector}>
+              <IonIcon icon={cubeOutline} />
+            </IonFabButton>
+          </div>
+          
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.language')}</IonLabel>
+            <IonFabButton onClick={toggleLanguage}>
+              <IonIcon icon={languageOutline} />
+            </IonFabButton>
+          </div>
+
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.screenshot')}</IonLabel>
+            <IonFabButton onClick={takeScreenshot}>
+              <IonIcon icon={cameraOutline} />
+            </IonFabButton>
+          </div>
+
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.debug')}</IonLabel>
+            <IonFabButton onClick={() => onDebugChange?.(!debug)}>
+              <IonIcon icon={layersOutline} />
+            </IonFabButton>
+          </div>
+
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.mode')}</IonLabel>
+            <IonFabButton onClick={() => onModeChange?.(mode === 'canvas' ? 'div' : 'canvas')}>
+              <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
+            </IonFabButton>
+          </div>
         </IonFabList>
       </IonFab>
       <IonToast
@@ -240,9 +254,8 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
         onDidDismiss={() => setShowToast(false)}
         message={toastMessage}
         duration={2000}
-        position="top"
-        color={toastMessage.includes('Failed') ? 'danger' : 'success'}
       />
+      {children}
     </>
   );
 };

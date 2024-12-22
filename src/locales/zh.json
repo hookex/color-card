@@ -54,5 +54,12 @@
     "glass": {
       "name": "磨砂"
     }
+  },
+  "devtools": {
+    "inspector": "检查元素布局和样式",
+    "language": "切换中英文显示",
+    "screenshot": "保存当前页面截图",
+    "debug": "开启3D场景调试",
+    "mode": "切换背景渲染方式"
   }
 }

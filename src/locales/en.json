@@ -54,5 +54,12 @@
     "glass": {
       "name": "Glass"
     }
+  },
+  "devtools": {
+    "inspector": "Inspector",
+    "language": "Language",
+    "screenshot": "Screenshot",
+    "debug": "Debug Mode",
+    "mode": "Render Mode"
   }
 }
