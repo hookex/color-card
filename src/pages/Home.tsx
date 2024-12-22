@@ -72,7 +72,11 @@ const Home: React.FC = () => {
         ) : (
           <DivBackground />
         )}
-        <animated.div style={fadeIn} className="container">
+        <animated.div style={{
+          ...fadeIn,
+          position: 'relative',
+          zIndex: 1
+        }} className="container">
           <div className="color-grid">
             <div className="column">
               {splitColors().leftColumn.map((card) => (
@@ -84,7 +88,7 @@ const Home: React.FC = () => {
                 >
                   <div className="color-info">
                     <div className="zh-name">{card.zhName}</div>
-                    <div className="pinyin">{card.pinyin}</div>
+                    <div className="description">{card.description}</div>
                     <div className="year">{card.year}</div>
                   </div>
                 </div>
@@ -100,7 +104,7 @@ const Home: React.FC = () => {
                 >
                   <div className="color-info">
                     <div className="zh-name">{card.zhName}</div>
-                    <div className="pinyin">{card.pinyin}</div>
+                    <div className="description">{card.description}</div>
                     <div className="year">{card.year}</div>
                   </div>
                 </div>

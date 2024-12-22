@@ -79,18 +79,21 @@ $colors: (
   .color-info {
     .zh-name {
       font-size: 1.5rem;
-      font-weight: bold;
+      font-weight: normal;
       margin-bottom: 4px;
+      font-family: 'AlimamaDongFangDaKai';
     }
 
     .pinyin {
       font-size: 1rem;
       margin-bottom: 2px;
+      font-family: 'TsangerYuYang';
     }
 
     .year {
       font-size: 0.875rem;
       opacity: 0.8;
+      font-family: 'TsangerYuYang';
     }
   }
 }
@@ -100,4 +103,16 @@ $colors: (
   .color-card--#{$name} {
     background-color: $color;
   }
+}
+
+ion-content {
+  font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+}
+
+.container {
+  font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 }

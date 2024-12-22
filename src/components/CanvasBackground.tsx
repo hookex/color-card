@@ -141,7 +141,7 @@ const CanvasBackground: React.FC = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: -1,
+        zIndex: 0,
       }}
     />
   );

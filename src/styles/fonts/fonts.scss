@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'AlimamaDongFangDaKai';
-  src: url('../../assets/fonts/AlimamaDongFangDaKai-Regular.woff2') format('woff2'),
-       url('../../assets/fonts/AlimamaDongFangDaKai-Regular.woff') format('woff'),
-       url('../../assets/fonts/AlimamaDongFangDaKai-Regular.ttf') format('truetype'),
-       url('../../assets/fonts/AlimamaDongFangDaKai-Regular.otf') format('opentype');
+  src: url('@/assets/fonts/AlimamaDongFangDaKai-Regular.woff2') format('woff2'),
+       url('@/assets/fonts/AlimamaDongFangDaKai-Regular.woff') format('woff'),
+       url('@/assets/fonts/AlimamaDongFangDaKai-Regular.ttf') format('truetype'),
+       url('@/assets/fonts/AlimamaDongFangDaKai-Regular.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -11,9 +11,9 @@
 
 @font-face {
   font-family: 'TsangerYuYang';
-  src: url('../../assets/fonts/TsangerYuYangT_W01_W01.woff2') format('woff2'),
-       url('../../assets/fonts/TsangerYuYangT_W01_W01.woff') format('woff'),
-       url('../../assets/fonts/TsangerYuYangT_W01_W01.ttf') format('truetype');
+  src: url('@/assets/fonts/TsangerYuYangT_W01_W01.woff2') format('woff2'),
+       url('@/assets/fonts/TsangerYuYangT_W01_W01.woff') format('woff'),
+       url('@/assets/fonts/TsangerYuYangT_W01_W01.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
