@@ -85,12 +85,16 @@ const CanvasBackground: React.FC = () => {
     const engine = new Engine(canvas, true, { 
       preserveDrawingBuffer: true, 
       stencil: true,
+      antialias: false, // 关闭抗锯齿以提高性能
+      adaptToDeviceRatio: false, // 不随设备像素比缩放
     });
     engineRef.current = engine;
 
     // 初始化场景
     const scene = new Scene(engine);
     scene.clearColor = new Color4(0, 0, 0, 0);
+    scene.autoClear = false; // 禁用自动清除以提高性能
+    scene.skipPointerMovePicking = true; // 禁用指针移动拾取以提高性能
     sceneRef.current = scene;
 
     // 设置场景
@@ -130,9 +134,7 @@ const CanvasBackground: React.FC = () => {
     planeRef.current = plane;
 
     // 创建并应用材质
-    const material = createMaterialByType(scene, '#FFFFFF', state.texture);  // 使用白色作为基础色
-    plane.material = material;
-    materialRef.current = material;
+    updateMaterial();
 
     // 添加辉光效果
     const gl = new GlowLayer('glow', scene);
@@ -147,9 +149,11 @@ const CanvasBackground: React.FC = () => {
       });
     }
 
-    // 渲染循环
+    // 优化渲染循环
     engine.runRenderLoop(() => {
-      scene.render();
+      if (scene.activeCamera) {
+        scene.render();
+      }
     });
 
     // 处理窗口大小变化
@@ -170,13 +174,15 @@ const CanvasBackground: React.FC = () => {
     // 清理函数
     return () => {
       window.removeEventListener('resize', handleResize);
-      engine.dispose();
+      engine.stopRenderLoop();
       scene.dispose();
+      engine.dispose();
     };
   }, []);
 
   // 更新材质
   useEffect(() => {
+    if (!sceneRef.current || !planeRef.current) return;
     updateMaterial();
   }, [state.color, state.texture]);
 

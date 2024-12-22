@@ -251,6 +251,18 @@ const Home: React.FC = () => {
 
   const currentMode = useStore(state => state.mode);
 
+  const [preloadedCanvas, setPreloadedCanvas] = useState<React.ReactNode | null>(null);
+
+  useEffect(() => {
+    // 在后台预加载 Canvas 组件
+    if (mode === 'div') {
+      const canvas = <CanvasBackground />;
+      setPreloadedCanvas(canvas);
+    } else {
+      setPreloadedCanvas(null);
+    }
+  }, [mode]);
+
   const handleSave = async () => {
     try {
       if (mode === 'canvas') {
@@ -348,6 +360,9 @@ const Home: React.FC = () => {
         }}
         callback={handleJoyrideCallback}
       />
+      <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
+        {preloadedCanvas}
+      </div>
       {mode === 'canvas' ? (
         <CanvasBackground />
       ) : (
