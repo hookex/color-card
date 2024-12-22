@@ -12,7 +12,10 @@ import {
   PBRMaterial,
   PointLight,
   GlowLayer,
+  Mesh,
 } from '@babylonjs/core';
+import '@babylonjs/core/Debug/debugLayer';
+import '@babylonjs/inspector';
 import { TextureType } from './TextureTools';
 import { useBackground } from '../hooks/useBackground';
 import {
@@ -31,7 +34,7 @@ const CanvasBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
-  const sphereRef = useRef<any>(null);
+  const planeRef = useRef<any>(null);
   const cameraRef = useRef<ArcRotateCamera | null>(null);
   const materialRef = useRef<StandardMaterial | PBRMaterial | null>(null);
 
@@ -39,12 +42,12 @@ const CanvasBackground: React.FC = () => {
 
   // 更新材质
   const updateMaterial = () => {
-    if (!sceneRef.current || !sphereRef.current) return;
+    if (!sceneRef.current || !planeRef.current) return;
 
     const newMaterial = createMaterialByType(sceneRef.current, state.color, state.texture);
     
     // 直接应用新材质
-    sphereRef.current.material = newMaterial;
+    planeRef.current.material = newMaterial;
     materialRef.current = newMaterial;
     
     // 确保场景重新渲染
@@ -69,28 +72,28 @@ const CanvasBackground: React.FC = () => {
   }, [state.debug]);
 
   // 初始化3D场景
-  const initScene = () => {
+  useEffect(() => {
     if (!canvasRef.current) return;
 
-    // 创建引擎
-    const engine = new Engine(canvasRef.current, true, {
-      preserveDrawingBuffer: true,
+    // 初始化引擎和场景
+    const engine = new Engine(canvasRef.current, true, { 
+      preserveDrawingBuffer: true, 
       stencil: true,
+      antialias: true
     });
     engineRef.current = engine;
 
-    // 创建场景
+    // 初始化场景
     const scene = new Scene(engine);
     sceneRef.current = scene;
 
     // 设置场景
     setupScene(scene);
-
+    
     // 设置相机
     const camera = setupCamera(scene);
     cameraRef.current = camera;
-    
-    // 初始状态下禁用相机控制
+
     if (!state.debug) {
       camera.detachControl();
     }
@@ -98,23 +101,36 @@ const CanvasBackground: React.FC = () => {
     // 设置灯光
     setupLights(scene);
 
-    // 创建球体
-    const sphere = MeshBuilder.CreateSphere(
-      'sphere',
-      { diameter: 2, segments: 32 },
-      scene
-    );
-    sphereRef.current = sphere;
-    sphere.position = Vector3.Zero();
+    // 创建平面
+    const plane = MeshBuilder.CreatePlane('colorPlane', {
+      size: 2,  
+      sideOrientation: Mesh.DOUBLESIDE
+    }, scene);
+    plane.rotation = new Vector3(0, 0, 0);
+    planeRef.current = plane;
 
-    // 创建初始材质
-    const newMaterial = createMaterialByType(scene, state.color, state.texture);
-    materialRef.current = newMaterial;
-    sphere.material = newMaterial;
+    // 创建并应用材质
+    const material = createMaterialByType(scene, state.color, state.texture);
+    plane.material = material;
+    materialRef.current = material;
 
     // 添加辉光效果
     const gl = new GlowLayer('glow', scene);
     gl.intensity = 0.5;
+
+    // 在调试模式下启用 Inspector
+    if (state.debug) {
+      scene.debugLayer.show({
+        embedMode: true,
+        handleResize: true,
+        overlay: true,
+      });
+    }
+
+    // 渲染循环
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
 
     // 处理窗口大小变化
     const handleResize = () => {
@@ -131,24 +147,11 @@ const CanvasBackground: React.FC = () => {
     // 监听窗口大小变化
     window.addEventListener('resize', handleResize);
 
-    // 渲染循环
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
-
     // 清理函数
     return () => {
       window.removeEventListener('resize', handleResize);
       engine.dispose();
       scene.dispose();
-    };
-  };
-
-  // 初始化场景
-  useEffect(() => {
-    const cleanup = initScene();
-    return () => {
-      cleanup?.();
     };
   }, []);
 

@@ -59,8 +59,13 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
  * 设置场景
  */
 export const setupScene = (scene: Scene) => {
+  // 设置透明背景
   scene.clearColor = new Color4(0, 0, 0, 0);
   scene.ambientColor = new Color3(0.3, 0.3, 0.3);
+  
+  // 启用透明度排序
+  scene.alphaMode = Scene.ALPHA_COMBINE;
+  scene.transparencyMode = Scene.MATERIAL_ALPHATEST;
   
   // 创建HDR环境
   const envTexture = CubeTexture.CreateFromPrefilteredData(
@@ -77,9 +82,9 @@ export const setupScene = (scene: Scene) => {
 export const setupCamera = (scene: Scene) => {
   const camera = new ArcRotateCamera(
     'camera',
-    0,
-    Math.PI / 2,
-    5,
+    Math.PI / 2,  // alpha - 水平旋转角度
+    Math.PI / 2,  // beta - 垂直旋转角度
+    3,            // radius - 距离
     Vector3.Zero(),
     scene
   );
@@ -87,6 +92,11 @@ export const setupCamera = (scene: Scene) => {
   camera.lowerRadiusLimit = 2;
   camera.upperRadiusLimit = 10;
   camera.wheelDeltaPercentage = 0.01;
+  
+  // 设置相机初始位置
+  camera.setPosition(new Vector3(0, 0, -3));
+  camera.setTarget(Vector3.Zero());
+  
   return camera;
 };
 
@@ -94,18 +104,19 @@ export const setupCamera = (scene: Scene) => {
  * 设置灯光
  */
 export const setupLights = (scene: Scene) => {
-  // 半球光
-  const hemisphericLight = new HemisphericLight(
-    'hemisphericLight',
+  // 主光源
+  const mainLight = new HemisphericLight(
+    'mainLight',
     new Vector3(0, 1, 0),
     scene
   );
-  hemisphericLight.intensity = 0.7;
+  mainLight.intensity = 0.7;
+  mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
 
-  // 点光源
+  // 补光
   const pointLight = new PointLight(
     'pointLight',
-    new Vector3(0, 5, -5),
+    new Vector3(0, 0, -5),
     scene
   );
   pointLight.intensity = 0.5;

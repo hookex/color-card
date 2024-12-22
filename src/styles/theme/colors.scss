@@ -29,7 +29,7 @@ $alpha: (
 $glass: (
   bg: rgba($white, map-get($alpha, 15)),
   border: rgba($white, map-get($alpha, 10)),
-  shadow: rgba(31, 38, 135, map-get($alpha, 10))
+  shadow: rgba($black, map-get($alpha, 10))
 );
 
 // 工具栏

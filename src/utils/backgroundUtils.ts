@@ -250,23 +250,26 @@ export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial =>
     const material = new PBRMaterial('glassMaterial', scene);
     const colorValue = hexToColor3(color);
     
-    // 基础颜色和透明度
+    // 基础颜色和透明度设置
     material.albedoColor = colorValue;
-    material.alpha = 0.6;  // 透明度
-    material.metallic = 0.0;
+    material.alpha = 0.2;  // 透明度
+    material.metallic = 0.1;
     
-    // 毛玻璃效果
-    material.roughness = 0.4;  // 较高的粗糙度产生磨砂效果
-    material.subSurface.isRefractionEnabled = true;  // 启用折射
-    material.subSurface.refractionIntensity = 0.8;  // 折射强度
-    material.indexOfRefraction = 1.5;  // 玻璃的折射率
+    // 玻璃效果
+    material.roughness = 0.1;
+    material.subSurface.isRefractionEnabled = true;
+    material.subSurface.refractionIntensity = 1.0;
+    material.indexOfRefraction = 1.5;
     
     // 环境反射设置
-    material.environmentIntensity = 0.7;  // 环境反射强度
+    material.environmentIntensity = 1.0;
     
-    // 半透明设置
+    // 透明度设置
     material.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
-    material.backFaceCulling = false;  // 禁用背面剔除，使两面都可见
+    material.backFaceCulling = false;
+    material.alphaMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
+    material.useAlphaFromAlbedoTexture = false;
+    material.forceAlphaTest = false;
     
     return material;
   });
