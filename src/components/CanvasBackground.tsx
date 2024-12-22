@@ -13,6 +13,7 @@ import {
   PointLight,
   GlowLayer,
   Mesh,
+  Texture,
 } from '@babylonjs/core';
 import '@babylonjs/core/Debug/debugLayer';
 import '@babylonjs/inspector';
@@ -25,6 +26,7 @@ import {
   setupScene,
 } from '../utils/canvasBackgroundUtils';
 import useStore from '../stores/useStore';
+import backgroundImage from '../assets/background.jpg';
 
 const CanvasBackground: React.FC = () => {
   const color = useStore(state => state.color);
@@ -34,7 +36,8 @@ const CanvasBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
-  const planeRef = useRef<any>(null);
+  const planeRef = useRef<Mesh | null>(null);
+  const backgroundPlaneRef = useRef<Mesh | null>(null);
   const cameraRef = useRef<ArcRotateCamera | null>(null);
   const materialRef = useRef<StandardMaterial | PBRMaterial | null>(null);
 
@@ -101,12 +104,26 @@ const CanvasBackground: React.FC = () => {
     // 设置灯光
     setupLights(scene);
 
-    // 创建平面
-    const plane = MeshBuilder.CreatePlane('colorPlane', {
-      size: 2,  
+    // 创建背景平面
+    const backgroundPlane = MeshBuilder.CreatePlane('backgroundPlane', {
+      size: 4,
       sideOrientation: Mesh.DOUBLESIDE
     }, scene);
-    plane.rotation = new Vector3(0, 0, 0);
+    backgroundPlane.position = new Vector3(0, 0, -0.1); // 放在主平面后面
+    backgroundPlaneRef.current = backgroundPlane;
+
+    // 创建背景材质
+    const backgroundMaterial = new StandardMaterial('backgroundMaterial', scene);
+    const backgroundTexture = new Texture(backgroundImage, scene);
+    backgroundMaterial.diffuseTexture = backgroundTexture;
+    backgroundPlane.material = backgroundMaterial;
+
+    // 创建主平面（玻璃效果）
+    const plane = MeshBuilder.CreatePlane('colorPlane', {
+      size: 2,
+      sideOrientation: Mesh.DOUBLESIDE
+    }, scene);
+    plane.position = new Vector3(0, 0, 0);
     planeRef.current = plane;
 
     // 创建并应用材质
