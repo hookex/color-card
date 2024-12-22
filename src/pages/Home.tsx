@@ -316,36 +316,27 @@ const Home: React.FC = () => {
         disableCloseOnEsc
         styles={{
           options: {
-            primaryColor: '#007AFF',
-            textColor: '#000',
-            backgroundColor: '#fff',
-            arrowColor: '#fff',
+            arrowColor: 'rgba(255, 255, 255, 0.7)',
             overlayColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1000,
           },
-          tooltip: {
-            borderRadius: '8px',
-            fontSize: '14px',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          },
-          tooltipContainer: {
-            textAlign: 'center',
-          },
-          buttonNext: {
-            backgroundColor: '#007AFF',
-            borderRadius: '4px',
-            color: '#fff',
-            display: !shouldShowNext && currentStep === 3 ? 'none' : 'block',
-          },
-          buttonBack: {
-            color: '#666',
-            marginRight: 10,
-          },
-          buttonSkip: {
-            color: '#666',
-          },
           overlay: {
             pointerEvents: currentStep === 2 ? 'none' : 'auto',
+          },
+          spotlight: {
+            backgroundColor: 'transparent',
+          },
+          floater: {
+            filter: 'none',
+          },
+        }}
+        floaterProps={{
+          disableAnimation: true,
+          styles: {
+            arrow: {
+              length: 8,
+              spread: 12,
+            },
           },
         }}
         locale={{

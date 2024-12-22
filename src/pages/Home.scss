@@ -593,3 +593,69 @@ ion-content {
     padding: $base-unit;
   }
 }
+
+:global {
+  .react-joyride__tooltip {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+
+    .react-joyride__button {
+      border-radius: 8px !important;
+      padding: 8px 16px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+
+      &.react-joyride__button--primary {
+        background: rgba(0, 122, 255, 0.9) !important;
+        border: none !important;
+        color: white !important;
+
+        &:hover {
+          background: rgba(0, 122, 255, 1) !important;
+          transform: translateY(-1px) !important;
+        }
+      }
+
+      &.react-joyride__button--secondary {
+        background: rgba(255, 255, 255, 0.5) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        color: #666 !important;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.8) !important;
+          transform: translateY(-1px) !important;
+        }
+      }
+    }
+
+    .react-joyride__tooltip__footer {
+      border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+      margin-top: 12px !important;
+      padding-top: 12px !important;
+    }
+
+    .react-joyride__tooltip__content {
+      color: #333 !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+      padding: 0 !important;
+    }
+  }
+
+  // 进度指示器样式
+  .react-joyride__progress {
+    border-radius: 4px !important;
+    height: 4px !important;
+    background: rgba(0, 0, 0, 0.1) !important;
+
+    &__value {
+      background: rgba(0, 122, 255, 0.9) !important;
+      border-radius: 4px !important;
+    }
+  }
+}
