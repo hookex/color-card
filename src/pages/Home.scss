@@ -26,20 +26,13 @@ $content-width: 1200px;
 @mixin glass-effect {
   --glass-opacity: 0.15;
   --background: rgba(255, 255, 255, var(--glass-opacity));
-  --border-style: solid;
-  --border-width: 1px;
-  --border-color: rgba(255, 255, 255, 0.1);
   background: var(--background);
-  border: var(--border-width) var(--border-style) var(--border-color);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 
-    0 -2px 10px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 
   @media (prefers-color-scheme: dark) {
     --background: rgba(255, 255, 255, var(--glass-opacity));
-    --border-color: rgba(255, 255, 255, 0.1);
   }
 }
 
