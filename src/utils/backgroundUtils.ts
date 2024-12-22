@@ -7,6 +7,7 @@ import {
   EasingFunction,
   CircleEase,
   NoiseProceduralTexture,
+  DynamicTexture,
   Texture,
 } from '@babylonjs/core';
 import createLogger from './logger';
@@ -35,18 +36,18 @@ const getMaterialCacheKey = (type: string, color: string): string => {
 };
 
 // 从缓存获取材质，如果不存在则创建
-const getMaterialFromCache = (
+const getMaterialFromCache = <T extends StandardMaterial | PBRMaterial>(
   scene: Scene,
   type: string,
   color: string,
-  createFn: () => StandardMaterial | PBRMaterial
-): StandardMaterial | PBRMaterial => {
+  createFn: () => T
+): T => {
   const cache = getSceneMaterialCache(scene);
   const cacheKey = getMaterialCacheKey(type, color);
-  
-  if (cache[cacheKey]) {
+
+  if (cacheKey in cache) {
     logger.debug('Using cached material:', { type, color });
-    const material = cache[cacheKey];
+    const material = cache[cacheKey] as T;
     
     // 确保材质已准备好
     if (material instanceof StandardMaterial) {
@@ -216,9 +217,9 @@ export const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial 
     microNoiseTexture.animationSpeedFactor = 0;
     microNoiseTexture.brightness = 0.8;
     
-    // 使用噪声纹理作为凹凸贴图和粗糙度贴图
+    // 使用噪声纹理作为凹凸贴图和金属度贴图
     material.bumpTexture = noiseTexture;
-    material.roughnessTexture = microNoiseTexture;
+    material.metallicTexture = microNoiseTexture;
     
     // 材质属性
     material.metallic = 0;  // 非金属
@@ -430,12 +431,11 @@ export const createLinearGradientMaterial = (
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // 创建纹理
-    const texture = new Texture('', scene, true);
-    texture.updateSize(canvas.width, canvas.height);
-    texture.hasAlpha = false;
+    const texture = new DynamicTexture('gradientTexture', { width: canvas.width, height: canvas.height }, scene, true);
     
     // 从画布更新纹理
-    texture.getContext().drawImage(canvas, 0, 0);
+    const textureContext = texture.getContext();
+    textureContext.drawImage(canvas, 0, 0);
     texture.update();
     
     // 设置材质属性

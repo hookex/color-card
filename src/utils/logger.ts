@@ -13,23 +13,23 @@ const createLogger = (namespace: string) => {
   const logger = debug(`colorcard:${namespace}`);
 
   return {
-    log: (...args: unknown[]) => {
+    log: (...args: Parameters<typeof console.log>) => {
       console.log(`%c[${namespace}]`, 'color: blue', ...args);
       logger(...args);
     },
-    info: (...args: unknown[]) => {
+    info: (...args: Parameters<typeof console.info>) => {
       console.info(`%c[${namespace}]`, 'color: green', ...args);
       logger(...args);
     },
-    debug: (...args: unknown[]) => {
+    debug: (...args: Parameters<typeof console.debug>) => {
       console.debug(`%c[${namespace}]`, 'color: gray', ...args);
       logger(...args);
     },
-    warn: (...args: unknown[]) => {
+    warn: (...args: Parameters<typeof console.warn>) => {
       console.warn(`%c[${namespace}]`, 'color: orange', ...args);
       logger.extend('warn')(...args);
     },
-    error: (...args: unknown[]) => {
+    error: (...args: Parameters<typeof console.error>) => {
       console.error(`%c[${namespace}]`, 'color: red', ...args);
       logger.extend('error')(...args);
     },

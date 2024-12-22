@@ -9,6 +9,7 @@ import {
   StandardMaterial,
   PBRMaterial,
   CubeTexture,
+  Engine,
 } from '@babylonjs/core';
 import { TextureType } from '../components/TextureTools';
 import {
@@ -19,6 +20,7 @@ import {
   createLeatherMaterial,
 } from './backgroundUtils';
 import createLogger from './logger';
+import environmentSpecular from '/assets/environments/environmentSpecular.env?url';
 
 const logger = createLogger('canvasBackground');
 
@@ -73,12 +75,11 @@ export const setupScene = (scene: Scene) => {
   scene.ambientColor = new Color3(0.3, 0.3, 0.3);
   
   // 启用透明度排序
-  scene.alphaMode = Scene.ALPHA_COMBINE;
-  scene.transparencyMode = Scene.MATERIAL_ALPHATEST;
+  scene.getEngine().setAlphaMode(Engine.ALPHA_COMBINE);
   
   // 创建HDR环境
   const envTexture = CubeTexture.CreateFromPrefilteredData(
-    "https://assets.babylonjs.com/environments/environmentSpecular.env",
+    environmentSpecular,
     scene
   );
   scene.environmentTexture = envTexture;
