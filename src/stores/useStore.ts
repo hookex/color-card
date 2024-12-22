@@ -1,51 +1,60 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
+import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
 
 interface ColorCardState {
   color: string;
   texture: TextureType;
   debug: boolean;
+  colorCards: ColorCard[];
   setColor: (color: string) => void;
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
+  addColorCard: (card: ColorCard) => void;
+  removeColorCard: (color: string) => void;
+  updateColorCards: (cards: ColorCard[]) => void;
 }
 
-const initialState = {
-  color: '#f5f5f5',
-  texture: 'solid' as TextureType,
-  debug: false,
-};
-
-export const useStore = create<ColorCardState>()(
-  persist(
+const useStore = create<ColorCardState>()(
+  devtools(
     (set) => ({
-      ...initialState,
-      setColor: (color) => {
-        console.log('Store: Setting color to', color);
-        set((state) => {
-          console.log('Store: Previous state', state);
-          return { ...state, color };
-        });
-      },
-      setTexture: (texture) => {
-        console.log('Store: Setting texture to', texture);
-        set((state) => {
-          console.log('Store: Previous state', state);
-          return { ...state, texture };
-        });
-      },
-      setDebug: (debug) => {
-        console.log('Store: Setting debug to', debug);
-        set((state) => {
-          console.log('Store: Previous state', state);
-          return { ...state, debug };
-        });
-      },
+      // 初始状态
+      color: initialColorCards[0].color,
+      texture: 'solid',
+      debug: false,
+      colorCards: initialColorCards,
+
+      // Actions
+      setColor: (color) => set({ color }, false, 'setColor'),
+      setTexture: (texture) => set({ texture }, false, 'setTexture'),
+      setDebug: (debug) => set({ debug }, false, 'setDebug'),
+      addColorCard: (card) => 
+        set(
+          (state) => ({ 
+            colorCards: [...state.colorCards, card] 
+          }),
+          false,
+          'addColorCard'
+        ),
+      removeColorCard: (color) =>
+        set(
+          (state) => ({
+            colorCards: state.colorCards.filter(c => c.color !== color)
+          }),
+          false,
+          'removeColorCard'
+        ),
+      updateColorCards: (cards) =>
+        set(
+          { colorCards: cards },
+          false,
+          'updateColorCards'
+        ),
     }),
     {
-      name: 'color-card-storage',
-      version: 1,
+      name: 'ColorCard',
+      enabled: true,
     }
   )
 );

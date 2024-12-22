@@ -30,6 +30,10 @@
   border-radius: 8px;
   padding: 6px;
   width: 320px;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   // 修改 ion-toolbar 的默认样式
   ion-toolbar {

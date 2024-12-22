@@ -49,50 +49,49 @@ $colors: (
   margin: 0 auto;
   height: 100%;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  padding-bottom: 100px;
-}
-
-// Color card
-.color-card {
-  position: relative;
-  padding: 20px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  min-height: 160px;
+.color-grid {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+  padding: 20px;
+  
+  .column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
 
-  &:hover {
-    transform: translateY(-2px);
+.color-card {
+  background-color: var(--card-color);
+  color: var(--text-color);
+  border-radius: 12px;
+  padding: 20px;
+  @include card-hover;
+  
+  &.active {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 
-  &__title {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-  }
+  .color-info {
+    .zh-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
 
-  &__brand {
-    margin: 8px 0;
-    font-size: 18px;
-    font-weight: 500;
-  }
+    .pinyin {
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
 
-  &__value {
-    margin: 0;
-    font-size: 14px;
-    font-family: monospace;
-    opacity: 0.8;
+    .year {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
   }
 }
 

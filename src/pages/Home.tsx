@@ -5,34 +5,23 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
-import DevTools from '../components/DevTools';
-import { colorCards } from '../config/brandColors';
+import useStore from '../stores/useStore';
+import { getContrastColor } from '../utils/backgroundUtils';
 import './Home.scss';
 import '../styles/components/ColorCard.scss';
 
-// 计算对比色
-const getContrastColor = (hexcolor: string): string => {
-  // 移除 # 号
-  const hex = hexcolor.replace('#', '');
-  
-  // 转换为 RGB
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  
-  // 使用 YIQ 算法计算亮度
-  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-  
-  // 亮度大于 128 时使用深色文字，否则使用浅色文字
-  return yiq >= 128 ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
-};
-
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  const [debug, setDebug] = useState(false);
   const [mode, setMode] = useState<'canvas' | 'div'>('div');
-  const [color, setColor] = useState(colorCards[0].color);
-  const [texture, setTexture] = useState<TextureType>('solid');
+  
+  // 分开订阅 store 状态
+  const color = useStore(state => state.color);
+  const texture = useStore(state => state.texture);
+  const debug = useStore(state => state.debug);
+  const colorCards = useStore(state => state.colorCards);
+  const updateColor = useStore(state => state.setColor);
+  const updateTexture = useStore(state => state.setTexture);
+  const updateDebug = useStore(state => state.setDebug);
 
   const fadeIn = useSpring({
     from: { opacity: 0, transform: 'translateY(20px)' },
@@ -42,7 +31,7 @@ const Home: React.FC = () => {
 
   const handleCardClick = async (newColor: string) => {
     console.log('Setting new color:', newColor); 
-    setColor(newColor);
+    updateColor(newColor);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
@@ -50,20 +39,20 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleTextureChange = (newTexture: TextureType) => {
+  const handleTextureChange = async (newTexture: TextureType) => {
     console.log('Setting new texture:', newTexture); 
-    setTexture(newTexture);
+    updateTexture(newTexture);
     try {
-      Haptics.impact({ style: ImpactStyle.Light });
+      await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
       console.log('Haptics not available');
     }
   };
 
-  const handleDebugChange = (newDebug: boolean) => {
-    setDebug(newDebug);
+  const handleDebugChange = async (newDebug: boolean) => {
+    updateDebug(newDebug);
     try {
-      Haptics.impact({ style: ImpactStyle.Light });
+      await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
       console.log('Haptics not available');
     }
@@ -84,62 +73,51 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <DevTools 
-        debug={debug} 
-        onDebugChange={setDebug} 
-        mode={mode} 
-        onModeChange={(newMode) => {
-          setMode(newMode);
-        }}
-      >
-        <Background color={color} texture={texture} debug={debug} mode={mode} />
-        <IonContent>
-          <animated.div style={fadeIn}>
-            <div className="color-cards">
-              <div className="color-column">
-                {splitColors().leftColumn.map(({ color, name, zhName, year }) => (
-                  <div
-                    key={name}
-                    className="color-card"
-                    style={getCardStyle(color)}
-                    onClick={() => handleCardClick(color)}
-                  >
-                    <div className="year-label">{year}</div>
-                    <div className="card-info">
-                      <div className="en-name">{name}</div>
-                      <div className="zh-name">{zhName}</div>
-                      <div className="rgb">{color.toUpperCase()}</div>
-                    </div>
+      <IonContent fullscreen scrollY={false}>
+        <Background color={color} texture={texture} mode={mode} debug={debug} />
+        <animated.div style={fadeIn} className="container">
+          <div className="color-grid">
+            <div className="column">
+              {splitColors().leftColumn.map((card) => (
+                <div
+                  key={card.color}
+                  className={`color-card ${color === card.color ? 'active' : ''}`}
+                  style={getCardStyle(card.color)}
+                  onClick={() => handleCardClick(card.color)}
+                >
+                  <div className="color-info">
+                    <div className="zh-name">{card.zhName}</div>
+                    <div className="pinyin">{card.pinyin}</div>
+                    <div className="year">{card.year}</div>
                   </div>
-                ))}
-              </div>
-              <div className="color-column">
-                {splitColors().rightColumn.map(({ color, name, zhName, year }) => (
-                  <div
-                    key={name}
-                    className="color-card"
-                    style={getCardStyle(color)}
-                    onClick={() => handleCardClick(color)}
-                  >
-                    <div className="year-label">{year}</div>
-                    <div className="card-info">
-                      <div className="en-name">{name}</div>
-                      <div className="zh-name">{zhName}</div>
-                      <div className="rgb">{color.toUpperCase()}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          </animated.div>
-        </IonContent>
-        <TextureTools
-          color={color}
-          onColorChange={setColor}
-          texture={texture}
-          onTextureChange={handleTextureChange}
-        />
-      </DevTools>
+            <div className="column">
+              {splitColors().rightColumn.map((card) => (
+                <div
+                  key={card.color}
+                  className={`color-card ${color === card.color ? 'active' : ''}`}
+                  style={getCardStyle(card.color)}
+                  onClick={() => handleCardClick(card.color)}
+                >
+                  <div className="color-info">
+                    <div className="zh-name">{card.zhName}</div>
+                    <div className="pinyin">{card.pinyin}</div>
+                    <div className="year">{card.year}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <TextureTools
+            color={color}
+            onColorChange={updateColor}
+            texture={texture}
+            onTextureChange={handleTextureChange}
+          />
+        </animated.div>
+      </IonContent>
     </IonPage>
   );
 };

@@ -21,14 +21,14 @@ const InspectorWrapper = Inspector;
 /**
  * DevTools 组件属性接口
  * @interface Props
- * @property {React.ReactNode} children - 子组件
+ * @property {React.ReactNode} [children] - 子组件
  * @property {boolean} [debug] - 调试模式状态
  * @property {(debug: boolean) => void} [onDebugChange] - 调试模式切换回调
  * @property {'canvas' | 'div'} [mode] - 背景渲染模式
  * @property {(mode: 'canvas' | 'div') => void} [onModeChange] - 背景模式切换回调
  */
 interface Props {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   debug?: boolean;
   onDebugChange?: (debug: boolean) => void;
   mode?: 'canvas' | 'div';

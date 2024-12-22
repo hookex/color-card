@@ -120,3 +120,20 @@ export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial =>
   material.indexOfRefraction = 1.5;
   return material;
 };
+
+// 计算对比色
+export const getContrastColor = (hexcolor: string): string => {
+  // 移除 # 号
+  const hex = hexcolor.replace('#', '');
+  
+  // 转换为 RGB
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // 使用 YIQ 算法计算亮度
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  
+  // 亮度大于 128 时使用深色文字，否则使用浅色文字
+  return yiq >= 128 ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+};
