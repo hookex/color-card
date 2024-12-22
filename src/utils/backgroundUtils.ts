@@ -375,6 +375,31 @@ export const getContrastColor = (hexcolor: string): string => {
 };
 
 /**
+ * 计算颜色的亮度值
+ * @param hex 十六进制颜色值
+ * @returns 0-1之间的亮度值
+ */
+export const getLuminance = (hex: string): number => {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  
+  // 使用相对亮度公式
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/**
+ * 获取毛玻璃效果的背景透明度
+ * @param hex 十六进制颜色值
+ * @returns 合适的背景透明度
+ */
+export const getGlassOpacity = (hex: string): number => {
+  const luminance = getLuminance(hex);
+  // 亮色背景使用较高透明度，暗色背景使用较低透明度
+  return luminance > 0.5 ? 0.2 : 0.1;
+};
+
+/**
  * 创建线性渐变材质
  * @param scene Babylon Scene 对象
  * @param startColor 起始颜色（十六进制）

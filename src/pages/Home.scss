@@ -24,7 +24,8 @@ $content-width: 1200px;
 }
 
 @mixin glass-effect {
-  --background: rgba(255, 255, 255, 0.1);
+  --glass-opacity: 0.15;
+  --background: rgba(255, 255, 255, var(--glass-opacity));
   --border-style: solid;
   --border-width: 1px;
   --border-color: rgba(255, 255, 255, 0.1);
@@ -37,7 +38,7 @@ $content-width: 1200px;
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 
   @media (prefers-color-scheme: dark) {
-    --background: rgba(28, 28, 30, 0.2);
+    --background: rgba(255, 255, 255, var(--glass-opacity));
     --border-color: rgba(255, 255, 255, 0.1);
   }
 }
@@ -285,8 +286,6 @@ $content-width: 1200px;
       --background-hover: transparent;
       --background-activated: transparent;
       --background-focused: transparent;
-      --background-activated-opacity: 0;
-      --background-focused-opacity: 0;
       --background-hover-opacity: 0;
       --box-shadow: none;
       --ripple-color: rgba(255, 255, 255, 0.1);
@@ -404,46 +403,63 @@ ion-content {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  margin-bottom: 20px;
+  padding: $base-unit;
   display: flex;
   flex-direction: column;
   align-items: center;
   
-  &.glass-effect {
+  .glass-button {
+    @include glass-effect;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc($base-unit * 3.5);
+    height: calc($base-unit * 3.5);
+    border-radius: 50%;
+    isolation: isolate;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.2s ease;
+    border: none;
+    
+    &:active {
+      transform: scale(0.95);
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+    
     .wallpaper-button {
-      --background: rgba(255, 255, 255, 0.15);
-      --background-activated: rgba(255, 255, 255, 0.25);
-      --background-activated-opacity: 1;
-      --background-hover: rgba(255, 255, 255, 0.2);
-      --background-hover-opacity: 1;
-      --color: #fff;
-      --border-radius: 50%;
+      --background: transparent;
       --box-shadow: none;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all 0.2s ease;
+      --border-radius: 50%;
+      --ripple-color: transparent;
+      --background-activated: transparent;
+      --background-focused: transparent;
+      --background-hover: transparent;
+      margin: 0;
+      width: calc($base-unit * 3);
+      height: calc($base-unit * 3);
       
       &::part(native) {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        border-radius: 50%;
+        background: transparent;
       }
-
-      &:active {
-        transform: scale(0.95);
+      
+      ion-icon {
+        font-size: 1.5em;
+        color: white;
+        transition: transform 0.2s ease;
       }
     }
   }
-
+  
   .button-label {
-    margin-top: 6px;
     font-size: 12px;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    opacity: 0.9;
+    margin-top: 8px;
+    color: white;
+    opacity: 0.8;
+    text-align: center;
     font-weight: 500;
-    user-select: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
 

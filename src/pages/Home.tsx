@@ -12,7 +12,7 @@ import { takeScreenshot } from '../utils/screenshot';
 import createLogger  from '../utils/logger';
 import CanvasBackground from '../components/CanvasBackground';
 import DivBackground from '../components/DivBackground';
-import { getContrastColor } from '../utils/backgroundUtils';
+import { getContrastColor, getGlassOpacity } from '../utils/backgroundUtils';
 import { useState, useEffect } from 'react';
 import './Home.scss';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -227,12 +227,20 @@ const Home: React.FC = () => {
           className="wallpaper-button-container"
           style={buttonAnimation}
         >
-          <IonFabButton 
-            className="wallpaper-button" 
-            onClick={handleSetWallpaper}
+          <div 
+            className="glass-button" 
+            style={{ 
+              '--glass-opacity': getGlassOpacity(color),
+            } as any}
           >
-            <IonIcon icon={save} />
-          </IonFabButton>
+            <IonFabButton 
+              className="wallpaper-button" 
+              onClick={handleSetWallpaper}
+            >
+              <IonIcon icon={save} />
+            </IonFabButton>
+          </div>
+          <div className="button-label">{t('home.save')}</div>
         </animated.div>
       </IonContent>
     </IonPage>
