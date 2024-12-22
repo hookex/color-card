@@ -39,6 +39,8 @@ const Home: React.FC = () => {
   } = useStore();
 
   const [runTutorial, setRunTutorial] = useState(!hasCompletedTutorial);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showSaveButton, setShowSaveButton] = useState(false);
 
   const steps: Step[] = [
     {
@@ -52,22 +54,42 @@ const Home: React.FC = () => {
       placement: 'top',
     },
     {
+      target: '.home-page',
+      content: '向左滑动来预览壁纸',
+      placement: 'center',
+      spotlightClicks: true,
+      disableBeacon: true,
+      disableOverlay: true,
+      floaterProps: {
+        disableAnimation: true,
+      },
+    },
+    {
       target: '.save-button',
-      content: '向右滑动并点击保存按钮',
+      content: '点击保存按钮',
       placement: 'left',
+      disableBeacon: true,
+      spotlightClicks: true,
     },
     {
       target: '.wallpaper-button',
-      content: '进入相册，设置为壁纸',
+      content: '点击保存，进入相册，设置为壁纸',
       placement: 'left',
     },
   ];
 
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status } = data;
+    const { action, index, status, type } = data;
+
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setHasCompletedTutorial(true);
       setRunTutorial(false);
+      return;
+    }
+
+    // 处理下一步按钮点击
+    if (type === 'step:after' && action === 'next') {
+      setCurrentStep(prev => prev + 1);
     }
   };
 
@@ -120,56 +142,77 @@ const Home: React.FC = () => {
     }
   });
 
-  const bind = useDrag(({ active, movement: [mx], offset: [ox], last, velocity: [vx], direction: [dx] }) => {
-    const threshold = window.innerWidth * 0.15;
-    const velocityThreshold = 0.3;
-    
-    if (active) {
-      api.start({ 
-        x: ox,
-        immediate: true,
-      });
-      setIsSwipedOut(ox > threshold);
-    } else if (last) {
-      const isSliding = Math.abs(vx) > velocityThreshold;
-      const direction = dx > 0 ? 1 : -1;
-      const shouldSlideOut = isSliding ? direction > 0 : Math.abs(ox) > threshold;
-      const targetX = shouldSlideOut ? window.innerWidth : 0;
+  const threshold = 200;
+  const velocityThreshold = 0.3;
 
-      setIsSwipedOut(shouldSlideOut);
-      
-      api.start({ 
-        x: targetX,
-        config: {
-          mass: 1,
-          tension: 300,
-          friction: 50,
-        }
-      });
-    }
-  }, {
-    axis: 'x',
-    filterTaps: true,
-    bounds: { left: -window.innerWidth, right: window.innerWidth },
-    threshold: 5,
-    rubberband: true,
-    from: () => [x.get(), 0],
-    preventScroll: true,
-    triggerAllEvents: true,
-    pointer: { touch: true },
-  });
+  const [shouldShowNext, setShouldShowNext] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (hideColorCard) {
-        const direction = x.get() > 0 ? 1 : -1;
-        api.start({ x: direction * window.innerWidth });
-      }
-    };
+    if (currentStep === 3) {
+      const checkButtonVisibility = () => {
+        const saveButton = document.querySelector('.save-button');
+        if (saveButton && window.getComputedStyle(saveButton).display !== 'none') {
+          setShouldShowNext(true);
+        } else {
+          setShouldShowNext(false);
+        }
+      };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [hideColorCard]);
+      checkButtonVisibility();
+
+      const interval = setInterval(checkButtonVisibility, 100);
+      return () => clearInterval(interval);
+    }
+  }, [currentStep]);
+
+  const bind = useDrag(
+    ({ down, movement: [mx], last, velocity: [vx], direction: [dx] }) => {
+      const ox = mx;
+      if (down) {
+        api.start({
+          x: ox,
+          immediate: true,
+        });
+        setIsSwipedOut(ox < -threshold);
+        
+        if (currentStep === 2 && ox < -100) {
+          setCurrentStep(3);
+        }
+      } else if (last) {
+        const isSliding = Math.abs(vx) > velocityThreshold;
+        const direction = dx < 0 ? 1 : -1;
+        const shouldSlideOut = isSliding ? direction > 0 : Math.abs(ox) > threshold;
+        const targetX = shouldSlideOut ? -window.innerWidth : 0;
+
+        setIsSwipedOut(shouldSlideOut);
+        
+        if (currentStep === 2 && shouldSlideOut) {
+          setCurrentStep(3);
+        }
+
+        api.start({
+          x: targetX,
+          immediate: false,
+          config: {
+            duration: isSliding ? 400 : 800,
+          },
+        });
+      }
+    },
+    {
+      axis: 'x',
+      bounds: { left: -window.innerWidth, right: 0 },
+      rubberband: true,
+    }
+  );
+
+  useEffect(() => {
+    if (x.get() < -50) {
+      setShowSaveButton(true);
+    } else {
+      setShowSaveButton(false);
+    }
+  }, [x.get()]);
 
   const handleCardClick = async (newColor: string) => {
     logger.info('Changing color:', newColor);
@@ -198,7 +241,25 @@ const Home: React.FC = () => {
 
   const currentMode = useStore(state => state.mode);
 
-  const handleSetWallpaper = async () => {
+  const handleSave = async () => {
+    try {
+      if (mode === 'canvas') {
+        await handleCanvasSave();
+      } else {
+        await handleDivSave();
+      }
+      // 保存成功后，如果当前是第4步，进入第5步
+      if (currentStep === 3) {
+        setTimeout(() => {
+          setCurrentStep(4);
+        }, 500);
+      }
+    } catch (error) {
+      logger.error('Error saving:', error);
+    }
+  };
+
+  const handleCanvasSave = async () => {
     try {
       const result = await takeScreenshot(currentMode);
       if (result.success) {
@@ -211,14 +272,38 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleDivSave = async () => {
+    try {
+      const result = await takeScreenshot(currentMode);
+      if (result.success) {
+        console.log('Wallpaper saved:', result.fileName);
+      } else {
+        console.error('Failed to save wallpaper:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to take screenshot:', error);
+    }
+  };
+
+  const handleSetWallpaper = async () => {
+    try {
+      await handleSave();
+    } catch (error) {
+      console.error('Failed to set wallpaper:', error);
+    }
+  };
+
   return (
     <IonPage className="home-page">
       <Joyride
         steps={steps}
         run={runTutorial}
+        stepIndex={currentStep}
         continuous
         showSkipButton
         showProgress
+        disableScrollParentFix
+        disableCloseOnEsc
         styles={{
           options: {
             primaryColor: '#007AFF',
@@ -226,15 +311,21 @@ const Home: React.FC = () => {
             backgroundColor: '#fff',
             arrowColor: '#fff',
             overlayColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 1000,
           },
           tooltip: {
             borderRadius: '8px',
             fontSize: '14px',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          },
+          tooltipContainer: {
+            textAlign: 'center',
           },
           buttonNext: {
             backgroundColor: '#007AFF',
             borderRadius: '4px',
             color: '#fff',
+            display: !shouldShowNext && currentStep === 3 ? 'none' : 'block',
           },
           buttonBack: {
             color: '#666',
@@ -242,6 +333,9 @@ const Home: React.FC = () => {
           },
           buttonSkip: {
             color: '#666',
+          },
+          overlay: {
+            pointerEvents: currentStep === 2 ? 'none' : 'auto',
           },
         }}
         locale={{
@@ -297,6 +391,18 @@ const Home: React.FC = () => {
         </animated.div>
 
         {/* 保存按钮 */}
+        <animated.div
+          className={`save-button ${isSwipedOut ? 'active' : ''}`}
+          style={{
+            transform: x.to(x => `translate3d(${x}px, 0, 0)`),
+          }}
+          onClick={handleSave}
+        >
+          <IonFabButton>
+            <IonIcon icon={save} />
+          </IonFabButton>
+        </animated.div>
+
         <animated.div 
           className="wallpaper-button-container"
           style={buttonAnimation}

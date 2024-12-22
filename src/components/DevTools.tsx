@@ -52,6 +52,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const setDebug = useStore(state => state.setDebug);
   const setMode = useStore(state => state.setMode);
   const resetScene = useStore(state => state.resetScene);
+  const setHasCompletedTutorial = useStore(state => state.setHasCompletedTutorial);
 
   // 初始化时加载保存的状态
   useEffect(() => {
@@ -229,6 +230,11 @@ const DevTools: React.FC<Props> = ({ children }) => {
     showToastMessage(t(nextMode === 'canvas' ? 'devtools.toast.mode_canvas' : 'devtools.toast.mode_div'));
   };
 
+  const handleResetTutorial = () => {
+    setHasCompletedTutorial(false);
+    window.location.reload();
+  };
+
   return (
     <>
       {showInspector && <InspectorWrapper />}
@@ -267,6 +273,13 @@ const DevTools: React.FC<Props> = ({ children }) => {
               color={mode === 'canvas' ? 'primary' : 'secondary'}
             >
               <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
+            </IonFabButton>
+          </div>
+
+          <div className="fab-button-wrapper">
+            <IonLabel className="fab-label">{t('devtools.tutorial_reset')}</IonLabel>
+            <IonFabButton onClick={handleResetTutorial}>
+              <IonIcon icon={refreshOutline} />
             </IonFabButton>
           </div>
         </IonFabList>
