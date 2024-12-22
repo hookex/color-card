@@ -1,5 +1,6 @@
 import { IonContent, IonPage } from '@ionic/react';
-import { useSpring, animated } from '@react-spring/web';
+import { useSpring, animated, config } from '@react-spring/web';
+import { useDrag } from '@use-gesture/react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import CanvasBackground from '../components/CanvasBackground';
@@ -21,14 +22,44 @@ const Home: React.FC = () => {
     texture,
     mode,
     colorCards,
+    hideColorCard,
     setColor: updateColor,
     setTexture: updateTexture,
+    setHideColorCard,
   } = useStore();
 
   const fadeIn = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
     config: { duration: 1000 }
+  });
+
+  const [{ x }, api] = useSpring(() => ({ 
+    x: 0,
+    config: { ...config.stiff, clamp: true }
+  }));
+
+  const bind = useDrag(({ movement: [mx], direction: [dx], velocity: [vx], last }) => {
+    if (last) {
+      const shouldHide = vx > 0.5 || (mx > 50 && dx > 0);
+      const shouldShow = vx < -0.5 || (mx < -50 && dx < 0);
+      
+      if (shouldHide && !hideColorCard) {
+        setHideColorCard(true);
+        api.start({ x: window.innerWidth });
+      } else if (shouldShow && hideColorCard) {
+        setHideColorCard(false);
+        api.start({ x: 0 });
+      } else {
+        api.start({ x: hideColorCard ? window.innerWidth : 0 });
+      }
+    } else {
+      api.start({ x: hideColorCard ? window.innerWidth + mx : mx });
+    }
+  }, {
+    bounds: { left: 0, right: window.innerWidth },
+    rubberband: true,
+    axis: 'x',
   });
 
   const handleCardClick = async (newColor: string) => {
@@ -66,19 +97,21 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent fullscreen scrollY={false}>
-        {mode === 'canvas' ? (
-          <CanvasBackground />
-        ) : (
-          <DivBackground />
-        )}
-        <animated.div style={{
-          ...fadeIn,
-          position: 'relative',
-          zIndex: 1
-        }} className="container">
-          <div className="color-grid">
-            <div className="column">
+      <IonContent fullscreen>
+        {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
+        
+        <animated.div 
+          {...bind()}
+          style={{
+            x,
+            position: 'relative',
+            zIndex: 1,
+            touchAction: 'none'
+          }} 
+          className="container"
+        >
+          <div className="color-columns-container">
+            <div className="color-column left-column">
               {splitColors().leftColumn.map((card) => (
                 <div
                   key={card.color}
@@ -94,7 +127,7 @@ const Home: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="column">
+            <div className="color-column right-column">
               {splitColors().rightColumn.map((card) => (
                 <div
                   key={card.color}

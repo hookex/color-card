@@ -22,6 +22,7 @@ interface ColorCardState {
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
   setMode: (mode: 'canvas' | 'div') => void;
+  setHideColorCard: (hide: boolean) => void;
   addColorCard: (card: ColorCard) => void;
   removeColorCard: (color: string) => void;
   updateColorCards: (cards: ColorCard[]) => void;
@@ -60,6 +61,12 @@ const useStore = create<ColorCardState>()(
 
         setMode: (mode: 'canvas' | 'div') => {
           set({ mode });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        setHideColorCard: (hide: boolean) => {
+          set({ hideColorCard: hide });
           const state = useStore.getState();
           saveStoreState(state);
         },
