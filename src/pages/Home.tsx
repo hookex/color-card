@@ -100,58 +100,64 @@ const Home: React.FC = () => {
       <IonContent fullscreen>
         {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
         
-        <animated.div 
-          {...bind()}
-          style={{
-            x,
-            position: 'relative',
-            zIndex: 1,
-            touchAction: 'none'
-          }} 
-          className="container"
-        >
-          <div className="color-columns-container">
-            <div className="color-column left-column">
-              {splitColors().leftColumn.map((card) => (
-                <div
-                  key={card.color}
-                  className={`color-card ${color === card.color ? 'active' : ''}`}
-                  style={getCardStyle(card.color)}
-                  onClick={() => handleCardClick(card.color)}
-                >
-                  <div className="color-info">
-                    <div className="zh-name">{card.zhName}</div>
-                    <div className="description">{card.description}</div>
-                    <div className="year">{card.year}</div>
+        <div className="container">
+          {/* 色卡列表 - 可滑动 */}
+          <animated.div 
+            {...bind()}
+            style={{
+              x,
+              position: 'relative',
+              zIndex: 1,
+              touchAction: 'none'
+            }} 
+          >
+            <div className="color-columns-container">
+              <div className="color-column left-column">
+                {splitColors().leftColumn.map((card) => (
+                  <div
+                    key={card.color}
+                    className={`color-card ${color === card.color ? 'active' : ''}`}
+                    style={getCardStyle(card.color)}
+                    onClick={() => handleCardClick(card.color)}
+                  >
+                    <div className="color-info">
+                      <div className="zh-name">{card.zhName}</div>
+                      <div className="description">{card.description}</div>
+                      <div className="year">{card.year}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="color-column right-column">
-              {splitColors().rightColumn.map((card) => (
-                <div
-                  key={card.color}
-                  className={`color-card ${color === card.color ? 'active' : ''}`}
-                  style={getCardStyle(card.color)}
-                  onClick={() => handleCardClick(card.color)}
-                >
-                  <div className="color-info">
-                    <div className="zh-name">{card.zhName}</div>
-                    <div className="description">{card.description}</div>
-                    <div className="year">{card.year}</div>
+                ))}
+              </div>
+              <div className="color-column right-column">
+                {splitColors().rightColumn.map((card) => (
+                  <div
+                    key={card.color}
+                    className={`color-card ${color === card.color ? 'active' : ''}`}
+                    style={getCardStyle(card.color)}
+                    onClick={() => handleCardClick(card.color)}
+                  >
+                    <div className="color-info">
+                      <div className="zh-name">{card.zhName}</div>
+                      <div className="description">{card.description}</div>
+                      <div className="year">{card.year}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+          </animated.div>
+
+          {/* 工具栏 - 固定不动 */}
+          <div className="toolbar-wrapper">
+            <TextureTools
+              color={color}
+              onColorChange={updateColor}
+              texture={texture}
+              onTextureChange={handleTextureChange}
+            />
+            <DevTools />
           </div>
-          <TextureTools
-            color={color}
-            onColorChange={updateColor}
-            texture={texture}
-            onTextureChange={handleTextureChange}
-          />
-          <DevTools />
-        </animated.div>
+        </div>
       </IonContent>
     </IonPage>
   );
