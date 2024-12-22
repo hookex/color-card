@@ -61,5 +61,8 @@
     "screenshot": "Screenshot",
     "debug": "Debug Mode",
     "mode": "Render Mode"
+  },
+  "home": {
+    "save": "Save"
   }
 }

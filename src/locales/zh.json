@@ -72,5 +72,8 @@
       "mode_canvas": "已切换到Canvas渲染模式",
       "mode_div": "已切换到Div渲染模式"
     }
+  },
+  "home": {
+    "save": "保存"
   }
 }

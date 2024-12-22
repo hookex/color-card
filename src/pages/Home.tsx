@@ -1,19 +1,24 @@
-import { IonContent, IonPage } from '@ionic/react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { IonContent, IonPage, IonFabButton, IonIcon } from '@ionic/react';
+import { save } from 'ionicons/icons';
 import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { useTranslation } from 'react-i18next';
-import useStore  from '../stores/useStore';
+import useStore from '../stores/useStore';
+import ColorCard from '../components/ColorCard';
+import TextureTools from '../components/TextureTools';
+import { takeScreenshot } from '../utils/screenshot';
+import createLogger  from '../utils/logger';
 import CanvasBackground from '../components/CanvasBackground';
 import DivBackground from '../components/DivBackground';
-import TextureTools from '../components/TextureTools';
-import ColorCard from '../components/ColorCard';
 import { getContrastColor } from '../utils/backgroundUtils';
-import createLogger from '../utils/logger';
 import { useState, useEffect } from 'react';
 import './Home.scss';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
+import html2canvas from 'html2canvas';
 
-const logger = createLogger('home');
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -66,38 +71,45 @@ const Home: React.FC = () => {
 
   const [isSwipedOut, setIsSwipedOut] = useState(false);
 
+  const buttonAnimation = useSpring({
+    opacity: isSwipedOut ? 1 : 0,
+    y: isSwipedOut ? 0 : 20,
+    scale: isSwipedOut ? 1 : 0.9,
+    transform: `translate(-50%, ${isSwipedOut ? 0 : 20}px) scale(${isSwipedOut ? 1 : 0.9})`,
+    pointerEvents: isSwipedOut ? 'auto' : 'none',
+    config: {
+      mass: 0.5,
+      tension: 280,
+      friction: 24,
+      clamp: false,
+      duration: undefined
+    }
+  });
+
   const bind = useDrag(({ active, movement: [mx], offset: [ox], last, velocity: [vx], direction: [dx] }) => {
-    const threshold = window.innerWidth * 0.15; // Increased threshold for swipe back
-    const velocityThreshold = 0.3; // Increased velocity threshold for swipe back
-    const shouldSlideOut = Math.abs(ox) > threshold;
+    const threshold = window.innerWidth * 0.15;
+    const velocityThreshold = 0.3;
     
     if (active) {
-      console.log('Dragging:', { ox });
       api.start({ 
         x: ox,
         immediate: true,
       });
+      setIsSwipedOut(ox > threshold);
     } else if (last) {
       const isSliding = Math.abs(vx) > velocityThreshold;
-      const direction = dx > 0 ? 1 : -1; // Determine direction based on swipe
-      let targetX = direction > 0 ? window.innerWidth : 0; // Swipe out if direction is positive, otherwise swipe in
+      const direction = dx > 0 ? 1 : -1;
+      const shouldSlideOut = isSliding ? direction > 0 : Math.abs(ox) > threshold;
+      const targetX = shouldSlideOut ? window.innerWidth : 0;
 
-      // Record swipe state at the end
-      setIsSwipedOut(targetX !== 0);
-
-      console.log('Swipe End:', { vx, direction, targetX, swipeDirection: targetX === 0 ? 'Swipe Back' : 'Swipe Out' });
+      setIsSwipedOut(shouldSlideOut);
       
       api.start({ 
         x: targetX,
         config: {
           mass: 1,
-          tension: 300, // Increased tension for faster response
-          friction: 50, // Increased friction to dampen the bounce
-        },
-        onRest: () => {
-          if (Math.abs(targetX) === window.innerWidth) {
-            console.log('Swipe completed to:', targetX);
-          }
+          tension: 300,
+          friction: 50,
         }
       });
     }
@@ -150,6 +162,21 @@ const Home: React.FC = () => {
     '--text-color': getContrastColor(color)
   } as React.CSSProperties);
 
+  const currentMode = useStore(state => state.mode);
+
+  const handleSetWallpaper = async () => {
+    try {
+      const result = await takeScreenshot(currentMode);
+      if (result.success) {
+        console.log('Wallpaper saved:', result.fileName);
+      } else {
+        console.error('Failed to save wallpaper:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to take screenshot:', error);
+    }
+  };
+
   return (
     <IonPage>
       <IonContent fullscreen {...bind()} style={{ touchAction: 'none' }}>
@@ -193,6 +220,16 @@ const Home: React.FC = () => {
             texture={texture}
             onTextureChange={handleTextureChange}
           />
+        </animated.div>
+
+        <animated.div style={buttonAnimation} className="wallpaper-button-container glass-effect">
+          <IonFabButton 
+            className="wallpaper-button" 
+            onClick={handleSetWallpaper}
+          >
+            <IonIcon icon={save} />
+          </IonFabButton>
+          <div className="button-label">{t('home.save')}</div>
         </animated.div>
       </IonContent>
     </IonPage>
