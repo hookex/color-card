@@ -20,11 +20,13 @@ const Home: React.FC = () => {
   const {
     color,
     texture,
+    debug,
     mode,
     colorCards,
     hideColorCard,
     setColor: updateColor,
     setTexture: updateTexture,
+    setMode,
     setHideColorCard,
   } = useStore();
 
@@ -42,7 +44,7 @@ const Home: React.FC = () => {
   const bind = useDrag(({ movement: [mx], direction: [dx], velocity: [vx], last }) => {
     if (last) {
       const shouldHide = vx > 0.5 || (mx > 50 && dx > 0);
-      const shouldShow = vx < -0.5 || (mx < -50 && dx < 0);
+      const shouldShow = vx < -0.3 || (mx < -30 && dx < 0);
       
       if (shouldHide && !hideColorCard) {
         setHideColorCard(true);
@@ -51,15 +53,23 @@ const Home: React.FC = () => {
         setHideColorCard(false);
         api.start({ x: 0 });
       } else {
-        api.start({ x: hideColorCard ? window.innerWidth : 0 });
+        api.start({ 
+          x: hideColorCard ? window.innerWidth : 0,
+          config: { tension: 200, friction: 20 }
+        });
       }
     } else {
-      api.start({ x: hideColorCard ? window.innerWidth + mx : mx });
+      const currentX = hideColorCard ? window.innerWidth + mx : mx;
+      api.start({ 
+        x: currentX,
+        immediate: true
+      });
     }
   }, {
     bounds: { left: 0, right: window.innerWidth },
     rubberband: true,
     axis: 'x',
+    from: () => [x.get(), 0]
   });
 
   const handleCardClick = async (newColor: string) => {
@@ -98,7 +108,9 @@ const Home: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen>
-        {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
+        <div className={`canvas-container ${debug ? 'debug-mode' : ''}`}>
+          {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
+        </div>
         
         <div className="container">
           {/* 色卡列表 - 可滑动 */}
@@ -107,8 +119,9 @@ const Home: React.FC = () => {
             style={{
               x,
               position: 'relative',
-              zIndex: 1,
-              touchAction: 'none'
+              zIndex: debug ? 0 : 1, // 在调试模式下降低层级
+              touchAction: 'none',
+              pointerEvents: debug ? 'none' : 'auto' // 在调试模式下禁用指针事件
             }} 
           >
             <div className="color-columns-container">

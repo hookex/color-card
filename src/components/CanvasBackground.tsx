@@ -51,6 +51,23 @@ const CanvasBackground: React.FC = () => {
     sceneRef.current.markAllMaterialsAsDirty();
   };
 
+  // 更新相机控制
+  useEffect(() => {
+    if (!cameraRef.current || !canvasRef.current) return;
+    
+    if (state.debug) {
+      cameraRef.current.attachControl(canvasRef.current, true);
+      cameraRef.current.lowerRadiusLimit = 2;
+      cameraRef.current.upperRadiusLimit = 10;
+      cameraRef.current.wheelDeltaPercentage = 0.01;
+    } else {
+      cameraRef.current.detachControl();
+      // 重置相机位置
+      cameraRef.current.setPosition(new Vector3(0, 0, 5));
+      cameraRef.current.setTarget(Vector3.Zero());
+    }
+  }, [state.debug]);
+
   // 初始化3D场景
   const initScene = () => {
     if (!canvasRef.current) return;
@@ -72,7 +89,12 @@ const CanvasBackground: React.FC = () => {
     // 设置相机
     const camera = setupCamera(scene);
     cameraRef.current = camera;
-
+    
+    // 初始状态下禁用相机控制
+    if (!state.debug) {
+      camera.detachControl();
+    }
+    
     // 设置灯光
     setupLights(scene);
 

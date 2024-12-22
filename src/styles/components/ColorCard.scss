@@ -30,12 +30,44 @@ $base-unit: 10px;
 $content-width: 1200px;
 $card-width: $content-width / ($golden-ratio * 2);
 
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  
+  &.debug-mode {
+    z-index: 2; // 在调试模式下提升画布层级
+    
+    canvas {
+      pointer-events: auto !important; // 确保在调试模式下可以操作画布
+    }
+  }
+  
+  canvas {
+    width: 100%;
+    height: 100%;
+    pointer-events: none; // 默认不接收指针事件
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
   z-index: 1;
+  pointer-events: auto;
+  
+  &.debug-mode {
+    pointer-events: none;
+    
+    .toolbar-wrapper {
+      pointer-events: auto; // 保持工具栏可操作
+    }
+  }
 }
 
 .color-columns-container {
@@ -193,4 +225,5 @@ $card-width: $content-width / ($golden-ratio * 2);
   -webkit-backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding: calc($base-unit * ($golden-ratio / 2));
+  pointer-events: auto; // 确保工具栏始终可点击
 }

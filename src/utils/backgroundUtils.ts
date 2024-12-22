@@ -189,6 +189,57 @@ export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial =
 };
 
 /**
+ * 创建皮革材质（小羊皮）
+ * @param scene Babylon Scene 对象
+ * @param color 十六进制颜色值
+ * @returns PBRMaterial 对象
+ */
+export const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial => {
+  return getMaterialFromCache(scene, 'leather', color, () => {
+    const material = new PBRMaterial('leatherMaterial', scene);
+    const colorValue = hexToColor3(color);
+    
+    // 基础颜色
+    material.albedoColor = colorValue;
+    
+    // 创建噪声纹理作为皮革纹理
+    const noiseTexture = new NoiseProceduralTexture('leatherNoise', 512, scene);
+    noiseTexture.octaves = 8;  // 更多的细节层级
+    noiseTexture.persistence = 0.7;  // 较低的持续度，使纹理更自然
+    noiseTexture.animationSpeedFactor = 0;  // 禁用动画
+    noiseTexture.brightness = 0.7;  // 调整亮度
+    
+    // 第二层噪声纹理用于细微纹理
+    const microNoiseTexture = new NoiseProceduralTexture('microNoise', 512, scene);
+    microNoiseTexture.octaves = 4;
+    microNoiseTexture.persistence = 0.5;
+    microNoiseTexture.animationSpeedFactor = 0;
+    microNoiseTexture.brightness = 0.8;
+    
+    // 使用噪声纹理作为凹凸贴图和粗糙度贴图
+    material.bumpTexture = noiseTexture;
+    material.roughnessTexture = microNoiseTexture;
+    
+    // 材质属性
+    material.metallic = 0;  // 非金属
+    material.roughness = 0.7;  // 较高的粗糙度
+    material.bumpTexture.level = 0.3;  // 凹凸程度
+    material.useParallax = true;  // 启用视差效果
+    material.useParallaxOcclusion = true;  // 使用视差遮挡
+    material.parallaxScaleBias = 0.1;  // 视差强度
+    
+    // 环境反射设置
+    material.environmentIntensity = 0.3;  // 较低的环境反射
+    material.specularIntensity = 0.3;  // 较低的镜面反射
+    
+    // 微表面设置
+    material.microSurface = 0.8;  // 微表面光滑度
+    
+    return material;
+  });
+};
+
+/**
  * 创建毛玻璃材质
  * @param scene Babylon Scene 对象
  * @param color 十六进制颜色值

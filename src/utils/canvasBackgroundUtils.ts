@@ -16,6 +16,7 @@ import {
   createMetallicMaterial,
   createGlossyMaterial,
   createGlassMaterial,
+  createLeatherMaterial,
 } from './backgroundUtils';
 import createLogger from './logger';
 
@@ -35,7 +36,7 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
       break;
     case 'leather':
       logger.debug('Creating leather material');
-      material = createMetallicMaterial(scene, color);
+      material = createLeatherMaterial(scene, color);
       break;
     case 'paint':
       logger.debug('Creating paint material');
