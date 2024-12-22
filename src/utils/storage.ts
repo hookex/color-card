@@ -1,4 +1,5 @@
 import { TextureType } from '../components/TextureTools';
+import { ColorCardState } from '../stores/useStore';
 import createLogger from './logger';
 
 const logger = createLogger('storage');
@@ -13,11 +14,7 @@ export interface DevToolsState {
   texture: TextureType;
 }
 
-export interface StoreState extends DevToolsState {
-  color: string;
-  colorCards: any[];
-  hideColorCard?: boolean;
-}
+export type StoreState = ColorCardState;
 
 export const saveDevToolsState = (state: DevToolsState) => {
   try {

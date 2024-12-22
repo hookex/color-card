@@ -12,7 +12,7 @@ const logger = createLogger('store');
 const savedState = loadStoreState();
 logger.info('Loaded initial state:', savedState);
 
-interface ColorCardState {
+export interface ColorCardState {
   color: string;
   texture: TextureType;
   debug: boolean;
@@ -36,10 +36,10 @@ interface ColorCardState {
   resetScene: () => void;
 }
 
-const useStore = create<StoreState>()(
+const useStore = create<ColorCardState>()(
   persist(
     devtools(
-      (set, get): StoreState => ({
+      (set, get): ColorCardState => ({
         // 初始状态
         color: savedState?.color || '#FF0000',
         texture: savedState?.texture || 'solid' as TextureType,
@@ -152,10 +152,10 @@ const useStore = create<StoreState>()(
       storage: {
         getItem: () => {
           const state = loadStoreState();
-          return Promise.resolve(state);
+          return Promise.resolve(state ? { state } : null);
         },
         setItem: (_key, value) => {
-          saveStoreState(value);
+          saveStoreState(value.state);
           return Promise.resolve();
         },
         removeItem: () => Promise.resolve(),
