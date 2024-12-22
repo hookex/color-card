@@ -1,6 +1,5 @@
 import React from 'react';
 import { ColorInfo } from '../types';
-import '../styles/components/ColorCard.scss';
 
 interface ColorCardProps {
   card: ColorInfo;
