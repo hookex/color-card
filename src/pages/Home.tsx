@@ -155,7 +155,6 @@ const Home: React.FC = () => {
               texture={texture}
               onTextureChange={handleTextureChange}
             />
-            <DevTools />
           </div>
         </div>
       </IonContent>
