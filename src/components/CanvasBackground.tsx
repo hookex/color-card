@@ -21,14 +21,13 @@ import {
   setupLights,
   setupScene,
 } from '../utils/canvasBackgroundUtils';
+import useStore from '../stores/useStore';
 
-interface Props {
-  color: string;
-  texture: TextureType;
-  debug?: boolean;
-}
+const CanvasBackground: React.FC = () => {
+  const color = useStore(state => state.color);
+  const texture = useStore(state => state.texture);
+  const debug = useStore(state => state.debug);
 
-const CanvasBackground: React.FC<Props> = ({ color, texture, debug = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);

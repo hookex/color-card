@@ -26,6 +26,7 @@ import html2canvas from 'html2canvas';
 import './DevTools.scss';
 import createLogger from '../utils/logger';
 import { saveDevToolsState, loadDevToolsState } from '../utils/storage';
+import useStore from '../stores/useStore';
 
 const logger = createLogger('devtools');
 const InspectorWrapper = Inspector;
@@ -34,30 +35,21 @@ const InspectorWrapper = Inspector;
  * DevTools 组件属性接口
  * @interface Props
  * @property {React.ReactNode} [children] - 子组件
- * @property {boolean} [debug] - 调试模式状态
- * @property {(debug: boolean) => void} [onDebugChange] - 调试模式切换回调
- * @property {'canvas' | 'div'} [mode] - 背景渲染模式
- * @property {(mode: 'canvas' | 'div') => void} [onModeChange] - 背景模式切换回调
  */
 interface Props {
   children?: React.ReactNode;
-  debug?: boolean;
-  onDebugChange?: (debug: boolean) => void;
-  mode?: 'canvas' | 'div';
-  onModeChange?: (mode: 'canvas' | 'div') => void;
 }
 
-const DevTools: React.FC<Props> = ({ 
-  children, 
-  debug = false, 
-  onDebugChange, 
-  mode = 'canvas', 
-  onModeChange 
-}) => {
+const DevTools: React.FC<Props> = ({ children }) => {
   const { t, i18n } = useTranslation();
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  
+  const debug = useStore(state => state.debug);
+  const mode = useStore(state => state.mode);
+  const setDebug = useStore(state => state.setDebug);
+  const setMode = useStore(state => state.setMode);
 
   // 初始化时加载保存的状态
   useEffect(() => {
@@ -65,11 +57,11 @@ const DevTools: React.FC<Props> = ({
     if (savedState) {
       // 恢复调试模式
       if (savedState.debug !== debug) {
-        onDebugChange?.(savedState.debug);
+        setDebug(savedState.debug);
       }
       // 恢复渲染模式
       if (savedState.mode !== mode) {
-        onModeChange?.(savedState.mode);
+        setMode(savedState.mode);
       }
       // 恢复语言设置
       if (savedState.language !== i18n.language) {
@@ -214,7 +206,7 @@ const DevTools: React.FC<Props> = ({
   // 切换调试模式
   const toggleDebug = () => {
     const nextDebug = !debug;
-    onDebugChange?.(nextDebug);
+    setDebug(nextDebug);
     showToastMessage(t(nextDebug ? 'devtools.toast.debug_on' : 'devtools.toast.debug_off'));
   };
 
@@ -222,7 +214,7 @@ const DevTools: React.FC<Props> = ({
   const toggleMode = () => {
     const nextMode = mode === 'canvas' ? 'div' : 'canvas';
     logger.info('Toggling render mode:', { currentMode: mode, nextMode });
-    onModeChange?.(nextMode);
+    setMode(nextMode);
     showToastMessage(t(nextMode === 'canvas' ? 'devtools.toast.mode_canvas' : 'devtools.toast.mode_div'));
   };
 

@@ -1,6 +1,5 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { useSpring, animated } from '@react-spring/web';
-import { useState } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import CanvasBackground from '../components/CanvasBackground';
@@ -20,13 +19,10 @@ const Home: React.FC = () => {
   const {
     color,
     texture,
-    debug,
     mode,
     colorCards,
     setColor: updateColor,
     setTexture: updateTexture,
-    setDebug: updateDebug,
-    setMode: updateMode,
   } = useStore();
 
   const fadeIn = useSpring({
@@ -55,16 +51,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleDebugChange = async (newDebug: boolean) => {
-    logger.info('Changing debug mode:', newDebug);
-    updateDebug(newDebug);
-    try {
-      await Haptics.impact({ style: ImpactStyle.Light });
-    } catch (error) {
-      logger.error('Haptics not available:', error);
-    }
-  };
-
   const getCardStyle = (color: string) => ({
     '--card-color': color,
     '--text-color': getContrastColor(color)
@@ -77,14 +63,14 @@ const Home: React.FC = () => {
       rightColumn: colorCards.slice(midPoint)
     };
   };
-console.log('mode', mode)
+
   return (
     <IonPage>
       <IonContent fullscreen scrollY={false}>
         {mode === 'canvas' ? (
-          <CanvasBackground color={color} texture={texture} debug={debug} />
+          <CanvasBackground />
         ) : (
-          <DivBackground color={color} texture={texture} debug={debug} />
+          <DivBackground />
         )}
         <animated.div style={fadeIn} className="container">
           <div className="color-grid">
@@ -127,12 +113,7 @@ console.log('mode', mode)
             texture={texture}
             onTextureChange={handleTextureChange}
           />
-          <DevTools
-            debug={debug}
-            onDebugChange={handleDebugChange}
-            mode={mode}
-            onModeChange={updateMode}
-          />
+          <DevTools />
         </animated.div>
       </IonContent>
     </IonPage>
