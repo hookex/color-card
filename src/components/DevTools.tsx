@@ -79,7 +79,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
     saveDevToolsState({
       debug,
       mode,
-      language: i18n.language
+      language: i18n.language as string
     });
   }, [debug, mode, i18n.language]);
 

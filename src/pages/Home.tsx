@@ -92,7 +92,7 @@ const Home: React.FC = () => {
         config: {
           duration: 500,
         },
-      });
+      } as const);
       setIsSwipedOut(false);
       return;
     }
@@ -200,7 +200,7 @@ const Home: React.FC = () => {
           config: {
             duration: isSliding ? 400 : 800,
           },
-        });
+        } as const);
       }
     },
     {

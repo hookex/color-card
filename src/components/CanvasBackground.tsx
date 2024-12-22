@@ -14,6 +14,7 @@ import {
   GlowLayer,
   Mesh,
   Texture,
+  Material,
 } from '@babylonjs/core';
 import '@babylonjs/core/Debug/debugLayer';
 import '@babylonjs/inspector';
@@ -36,10 +37,10 @@ const CanvasBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
-  const planeRef = useRef<Mesh | null>(null);
-  const backgroundPlaneRef = useRef<Mesh | null>(null);
   const cameraRef = useRef<ArcRotateCamera | null>(null);
-  const materialRef = useRef<StandardMaterial | PBRMaterial | null>(null);
+  const planeRef = useRef<Mesh | null>(null);
+  const materialRef = useRef<Material | null>(null);
+  const backgroundPlaneRef = useRef<Mesh | null>(null);
 
   const state = useBackground(color, texture, debug);
 

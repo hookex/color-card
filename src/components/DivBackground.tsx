@@ -19,15 +19,11 @@ const DivBackground: React.FC = () => {
   const debug = useStore(state => state.debug);
   
   // 获取纹理样式，但不包含背景色
-  const textureStyles = getTextureStyles({ 
-    texture, 
-    startColor: color,
-    endColor: texture === 'linear' ? getContrastColor(color) : undefined 
-  });
+  const textureStyles = getTextureStyles(color, texture);
   
   // 构建最终的样式对象
-  const finalStyles = {
-    position: 'fixed',
+  const finalStyles: React.CSSProperties = {
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,

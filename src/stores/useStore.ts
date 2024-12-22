@@ -39,22 +39,22 @@ interface ColorCardState {
 const useStore = create<ColorCardState>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         // 初始状态
         color: savedState?.color || '#FF0000',
-        texture: savedState?.texture || 'solid',
+        texture: savedState?.texture || 'solid' as TextureType,
         debug: savedState?.debug || false,
-        mode: savedState?.mode || 'canvas',
+        mode: savedState?.mode || 'canvas' as const,
         colorCards: savedState?.colorCards || initialColorCards,
         hideColorCard: savedState?.hideColorCard || false,
         selectedColor: savedState?.selectedColor || '#FFFFFF',
-        selectedTexture: savedState?.selectedTexture || 'solid',
+        selectedTexture: savedState?.selectedTexture || 'solid' as TextureType,
         hasCompletedTutorial: savedState?.hasCompletedTutorial || localStorage.getItem('hasCompletedTutorial') === 'true',
 
         // Actions
         setColor: (color: string) => {
           set({ color });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
         
@@ -62,44 +62,44 @@ const useStore = create<ColorCardState>()(
           logger.info('Setting texture:', { texture, config: textureConfigs[texture] });
           const { renderMode } = textureConfigs[texture];
           set({ texture, mode: renderMode });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
         
         setDebug: (debug: boolean) => {
           set({ debug });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         setMode: (mode: 'canvas' | 'div') => {
           set({ mode });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         setHideColorCard: (hide: boolean) => {
           set({ hideColorCard: hide });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         setSelectedColor: (color: string) => {
           set({ selectedColor: color });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         setSelectedTexture: (texture: TextureType) => {
           set({ selectedTexture: texture });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         setHasCompletedTutorial: (completed: boolean) => {
           localStorage.setItem('hasCompletedTutorial', String(completed));
           set({ hasCompletedTutorial: completed });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
@@ -107,7 +107,7 @@ const useStore = create<ColorCardState>()(
           set((state) => ({
             colorCards: [...state.colorCards, card]
           }));
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
@@ -115,13 +115,13 @@ const useStore = create<ColorCardState>()(
           set((state) => ({
             colorCards: state.colorCards.filter((card) => card.color !== color)
           }));
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
         updateColorCards: (cards: ColorCard[]) => {
           set({ colorCards: cards });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
 
@@ -129,16 +129,16 @@ const useStore = create<ColorCardState>()(
         resetScene: () => {
           set({
             color: '#FF0000',
-            texture: 'solid',
+            texture: 'solid' as TextureType,
             debug: false,
-            mode: 'canvas',
+            mode: 'canvas' as const,
             colorCards: initialColorCards,
             hideColorCard: false,
             selectedColor: '#FFFFFF',
-            selectedTexture: 'solid',
+            selectedTexture: 'solid' as TextureType,
             hasCompletedTutorial: localStorage.getItem('hasCompletedTutorial') === 'true',
           });
-          const state = useStore.getState();
+          const state = get();
           saveStoreState(state);
         },
       }),
