@@ -1,14 +1,14 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
-import { loadDevToolsState, saveDevToolsState } from '../utils/storage';
+import { loadStoreState, saveStoreState } from '../utils/storage';
 import createLogger from '../utils/logger';
 
 const logger = createLogger('store');
 
-// 加载保存的开发工具状态
-const savedState = loadDevToolsState();
+// 加载保存的状态
+const savedState = loadStoreState();
 logger.info('Loaded initial state:', savedState);
 
 interface ColorCardState {
@@ -17,6 +17,7 @@ interface ColorCardState {
   debug: boolean;
   mode: 'canvas' | 'div';
   colorCards: ColorCard[];
+  hideColorCard: boolean;
   setColor: (color: string) => void;
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
@@ -28,49 +29,78 @@ interface ColorCardState {
 
 const useStore = create<ColorCardState>()(
   devtools(
-    (set) => ({
-      // 初始状态
-      color: '#FF0000',
-      texture: savedState?.texture || 'solid',
-      debug: savedState?.debug || false,
-      mode: savedState?.mode || 'canvas',
-      colorCards: initialColorCards,
+    persist(
+      (set) => ({
+        // 初始状态
+        color: savedState?.color || '#FF0000',
+        texture: savedState?.texture || 'solid',
+        debug: savedState?.debug || false,
+        mode: savedState?.mode || 'canvas',
+        colorCards: savedState?.colorCards || initialColorCards,
+        hideColorCard: savedState?.hideColorCard || false,
 
-      // Actions
-      setColor: (color: string) => set({ color }),
-      
-      setTexture: (texture: TextureType) => {
-        set({ texture });
-        // 保存纹理类型到 localStorage
-        const currentState = loadDevToolsState() || {};
-        saveDevToolsState({ ...currentState, texture });
-      },
-      
-      setDebug: (debug: boolean) => {
-        set({ debug });
-        const currentState = loadDevToolsState() || {};
-        saveDevToolsState({ ...currentState, debug });
-      },
-      
-      setMode: (mode: 'canvas' | 'div') => {
-        set({ mode });
-        const currentState = loadDevToolsState() || {};
-        saveDevToolsState({ ...currentState, mode });
-      },
+        // Actions
+        setColor: (color: string) => {
+          set({ color });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+        
+        setTexture: (texture: TextureType) => {
+          set({ texture });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+        
+        setDebug: (debug: boolean) => {
+          set({ debug });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
 
-      addColorCard: (card: ColorCard) =>
-        set((state) => ({
-          colorCards: [...state.colorCards, card],
-        })),
+        setMode: (mode: 'canvas' | 'div') => {
+          set({ mode });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
 
-      removeColorCard: (color: string) =>
-        set((state) => ({
-          colorCards: state.colorCards.filter((card) => card.color !== color),
-        })),
+        addColorCard: (card: ColorCard) => {
+          set((state) => ({
+            colorCards: [...state.colorCards, card]
+          }));
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
 
-      updateColorCards: (cards: ColorCard[]) =>
-        set({ colorCards: cards }),
-    }),
+        removeColorCard: (color: string) => {
+          set((state) => ({
+            colorCards: state.colorCards.filter((card) => card.color !== color)
+          }));
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        updateColorCards: (cards: ColorCard[]) => {
+          set({ colorCards: cards });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+      }),
+      {
+        name: 'colorcard-storage',
+        storage: {
+          getItem: () => {
+            const state = loadStoreState();
+            return Promise.resolve(state);
+          },
+          setItem: (_key, value) => {
+            saveStoreState(value);
+            return Promise.resolve();
+          },
+          removeItem: () => Promise.resolve(),
+        },
+      }
+    ),
     {
       name: 'ColorCard',
       enabled: true,
