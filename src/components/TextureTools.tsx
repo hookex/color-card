@@ -7,7 +7,7 @@ import {
   prismOutline 
 } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
-import './TextureTools.scss';
+import '../styles/components/GlassToolbar.scss';
 
 export type TextureType = 'solid' | 'leather' | 'paint' | 'glass';
 
@@ -29,25 +29,21 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
   ];
 
   return (
-    <IonToolbar className="texture-tools">
-      <IonButtons slot="start" className="texture-buttons">
-        {textures.map(({ type, icon }) => (
-          <IonButton
-            key={type}
-            fill={texture === type ? 'solid' : 'clear'}
-            onClick={() => onTextureChange(type)}
-            className={`texture-button ${texture === type ? 'active' : ''}`}
-          >
-            <div className="texture-button-content">
+    <div className="glass-toolbar">
+      <IonToolbar>
+        <IonButtons slot="start">
+          {textures.map(({ type, icon }) => (
+            <IonButton
+              key={type}
+              onClick={() => onTextureChange(type)}
+              className={texture === type ? 'selected' : ''}
+            >
               <IonIcon icon={icon} />
-              <div className="texture-name">
-                {t(`textures.${type}.name`)}
-              </div>
-            </div>
-          </IonButton>
-        ))}
-      </IonButtons>
-    </IonToolbar>
+            </IonButton>
+          ))}
+        </IonButtons>
+      </IonToolbar>
+    </div>
   );
 };
 
