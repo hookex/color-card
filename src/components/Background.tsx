@@ -18,13 +18,15 @@ import {
 } from '@babylonjs/core';
 import { TextureType } from './TextureTools';
 import {
-  hexToColor3,
   createColorAnimation,
   createSolidMaterial,
   createMetallicMaterial,
   createGlossyMaterial,
   createGlassMaterial,
 } from '../utils/backgroundUtils';
+import createLogger from '../utils/logger';
+
+const logger = createLogger('background');
 
 interface Props {
   color: string;
@@ -91,111 +93,120 @@ const Background: React.FC<Props> = ({ color, texture, debug = false, mode = 'ca
   };
 
   useEffect(() => {
-    if (mode === 'canvas') {
-      initScene();
+    if (mode === 'div') {
+      logger.info('Using div mode for background');
+      return;
     }
-    return () => {
-      if (engineRef.current) {
-        engineRef.current.dispose();
+
+    logger.info('Initializing 3D scene with:', { color, texture, debug });
+    
+    if (!canvasRef.current) {
+      logger.error('Canvas element not found');
+      return;
+    }
+
+    try {
+      // Initialize engine and scene
+      engineRef.current = new Engine(canvasRef.current, true, {
+        preserveDrawingBuffer: true,
+        stencil: true,
+        antialias: true,
+      });
+      sceneRef.current = new Scene(engineRef.current);
+      
+      logger.info('Engine and scene created successfully');
+      
+      sceneRef.current.clearColor = new Color4(0, 0, 0, 0);
+
+      const camera = new ArcRotateCamera(
+        'camera',
+        debug ? -Math.PI / 2 : 0,
+        debug ? Math.PI / 2.5 : Math.PI / 2,
+        debug ? 25 : 10,
+        Vector3.Zero(),
+        sceneRef.current
+      );
+      cameraRef.current = camera;
+      camera.attachControl(canvasRef.current, true);
+      
+      if (debug) {
+        camera.lowerRadiusLimit = 15;
+        camera.upperRadiusLimit = 40;
+        camera.lowerBetaLimit = 0.1;
+        camera.upperBetaLimit = Math.PI - 0.1;
+        camera.angularSensibilityX = 500;
+        camera.angularSensibilityY = 500;
+        camera.wheelPrecision = 50;
+        camera.pinchPrecision = 50;
+        camera.panningSensibility = 50;
+      } else {
+        camera.lowerRadiusLimit = 8;
+        camera.upperRadiusLimit = 12;
+        camera.lowerBetaLimit = Math.PI / 2;
+        camera.upperBetaLimit = Math.PI / 2;
+        camera.lowerAlphaLimit = 0;
+        camera.upperAlphaLimit = 0;
       }
-    };
+
+      const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), sceneRef.current);
+      mainLight.intensity = 0.7;
+      mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
+
+      if (debug) {
+        const pointLight1 = new PointLight('pointLight1', new Vector3(10, 10, 10), sceneRef.current);
+        pointLight1.intensity = 0.3;
+
+        const pointLight2 = new PointLight('pointLight2', new Vector3(-10, -10, -10), sceneRef.current);
+        pointLight2.intensity = 0.3;
+
+        const gl = new GlowLayer('glow', sceneRef.current, {
+          mainTextureFixedSize: 512,
+          blurKernelSize: 32
+        });
+        gl.intensity = 0.5;
+      }
+
+      sphereRef.current = MeshBuilder.CreateSphere(
+        'sphere',
+        { 
+          diameter: debug ? 15 : 20,
+          segments: debug ? 128 : 64 
+        },
+        sceneRef.current
+      );
+      sphereRef.current.position = Vector3.Zero();
+
+      // 创建初始材质
+      const newMaterial = createMaterialByType(sceneRef.current, color, texture);
+      materialRef.current = newMaterial;
+      sphereRef.current.material = newMaterial;
+
+      engineRef.current.runRenderLoop(() => {
+        sceneRef.current.render();
+      });
+
+      const handleResize = () => {
+        engineRef.current?.resize();
+      };
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        sceneRef.current.dispose();
+      };
+    } catch (error) {
+      logger.error('Error initializing scene:', error);
+    }
   }, [mode]);
 
-  const initScene = () => {
-    if (!canvasRef.current) return;
-
-    engineRef.current = new Engine(canvasRef.current, true, {
-      preserveDrawingBuffer: true,
-      stencil: true,
-      antialias: true,
-    });
-
-    const scene = new Scene(engineRef.current);
-    sceneRef.current = scene;
-
-    scene.clearColor = new Color4(0, 0, 0, 0);
-
-    const camera = new ArcRotateCamera(
-      'camera',
-      debug ? -Math.PI / 2 : 0,
-      debug ? Math.PI / 2.5 : Math.PI / 2,
-      debug ? 25 : 10,
-      Vector3.Zero(),
-      scene
-    );
-    cameraRef.current = camera;
-    camera.attachControl(canvasRef.current, true);
-    
-    if (debug) {
-      camera.lowerRadiusLimit = 15;
-      camera.upperRadiusLimit = 40;
-      camera.lowerBetaLimit = 0.1;
-      camera.upperBetaLimit = Math.PI - 0.1;
-      camera.angularSensibilityX = 500;
-      camera.angularSensibilityY = 500;
-      camera.wheelPrecision = 50;
-      camera.pinchPrecision = 50;
-      camera.panningSensibility = 50;
-    } else {
-      camera.lowerRadiusLimit = 8;
-      camera.upperRadiusLimit = 12;
-      camera.lowerBetaLimit = Math.PI / 2;
-      camera.upperBetaLimit = Math.PI / 2;
-      camera.lowerAlphaLimit = 0;
-      camera.upperAlphaLimit = 0;
-    }
-
-    const mainLight = new HemisphericLight('mainLight', new Vector3(0, 1, 0), scene);
-    mainLight.intensity = 0.7;
-    mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
-
-    if (debug) {
-      const pointLight1 = new PointLight('pointLight1', new Vector3(10, 10, 10), scene);
-      pointLight1.intensity = 0.3;
-
-      const pointLight2 = new PointLight('pointLight2', new Vector3(-10, -10, -10), scene);
-      pointLight2.intensity = 0.3;
-
-      const gl = new GlowLayer('glow', scene, {
-        mainTextureFixedSize: 512,
-        blurKernelSize: 32
-      });
-      gl.intensity = 0.5;
-    }
-
-    sphereRef.current = MeshBuilder.CreateSphere(
-      'sphere',
-      { 
-        diameter: debug ? 15 : 20,
-        segments: debug ? 128 : 64 
-      },
-      scene
-    );
-    sphereRef.current.position = Vector3.Zero();
-
-    // 创建初始材质
-    const newMaterial = createMaterialByType(scene, color, texture);
-    materialRef.current = newMaterial;
-    sphereRef.current.material = newMaterial;
-
-    engineRef.current.runRenderLoop(() => {
-      scene.render();
-    });
-
-    const handleResize = () => {
-      engineRef.current?.resize();
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      scene.dispose();
-    };
-  };
-
   useEffect(() => {
-    updateMaterial();
-  }, [color, texture]);
+    if (mode === 'div') return;
+    
+    if (sceneRef.current) {
+      logger.info('Updating scene properties:', { color, texture, debug });
+      updateMaterial();
+    }
+  }, [color, texture, debug, mode]);
 
   return (
     <>

@@ -8,8 +8,11 @@ import TextureTools, { TextureType } from '../components/TextureTools';
 import DevTools from '../components/DevTools';
 import useStore from '../stores/useStore';
 import { getContrastColor } from '../utils/backgroundUtils';
+import createLogger from '../utils/logger';
 import './Home.scss';
 import '../styles/components/ColorCard.scss';
+
+const logger = createLogger('home');
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -32,30 +35,32 @@ const Home: React.FC = () => {
   });
 
   const handleCardClick = async (newColor: string) => {
+    logger.info('Changing color:', newColor);
     updateColor(newColor);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
-      console.log('Haptics not available');
+      logger.error('Haptics not available:', error);
     }
   };
 
   const handleTextureChange = async (newTexture: TextureType) => {
-    console.log('Setting new texture:', newTexture); 
+    logger.info('Setting new texture:', newTexture); 
     updateTexture(newTexture);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
-      console.log('Haptics not available');
+      logger.error('Haptics not available:', error);
     }
   };
 
   const handleDebugChange = async (newDebug: boolean) => {
+    logger.info('Changing debug mode:', newDebug);
     updateDebug(newDebug);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
-      console.log('Haptics not available');
+      logger.error('Haptics not available:', error);
     }
   };
 

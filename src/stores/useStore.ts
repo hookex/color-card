@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
+import createLogger from '../utils/logger';
+
+const logger = createLogger('store');
 
 interface ColorCardState {
   color: string;
@@ -29,32 +32,46 @@ const useStore = create<ColorCardState>()(
       colorCards: initialColorCards,
 
       // Actions
-      setColor: (color) => set({ color }, false, 'setColor'),
-      setTexture: (texture) => set({ texture }, false, 'setTexture'),
-      setDebug: (debug) => set({ debug }, false, 'setDebug'),
-      setMode: (mode) => set({ mode }, false, 'setMode'),
-      addColorCard: (card) => 
+      setColor: (color) => {
+        logger.info('Setting color:', color);
+        set({ color }, false, 'setColor');
+      },
+      setTexture: (texture) => {
+        logger.info('Setting texture:', texture);
+        set({ texture }, false, 'setTexture');
+      },
+      setDebug: (debug) => {
+        logger.info('Setting debug mode:', debug);
+        set({ debug }, false, 'setDebug');
+      },
+      setMode: (mode) => {
+        logger.info('Setting render mode:', mode);
+        set({ mode }, false, 'setMode');
+      },
+      addColorCard: (card) => {
+        logger.info('Adding color card:', card);
         set(
-          (state) => ({ 
-            colorCards: [...state.colorCards, card] 
+          (state) => ({
+            colorCards: [...state.colorCards, card]
           }),
           false,
           'addColorCard'
-        ),
-      removeColorCard: (color) =>
+        );
+      },
+      removeColorCard: (color) => {
+        logger.info('Removing color card:', color);
         set(
           (state) => ({
-            colorCards: state.colorCards.filter(c => c.color !== color)
+            colorCards: state.colorCards.filter((c) => c.color !== color)
           }),
           false,
           'removeColorCard'
-        ),
-      updateColorCards: (cards) =>
-        set(
-          { colorCards: cards },
-          false,
-          'updateColorCards'
-        ),
+        );
+      },
+      updateColorCards: (cards) => {
+        logger.info('Updating color cards:', cards);
+        set({ colorCards: cards }, false, 'updateColorCards');
+      }
     }),
     {
       name: 'ColorCard',

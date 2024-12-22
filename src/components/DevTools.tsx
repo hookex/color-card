@@ -15,7 +15,9 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
 import './DevTools.scss';
+import createLogger from '../utils/logger';
 
+const logger = createLogger('devtools');
 const InspectorWrapper = Inspector;
 
 /**
@@ -49,12 +51,14 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
   // 切换语言
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'en' ? 'zh' : 'en';
+    logger.info('Changing language to:', nextLang);
     i18n.changeLanguage(nextLang);
   };
 
   // 切换3D调试模式
   const toggle3DMode = () => {
     if (onDebugChange) {
+      logger.info('Toggling debug mode:', !debug);
       onDebugChange(!debug);
     }
   };
@@ -81,10 +85,12 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
         toDirectory: Directory.External
       });
 
+      logger.info('Wallpaper saved to gallery:', fileName);
       setToastMessage('Wallpaper saved to gallery');
       setShowToast(true);
     } catch (error) {
       console.error('Save to gallery error:', error);
+      logger.error('Save to gallery error:', error);
       throw error;
     }
   };
@@ -96,10 +102,12 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
       link.download = fileName;
       link.href = dataUrl;
       link.click();
+      logger.info('Wallpaper downloaded:', fileName);
       setToastMessage('Wallpaper downloaded');
       setShowToast(true);
     } catch (error) {
       console.error('Download error:', error);
+      logger.error('Download error:', error);
       throw error;
     }
   };
@@ -107,6 +115,7 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
   // 截图
   const takeScreenshot = async () => {
     try {
+      logger.info('Taking screenshot...');
       let canvas: HTMLCanvasElement;
       
       if (mode === 'canvas') {
@@ -177,6 +186,7 @@ const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mod
       }
     } catch (error) {
       console.error('Screenshot error:', error);
+      logger.error('Screenshot error:', error);
       setToastMessage('Failed to take screenshot');
       setShowToast(true);
     }
