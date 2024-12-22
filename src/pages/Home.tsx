@@ -121,7 +121,7 @@ const Home: React.FC = () => {
               {colorCards.map((card) => (
                 <ColorCard
                   key={card.color}
-                  card={card}
+                  card={{...card, year: card.year.toString()}}
                   isActive={color === card.color}
                   onClick={handleCardClick}
                   getCardStyle={getCardStyle}
