@@ -3,7 +3,8 @@ import { useSpring, animated } from '@react-spring/web';
 import { useState } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
-import Background from '../components/Background';
+import CanvasBackground from '../components/CanvasBackground';
+import DivBackground from '../components/DivBackground';
 import TextureTools, { TextureType } from '../components/TextureTools';
 import DevTools from '../components/DevTools';
 import useStore from '../stores/useStore';
@@ -80,7 +81,11 @@ const Home: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen scrollY={false}>
-        <Background color={color} texture={texture} mode={mode} debug={debug} />
+        {mode === 'canvas' ? (
+          <CanvasBackground color={color} texture={texture} debug={debug} />
+        ) : (
+          <DivBackground color={color} texture={texture} debug={debug} />
+        )}
         <animated.div style={fadeIn} className="container">
           <div className="color-grid">
             <div className="column">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   IonFab, 
   IonFabButton, 
@@ -25,6 +25,7 @@ import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
 import './DevTools.scss';
 import createLogger from '../utils/logger';
+import { saveDevToolsState, loadDevToolsState } from '../utils/storage';
 
 const logger = createLogger('devtools');
 const InspectorWrapper = Inspector;
@@ -46,11 +47,46 @@ interface Props {
   onModeChange?: (mode: 'canvas' | 'div') => void;
 }
 
-const DevTools: React.FC<Props> = ({ children, debug = false, onDebugChange, mode = 'canvas', onModeChange }) => {
+const DevTools: React.FC<Props> = ({ 
+  children, 
+  debug = false, 
+  onDebugChange, 
+  mode = 'canvas', 
+  onModeChange 
+}) => {
   const { t, i18n } = useTranslation();
   const [showInspector, setShowInspector] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // 初始化时加载保存的状态
+  useEffect(() => {
+    const savedState = loadDevToolsState();
+    if (savedState) {
+      // 恢复调试模式
+      if (savedState.debug !== debug) {
+        onDebugChange?.(savedState.debug);
+      }
+      // 恢复渲染模式
+      if (savedState.mode !== mode) {
+        onModeChange?.(savedState.mode);
+      }
+      // 恢复语言设置
+      if (savedState.language !== i18n.language) {
+        i18n.changeLanguage(savedState.language);
+      }
+      logger.info('Restored DevTools state:', savedState);
+    }
+  }, []);
+
+  // 保存状态变化
+  useEffect(() => {
+    saveDevToolsState({
+      debug,
+      mode,
+      language: i18n.language
+    });
+  }, [debug, mode, i18n.language]);
 
   // 显示 Toast 提示
   const showToastMessage = (message: string) => {

@@ -2,9 +2,14 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
+import { loadDevToolsState } from '../utils/storage';
 import createLogger from '../utils/logger';
 
 const logger = createLogger('store');
+
+// 加载保存的开发工具状态
+const savedState = loadDevToolsState();
+logger.info('Loaded initial state:', savedState);
 
 interface ColorCardState {
   color: string;
@@ -25,11 +30,11 @@ const useStore = create<ColorCardState>()(
   devtools(
     (set) => ({
       // 初始状态
-      color: initialColorCards[0].color,
-      texture: 'solid',
-      debug: false,
-      mode: 'div',
-      colorCards: initialColorCards,
+      color: savedState?.color ?? initialColorCards[0].color,
+      texture: savedState?.texture ?? 'solid',
+      debug: savedState?.debug ?? false,
+      mode: savedState?.mode ?? 'div',
+      colorCards: savedState?.colorCards ?? initialColorCards,
 
       // Actions
       setColor: (color) => {
