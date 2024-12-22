@@ -15,8 +15,6 @@ import {
   leaf
 } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
-import useStore  from '../stores/useStore';
-import '../styles/components/GlassToolbar.scss';
 
 export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | 'glow' | 'frosted';
 

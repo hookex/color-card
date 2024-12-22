@@ -80,14 +80,23 @@ $content-width: 1200px;
   width: 100%;
   height: 100%;
   padding: calc($base-unit * 2);
+  padding-bottom: calc($base-unit * 8); // 增加底部内边距，为工具栏留出空间
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: calc($base-unit * 1.5);
   overflow-y: auto;
-  flex: 1; // 占满剩余空间
+  flex: 1;
+  
+  // 隐藏滚动条但保持可滚动
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   
   @media (max-width: $content-width) {
     padding: $base-unit;
+    padding-bottom: calc($base-unit * 7); // 移动端底部留出更多空间
     gap: $base-unit;
   }
 }
@@ -121,11 +130,15 @@ $content-width: 1200px;
     
     .zh-name {
       font-family: 'AlimamaDongFangDaKai', serif;
-      font-size: calc($base-unit * 2);
+      font-size: calc($base-unit * 1.5);
       opacity: 0.9;
       font-weight: normal;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.05em;
       margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .description {
@@ -248,6 +261,22 @@ $content-width: 1200px;
       --padding-start: 0;
       --padding-end: 0;
       min-width: calc($base-unit * 2);
+      --border-radius: calc($base-unit * 0.5);
+      --background: transparent;
+      --background-hover: transparent;
+      --background-activated: transparent;
+      --background-focused: transparent;
+      --background-activated-opacity: 0;
+      --background-focused-opacity: 0;
+      --background-hover-opacity: 0;
+      --box-shadow: none;
+      --ripple-color: rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        display: none;
+      }
 
       &.selected {
         ion-icon {
@@ -276,6 +305,21 @@ $content-width: 1200px;
         line-height: 1;
         position: relative;
         z-index: 1;
+
+        &::before {
+          content: '';
+          position: absolute;
+          inset: calc($base-unit * -0.25);
+          backdrop-filter: blur(4px);
+          z-index: -1;
+          border-radius: calc($base-unit * 0.25);
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+
+        &:hover::before {
+          opacity: 0.1;
+        }
 
         ion-icon {
           color: rgba(255, 255, 255, 0.9);
