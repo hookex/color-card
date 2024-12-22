@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
-import { loadDevToolsState } from '../utils/storage';
+import { loadDevToolsState, saveDevToolsState } from '../utils/storage';
 import createLogger from '../utils/logger';
 
 const logger = createLogger('store');
@@ -30,50 +30,46 @@ const useStore = create<ColorCardState>()(
   devtools(
     (set) => ({
       // 初始状态
-      color: savedState?.color ?? initialColorCards[0].color,
-      texture: savedState?.texture ?? 'solid',
-      debug: savedState?.debug ?? false,
-      mode: savedState?.mode ?? 'div',
-      colorCards: savedState?.colorCards ?? initialColorCards,
+      color: '#FF0000',
+      texture: savedState?.texture || 'solid',
+      debug: savedState?.debug || false,
+      mode: savedState?.mode || 'canvas',
+      colorCards: initialColorCards,
 
       // Actions
-      setColor: (color) => {
-        logger.info('Setting color:', color);
-        set({ color }, false, 'setColor');
+      setColor: (color: string) => set({ color }),
+      
+      setTexture: (texture: TextureType) => {
+        set({ texture });
+        // 保存纹理类型到 localStorage
+        const currentState = loadDevToolsState() || {};
+        saveDevToolsState({ ...currentState, texture });
       },
-      setTexture: (texture) => {
-        logger.info('Setting texture:', texture);
-        set({ texture }, false, 'setTexture');
+      
+      setDebug: (debug: boolean) => {
+        set({ debug });
+        const currentState = loadDevToolsState() || {};
+        saveDevToolsState({ ...currentState, debug });
       },
-      setDebug: (debug) => {
-        logger.info('Setting debug mode:', debug);
-        set({ debug }, false, 'setDebug');
+      
+      setMode: (mode: 'canvas' | 'div') => {
+        set({ mode });
+        const currentState = loadDevToolsState() || {};
+        saveDevToolsState({ ...currentState, mode });
       },
-      setMode: (mode) => {
-        logger.info('Setting render mode:', mode);
-        set((state) => ({ mode }), false, 'setMode');
-      },
-      addColorCard: (card) => {
-        set(
-          (state) => ({
-            colorCards: [...state.colorCards, card],
-          }),
-          false,
-          'addColorCard'
-        );
-      },
-      removeColorCard: (color) => {
-        set(
-          (state) => ({
-            colorCards: state.colorCards.filter((card) => card.color !== color),
-          }),
-          false,
-          'removeColorCard'
-        );
-      },
-      updateColorCards: (cards) => {
-        set({ colorCards: cards }, false, 'updateColorCards');
-      },
+
+      addColorCard: (card: ColorCard) =>
+        set((state) => ({
+          colorCards: [...state.colorCards, card],
+        })),
+
+      removeColorCard: (color: string) =>
+        set((state) => ({
+          colorCards: state.colorCards.filter((card) => card.color !== color),
+        })),
+
+      updateColorCards: (cards: ColorCard[]) =>
+        set({ colorCards: cards }),
     }),
     {
       name: 'ColorCard',

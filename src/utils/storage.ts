@@ -1,3 +1,4 @@
+import { TextureType } from '../components/TextureTools';
 import createLogger from './logger';
 
 const logger = createLogger('storage');
@@ -8,6 +9,7 @@ export interface DevToolsState {
   debug: boolean;
   mode: 'canvas' | 'div';
   language: string;
+  texture: TextureType;
 }
 
 export const saveDevToolsState = (state: DevToolsState) => {
