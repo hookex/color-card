@@ -40,7 +40,7 @@ const DivBackground: React.FC = () => {
   };
   
   logger.info('Rendering DivBackground:', { color, texture, debug });
-console.log('color, ', color)
+
   return (
     <div
       className="background"
