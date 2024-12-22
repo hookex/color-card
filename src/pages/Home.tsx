@@ -67,14 +67,14 @@ const Home: React.FC = () => {
     {
       target: '.save-button',
       content: '点击保存按钮',
-      placement: 'left',
+      placement: 'center',
       disableBeacon: true,
       spotlightClicks: true,
     },
     {
       target: '.wallpaper-button',
       content: '点击保存，进入相册，设置为壁纸',
-      placement: 'left',
+      placement: 'top',
     },
   ];
 
@@ -84,6 +84,16 @@ const Home: React.FC = () => {
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setHasCompletedTutorial(true);
       setRunTutorial(false);
+      
+      // 引导完成后，回到色卡列表
+      api.start({
+        x: 0,
+        immediate: false,
+        config: {
+          duration: 500,
+        },
+      });
+      setIsSwipedOut(false);
       return;
     }
 
