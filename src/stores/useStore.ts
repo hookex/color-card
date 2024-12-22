@@ -7,10 +7,12 @@ interface ColorCardState {
   color: string;
   texture: TextureType;
   debug: boolean;
+  mode: 'canvas' | 'div';
   colorCards: ColorCard[];
   setColor: (color: string) => void;
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
+  setMode: (mode: 'canvas' | 'div') => void;
   addColorCard: (card: ColorCard) => void;
   removeColorCard: (color: string) => void;
   updateColorCards: (cards: ColorCard[]) => void;
@@ -23,12 +25,14 @@ const useStore = create<ColorCardState>()(
       color: initialColorCards[0].color,
       texture: 'solid',
       debug: false,
+      mode: 'div',
       colorCards: initialColorCards,
 
       // Actions
       setColor: (color) => set({ color }, false, 'setColor'),
       setTexture: (texture) => set({ texture }, false, 'setTexture'),
       setDebug: (debug) => set({ debug }, false, 'setDebug'),
+      setMode: (mode) => set({ mode }, false, 'setMode'),
       addColorCard: (card) => 
         set(
           (state) => ({ 

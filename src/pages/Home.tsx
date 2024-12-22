@@ -5,6 +5,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
+import DevTools from '../components/DevTools';
 import useStore from '../stores/useStore';
 import { getContrastColor } from '../utils/backgroundUtils';
 import './Home.scss';
@@ -12,25 +13,25 @@ import '../styles/components/ColorCard.scss';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<'canvas' | 'div'>('div');
-  
-  // 分开订阅 store 状态
-  const color = useStore(state => state.color);
-  const texture = useStore(state => state.texture);
-  const debug = useStore(state => state.debug);
-  const colorCards = useStore(state => state.colorCards);
-  const updateColor = useStore(state => state.setColor);
-  const updateTexture = useStore(state => state.setTexture);
-  const updateDebug = useStore(state => state.setDebug);
+  const {
+    color,
+    texture,
+    debug,
+    mode,
+    colorCards,
+    setColor: updateColor,
+    setTexture: updateTexture,
+    setDebug: updateDebug,
+    setMode: updateMode,
+  } = useStore();
 
   const fadeIn = useSpring({
-    from: { opacity: 0, transform: 'translateY(20px)' },
-    to: { opacity: 1, transform: 'translateY(0)' },
-    config: { tension: 280, friction: 20 }
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+    config: { duration: 1000 }
   });
 
   const handleCardClick = async (newColor: string) => {
-    console.log('Setting new color:', newColor); 
     updateColor(newColor);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
@@ -115,6 +116,12 @@ const Home: React.FC = () => {
             onColorChange={updateColor}
             texture={texture}
             onTextureChange={handleTextureChange}
+          />
+          <DevTools
+            debug={debug}
+            onDebugChange={handleDebugChange}
+            mode={mode}
+            onModeChange={updateMode}
           />
         </animated.div>
       </IonContent>
