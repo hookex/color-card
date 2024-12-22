@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 import Background from '../components/Background';
 import TextureTools, { TextureType } from '../components/TextureTools';
 import DevTools from '../components/DevTools';
+import { colorCards } from '../config/brandColors';
 import './Home.scss';
+import '../styles/components/ColorCard.scss';
 
 // 计算对比色
 const getContrastColor = (hexcolor: string): string => {
@@ -31,19 +33,6 @@ const Home: React.FC = () => {
   const [mode, setMode] = useState<'canvas' | 'div'>('div');
   const [color, setColor] = useState('#ff0000');
   const [texture, setTexture] = useState<TextureType>('solid');
-
-  const colorCards = [
-    { color: '#ff7c32', name: 'hermes' },
-    { color: '#81d8d0', name: 'tiffany' },
-    { color: '#cc0033', name: 'valentino' },
-    { color: '#593d1c', name: 'burberry' },
-    { color: '#e5e4e2', name: 'dior' },
-    { color: '#fed700', name: 'fendi' },
-    { color: '#b01d2e', name: 'cartier' },
-    { color: '#f5f5f5', name: 'chanel' },
-    { color: '#ec1d24', name: 'louboutin' },
-    { color: '#eeb422', name: 'veuve' },
-  ];
 
   const fadeIn = useSpring({
     from: { opacity: 0, transform: 'translateY(20px)' },
@@ -80,6 +69,20 @@ const Home: React.FC = () => {
     }
   };
 
+  const getCardStyle = (color: string) => ({
+    '--card-color': color,
+    '--text-color': getContrastColor(color)
+  } as React.CSSProperties);
+  
+  // 将颜色卡片分成两列
+  const splitColors = () => {
+    const midPoint = Math.ceil(colorCards.length / 2);
+    return {
+      leftColumn: colorCards.slice(0, midPoint),
+      rightColumn: colorCards.slice(midPoint)
+    };
+  };
+
   return (
     <IonPage>
       <DevTools 
@@ -91,35 +94,51 @@ const Home: React.FC = () => {
         }}
       >
         <Background color={color} texture={texture} debug={debug} mode={mode} />
-        <IonContent className="ion-content-transparent">
-          <animated.div style={fadeIn} className="card-container">
-            <div className="card-grid">
-              {colorCards.map((card, index) => (
-                <animated.div
-                  key={card.name}
-                  style={{
-                    ...useSpring({
-                      from: { opacity: 0, transform: 'scale(0.8)' },
-                      to: { opacity: 1, transform: 'scale(1)' },
-                      delay: 200 + index * 100,
-                    }),
-                    color: getContrastColor(card.color),
-                    backgroundColor: card.color,
-                  }}
-                  className={`color-card color-card--${card.name}`}
-                  onClick={() => handleCardClick(card.color)}
+        <IonContent>
+          <div className="color-cards">
+            <div className="color-column">
+              {splitColors().leftColumn.map(({ color, name, zhName, pinyin, rgb, cmyk, description, year }) => (
+                <div
+                  key={name}
+                  className="color-card"
+                  style={getCardStyle(color)}
+                  onClick={() => handleCardClick(color)}
                 >
-                  <h3 className="color-card__title">
-                    {t(`colors.${card.name}.title`)}
-                  </h3>
-                  <p className="color-card__brand">
-                    {t(`colors.${card.name}.brand`)}
-                  </p>
-                  <p className="color-card__value">{card.color}</p>
-                </animated.div>
+                  <div className="year-label">{year}</div>
+                  <div className="card-info">
+                    <div className="pinyin">{pinyin}</div>
+                    <div className="zh-name">{zhName}</div>
+                    {description && <div className="description">{description}</div>}
+                    <div className="color-values">
+                      <span data-label="RGB">{rgb}</span>
+                      <span data-label="CMYK">{cmyk}</span>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
-          </animated.div>
+            <div className="color-column">
+              {splitColors().rightColumn.map(({ color, name, zhName, pinyin, rgb, cmyk, description, year }) => (
+                <div
+                  key={name}
+                  className="color-card"
+                  style={getCardStyle(color)}
+                  onClick={() => handleCardClick(color)}
+                >
+                  <div className="year-label">{year}</div>
+                  <div className="card-info">
+                    <div className="pinyin">{pinyin}</div>
+                    <div className="zh-name">{zhName}</div>
+                    {description && <div className="description">{description}</div>}
+                    <div className="color-values">
+                      <span data-label="RGB">{rgb}</span>
+                      <span data-label="CMYK">{cmyk}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </IonContent>
         <TextureTools color={color} onColorChange={setColor} texture={texture} onTextureChange={setTexture} />
       </DevTools>

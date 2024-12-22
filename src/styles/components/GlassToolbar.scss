@@ -1,9 +1,11 @@
+@import '../theme/colors.scss';
+
 @mixin glass-effect {
-  background: rgba(255, 255, 255, 0.15);
+  background: map-get($glass, bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.1);
+  border: 1px solid map-get($glass, border);
+  box-shadow: 0 4px 24px 0 map-get($glass, shadow);
 }
 
 .glass-toolbar {
@@ -52,9 +54,13 @@
     --background: transparent;
     --background-hover: transparent;
     --background-activated: transparent;
+    --background-focused: transparent;
+    --background-activated-opacity: 0;
+    --background-focused-opacity: 0;
+    --background-hover-opacity: 0;
     --border-radius: 8px;
     --box-shadow: none;
-    --ripple-color: rgba(255, 255, 255, 0.1);
+    --ripple-color: #{rgba($white, map-get($alpha, 10))};
     position: relative;
     overflow: hidden;
 
@@ -66,24 +72,28 @@
       transform: translateX(-50%) scaleX(0);
       width: 16px;
       height: 2px;
-      background: #fff;
+      background: map-get($toolbar, indicator);
       border-radius: 1px;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &.selected {
+      --background-activated-opacity: 0;
+      --background-focused-opacity: 0;
+      
       &::after {
         transform: translateX(-50%) scaleX(1);
       }
 
       ion-icon {
-        color: rgba(255, 255, 255, 1);
+        color: map-get(map-get($toolbar, icon), active);
         transform: translateY(-1px);
+        filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
       }
     }
 
     ion-icon {
-      color: rgba(255, 255, 255, 0.6);
+      color: map-get(map-get($toolbar, icon), default);
       font-size: 18px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -95,8 +105,9 @@
 
   // 修改图标颜色和大小
   ion-icon {
-    color: rgba(255, 255, 255, 0.8);
+    color: map-get(map-get($toolbar, icon), default);
     font-size: 18px;
     transition: color 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
   }
 }
