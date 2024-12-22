@@ -77,7 +77,7 @@ const Home: React.FC = () => {
       rightColumn: colorCards.slice(midPoint)
     };
   };
-
+console.log('mode', mode)
   return (
     <IonPage>
       <IonContent fullscreen scrollY={false}>

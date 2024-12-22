@@ -51,32 +51,29 @@ const useStore = create<ColorCardState>()(
       },
       setMode: (mode) => {
         logger.info('Setting render mode:', mode);
-        set({ mode }, false, 'setMode');
+        set((state) => ({ mode }), false, 'setMode');
       },
       addColorCard: (card) => {
-        logger.info('Adding color card:', card);
         set(
           (state) => ({
-            colorCards: [...state.colorCards, card]
+            colorCards: [...state.colorCards, card],
           }),
           false,
           'addColorCard'
         );
       },
       removeColorCard: (color) => {
-        logger.info('Removing color card:', color);
         set(
           (state) => ({
-            colorCards: state.colorCards.filter((c) => c.color !== color)
+            colorCards: state.colorCards.filter((card) => card.color !== color),
           }),
           false,
           'removeColorCard'
         );
       },
       updateColorCards: (cards) => {
-        logger.info('Updating color cards:', cards);
         set({ colorCards: cards }, false, 'updateColorCards');
-      }
+      },
     }),
     {
       name: 'ColorCard',

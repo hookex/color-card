@@ -221,6 +221,7 @@ const DevTools: React.FC<Props> = ({
   // 切换渲染模式
   const toggleMode = () => {
     const nextMode = mode === 'canvas' ? 'div' : 'canvas';
+    logger.info('Toggling render mode:', { currentMode: mode, nextMode });
     onModeChange?.(nextMode);
     showToastMessage(t(nextMode === 'canvas' ? 'devtools.toast.mode_canvas' : 'devtools.toast.mode_div'));
   };
@@ -263,7 +264,10 @@ const DevTools: React.FC<Props> = ({
 
           <div className="fab-button-wrapper">
             <IonLabel className="fab-label">{t('devtools.mode')}</IonLabel>
-            <IonFabButton onClick={toggleMode}>
+            <IonFabButton 
+              onClick={toggleMode}
+              color={mode === 'canvas' ? 'primary' : 'secondary'}
+            >
               <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
             </IonFabButton>
           </div>

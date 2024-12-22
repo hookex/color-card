@@ -1,7 +1,9 @@
 import React from 'react';
 import { TextureType } from './TextureTools';
-import { useBackground } from '../hooks/useBackground';
 import { getTextureStyles } from '../utils/divBackgroundUtils';
+import createLogger from '../utils/logger';
+
+const logger = createLogger('divBackground');
 
 interface Props {
   color: string;
@@ -10,15 +12,16 @@ interface Props {
 }
 
 const DivBackground: React.FC<Props> = ({ color, texture, debug = false }) => {
-  const state = useBackground(color, texture, debug);
-  const textureStyles = getTextureStyles(state.texture);
-
+  const textureStyles = getTextureStyles(texture);
+  
+  logger.info('Rendering DivBackground:', { color, texture, debug });
+console.log('color, ', color)
   return (
     <div
       className="background"
       style={{
         ...textureStyles,
-        backgroundColor: state.color,
+        backgroundColor: color,
         position: 'fixed',
         top: 0,
         left: 0,
