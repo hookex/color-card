@@ -26,6 +26,7 @@ interface ColorCardState {
   addColorCard: (card: ColorCard) => void;
   removeColorCard: (color: string) => void;
   updateColorCards: (cards: ColorCard[]) => void;
+  resetScene: () => void; // 添加重置方法
 }
 
 const useStore = create<ColorCardState>()(
@@ -89,6 +90,20 @@ const useStore = create<ColorCardState>()(
 
         updateColorCards: (cards: ColorCard[]) => {
           set({ colorCards: cards });
+          const state = useStore.getState();
+          saveStoreState(state);
+        },
+
+        // 重置场景到初始状态
+        resetScene: () => {
+          set({
+            color: '#FF0000',
+            texture: 'solid',
+            debug: false,
+            mode: 'canvas',
+            colorCards: initialColorCards,
+            hideColorCard: false,
+          });
           const state = useStore.getState();
           saveStoreState(state);
         },

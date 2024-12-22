@@ -52,3 +52,54 @@
     --background: rgba(28, 28, 30, 0.9);
   }
 }
+
+.glass-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+  ion-toolbar {
+    --background: transparent;
+    --border-color: transparent;
+    --color: var(--ion-color-light);
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --min-height: 44px;
+  }
+
+  ion-button {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    
+    &.active {
+      --background: rgba(var(--toolbar-selected-color-rgb), 0.2);
+      --color: var(--toolbar-selected-color);
+    }
+
+    &.warning {
+      --background: rgba(var(--ion-color-danger-rgb), 0.1);
+      --color: var(--ion-color-danger);
+      margin-left: auto;  // 将重置按钮推到最右边
+      
+      &:hover {
+        --background: rgba(var(--ion-color-danger-rgb), 0.2);
+      }
+    }
+
+    .color-preview {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+  }
+}

@@ -16,7 +16,8 @@ import {
   cubeOutline, 
   layersOutline,
   brushOutline,
-  squareOutline 
+  squareOutline,
+  refreshOutline
 } from 'ionicons/icons';
 import { Inspector } from 'react-dev-inspector';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +51,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const mode = useStore(state => state.mode);
   const setDebug = useStore(state => state.setDebug);
   const setMode = useStore(state => state.setMode);
+  const resetScene = useStore(state => state.resetScene);
 
   // 初始化时加载保存的状态
   useEffect(() => {
@@ -203,6 +205,15 @@ const DevTools: React.FC<Props> = ({ children }) => {
     }
   };
 
+  // 处理复原应用
+  const handleReset = () => {
+    resetScene();
+    setShowInspector(false);
+    if (window.BABYLON?.Inspector?.IsVisible) {
+      window.BABYLON.Inspector.Hide();
+    }
+  };
+
   // 切换调试模式
   const toggleDebug = () => {
     const nextDebug = !debug;
@@ -226,24 +237,19 @@ const DevTools: React.FC<Props> = ({ children }) => {
           <IonIcon icon={buildOutline} />
         </IonFabButton>
         <IonFabList side="top">
-          <div className="fab-button-wrapper">
-            <IonLabel className="fab-label">{t('devtools.inspector')}</IonLabel>
-            <IonFabButton onClick={toggleInspector}>
-              <IonIcon icon={cubeOutline} />
-            </IonFabButton>
-          </div>
-          
+          <IonFabButton onClick={takeScreenshot} title={t('screenshot')}>
+            <IonIcon icon={cameraOutline} />
+          </IonFabButton>
+          <IonFabButton onClick={toggleInspector} title={t('inspector')}>
+            <IonIcon icon={cubeOutline} />
+          </IonFabButton>
+          <IonFabButton onClick={handleReset} title={t('reset')}>
+            <IonIcon icon={refreshOutline} />
+          </IonFabButton>
           <div className="fab-button-wrapper">
             <IonLabel className="fab-label">{t('devtools.language')}</IonLabel>
             <IonFabButton onClick={toggleLanguage}>
               <IonIcon icon={languageOutline} />
-            </IonFabButton>
-          </div>
-
-          <div className="fab-button-wrapper">
-            <IonLabel className="fab-label">{t('devtools.screenshot')}</IonLabel>
-            <IonFabButton onClick={takeScreenshot}>
-              <IonIcon icon={cameraOutline} />
             </IonFabButton>
           </div>
 
