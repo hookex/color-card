@@ -1,9 +1,31 @@
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+import { Camera } from '@capacitor/camera';
 import html2canvas from 'html2canvas';
+import { Permissions } from '@capacitor/core';
+
+// 检查并请求权限
+async function checkAndRequestPermissions() {
+  if (!Capacitor.isNativePlatform()) return true;
+
+  const { storage } = await Permissions.query({ name: 'storage' });
+  
+  if (storage === 'prompt' || storage === 'prompt-with-rationale') {
+    const { storage: newStatus } = await Permissions.request({ name: 'storage' });
+    return newStatus === 'granted';
+  }
+  
+  return storage === 'granted';
+}
 
 export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
   try {
+    // 首先检查权限
+    const hasPermission = await checkAndRequestPermissions();
+    if (!hasPermission) {
+      throw new Error('Storage permission not granted');
+    }
+
     let canvas: HTMLCanvasElement;
     
     if (mode === 'canvas') {
@@ -68,26 +90,27 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
     const fileName = `wallpaper_${timestamp}.png`;
 
     if (Capacitor.isNativePlatform()) {
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Cache,
-        recursive: true
-      });
-
-      const savedFile = await Filesystem.getUri({
-        path: fileName,
-        directory: Directory.Cache
-      });
-
-      await Filesystem.copy({
-        from: savedFile.uri,
-        to: `PHOTO_${new Date().getTime()}.png`,
-        directory: Directory.ExternalStorage,
-        toDirectory: Directory.External
-      });
-
-      return { success: true, fileName };
+      try {
+        // 保存到外部存储
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.External,
+          recursive: true
+        });
+        
+        return { success: true, fileName };
+      } catch (error) {
+        // 如果外部存储失败，尝试保存到文档目录
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+          recursive: true
+        });
+        
+        return { success: true, fileName };
+      }
     } else {
       const link = document.createElement('a');
       link.download = fileName;

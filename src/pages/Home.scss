@@ -454,18 +454,15 @@ ion-content {
     --background: transparent;
     --backdrop-filter: none;
     --webkit-backdrop-filter: none;
+    --padding-top: var(--ion-safe-area-top, 47px);
   }
 
   .container {
     position: relative;
     width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    z-index: 1;
-    font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
-    user-select: none;
-    -webkit-user-select: none;
+    min-height: 100%;
+    padding-top: var(--ion-safe-area-top, 47px);
+    box-sizing: border-box;
   }
 
   .color-cards {
@@ -494,8 +491,9 @@ ion-content {
   }
 
   .color-card {
-    position: relative;
-    width: 100%;
+    position: fixed;
+    top: calc(var(--ion-safe-area-top, 47px) + #{$base-unit});
+    left: 50%;
     padding-bottom: 61.8%;
     border-radius: calc($base-unit * 0.75);
     cursor: pointer;
