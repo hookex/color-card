@@ -18,28 +18,33 @@ const DivBackground: React.FC = () => {
   const texture = useStore(state => state.texture);
   const debug = useStore(state => state.debug);
   
+  // 获取纹理样式，但不包含背景色
   const textureStyles = getTextureStyles({ 
     texture, 
     startColor: color,
     endColor: texture === 'linear' ? getContrastColor(color) : undefined 
   });
   
+  // 构建最终的样式对象
+  const finalStyles = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: -1, // 将背景置于最底层
+    transition: 'all 0.3s ease-in-out',
+    ...(texture === 'linear' ? textureStyles : { backgroundColor: color }),
+  };
+  
   logger.info('Rendering DivBackground:', { color, texture, debug });
 console.log('color, ', color)
   return (
     <div
       className="background"
-      style={{
-        ...textureStyles,
-        backgroundColor: texture === 'linear' ? undefined : color,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 0,
-        transition: 'all 0.3s ease-in-out',
-      }}
+      style={finalStyles}
     />
   );
 };

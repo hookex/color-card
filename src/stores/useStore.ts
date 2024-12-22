@@ -4,6 +4,7 @@ import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
 import { loadStoreState, saveStoreState } from '../utils/storage';
 import createLogger from '../utils/logger';
+import { textureConfigs } from '../config/textureConfig';
 
 const logger = createLogger('store');
 
@@ -26,7 +27,7 @@ interface ColorCardState {
   addColorCard: (card: ColorCard) => void;
   removeColorCard: (color: string) => void;
   updateColorCards: (cards: ColorCard[]) => void;
-  resetScene: () => void; // 添加重置方法
+  resetScene: () => void;
 }
 
 const useStore = create<ColorCardState>()(
@@ -49,7 +50,9 @@ const useStore = create<ColorCardState>()(
         },
         
         setTexture: (texture: TextureType) => {
-          set({ texture });
+          logger.info('Setting texture:', { texture, config: textureConfigs[texture] });
+          const { renderMode } = textureConfigs[texture];
+          set({ texture, mode: renderMode });
           const state = useStore.getState();
           saveStoreState(state);
         },

@@ -178,42 +178,42 @@ const Home: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <IonPage className="home-page">
+      {mode === 'canvas' ? (
+        <CanvasBackground />
+      ) : (
+        <DivBackground />
+      )}
       <IonContent fullscreen {...bind()} style={{ touchAction: 'none' }}>
-        <div className={`canvas-container ${debug ? 'debug-mode' : ''}`}>
-          {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
-        </div>
-
         <animated.div 
           className="container"
           style={{
             transform: x.to(value => `translateX(${value}px)`),
             visibility: x.to(value => 
               Math.abs(value) >= window.innerWidth ? 'hidden' : 'visible'
-            ),
+            )
           }}
         >
           {/* 色卡列表 */}
-          <div
+          <div 
             className="color-cards"
             style={{
               position: 'relative',
-              zIndex: debug ? 0 : 1,
               pointerEvents: debug ? 'none' : 'auto'
             }}
           >
-              {colorCards.map((card) => (
-                <ColorCard
-                  key={card.color}
-                  card={{...card, year: card.year.toString()}}
-                  isActive={color === card.color}
-                  onClick={handleCardClick}
-                  getCardStyle={getCardStyle}
-                />
-              ))}
+            {colorCards.map((card) => (
+              <ColorCard
+                key={card.color}
+                card={{...card, year: card.year.toString()}}
+                isActive={color === card.color}
+                onClick={handleCardClick}
+                getCardStyle={getCardStyle}
+              />
+            ))}
           </div>
 
-          {/* 工具栏 */}
+          {/* 纹理工具 */}
           <TextureTools
             color={color}
             onColorChange={updateColor}
@@ -222,14 +222,17 @@ const Home: React.FC = () => {
           />
         </animated.div>
 
-        <animated.div style={buttonAnimation} className="wallpaper-button-container glass-effect">
+        {/* 保存按钮 */}
+        <animated.div 
+          className="wallpaper-button-container"
+          style={buttonAnimation}
+        >
           <IonFabButton 
             className="wallpaper-button" 
             onClick={handleSetWallpaper}
           >
             <IonIcon icon={save} />
           </IonFabButton>
-          <div className="button-label">{t('home.save')}</div>
         </animated.div>
       </IonContent>
     </IonPage>
