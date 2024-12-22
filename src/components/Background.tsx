@@ -17,6 +17,14 @@ import {
   CircleEase,
 } from '@babylonjs/core';
 import { TextureType } from './TextureTools';
+import {
+  hexToColor3,
+  createColorAnimation,
+  createSolidMaterial,
+  createMetallicMaterial,
+  createGlossyMaterial,
+  createGlassMaterial,
+} from '../utils/backgroundUtils';
 
 interface Props {
   color: string;
@@ -33,99 +41,52 @@ const Background: React.FC<Props> = ({ color, texture, debug = false, mode = 'ca
   const cameraRef = useRef<ArcRotateCamera | null>(null);
   const materialRef = useRef<StandardMaterial | PBRMaterial | null>(null);
 
-  // 将十六进制颜色转换为 Babylon Color3
-  const hexToColor3 = (hex: string): Color3 => {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-    return new Color3(r, g, b);
-  };
-
-  // 创建颜色过渡动画
-  const createColorAnimation = (fromColor: Color3, toColor: Color3, property: string): Animation => {
-    const colorAnimation = new Animation(
-      'colorAnimation',
-      property,
-      60,
-      Animation.ANIMATIONTYPE_COLOR3,
-      Animation.ANIMATIONLOOPMODE_CONSTANT
-    );
-
-    const keyFrames = [];
-    keyFrames.push({
-      frame: 0,
-      value: fromColor
-    });
-    keyFrames.push({
-      frame: 30,
-      value: toColor
-    });
-
-    const easingFunction = new CircleEase();
-    easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
-    colorAnimation.setEasingFunction(easingFunction);
-
-    colorAnimation.setKeys(keyFrames);
-    return colorAnimation;
-  };
-
-  // 创建纯色材质
-  const createSolidMaterial = (scene: Scene, color: string): StandardMaterial => {
-    const material = new StandardMaterial('solidMaterial', scene);
-    const colorValue = hexToColor3(color);
-    material.diffuseColor = colorValue;
-    material.specularColor = new Color3(0.2, 0.2, 0.2);
-    material.emissiveColor = new Color3(0, 0, 0);
-    material.ambientColor = new Color3(0, 0, 0);
-    material.roughness = 0.3;
-    return material;
-  };
-
-  // 创建金属材质
-  const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial => {
-    const material = new PBRMaterial('metallicMaterial', scene);
-    const colorValue = hexToColor3(color);
-    material.albedoColor = colorValue;
-    material.metallic = 0.8;
-    material.roughness = 0.2;
-    material.environmentIntensity = 0.5;
-    return material;
-  };
-
-  // 创建光泽材质
-  const createGlossyMaterial = (scene: Scene, color: string): StandardMaterial => {
-    const material = new StandardMaterial('glossyMaterial', scene);
-    const colorValue = hexToColor3(color);
-    material.diffuseColor = colorValue;
-    material.specularColor = new Color3(1, 1, 1);
-    material.specularPower = 32;
-    material.emissiveColor = new Color3(0, 0, 0);
-    material.ambientColor = new Color3(0, 0, 0);
-    return material;
-  };
-
-  // 创建材质
-  const createMaterial = (scene: Scene, color: string, textureType: TextureType): StandardMaterial | PBRMaterial => {
-    switch (textureType) {
+  // 根据纹理类型创建材质
+  const createMaterialByType = (scene: Scene, color: string, type: TextureType) => {
+    switch (type) {
+      case 'solid':
+        return createSolidMaterial(scene, color);
       case 'leather':
         return createMetallicMaterial(scene, color);
       case 'paint':
         return createGlossyMaterial(scene, color);
       case 'glass':
-        return createGlossyMaterial(scene, color);
-      case 'solid':
+        return createGlassMaterial(scene, color);
       default:
         return createSolidMaterial(scene, color);
     }
   };
 
-  // 更新材质颜色
-  const updateMaterialColor = (material: StandardMaterial | PBRMaterial, color: string) => {
-    const colorValue = hexToColor3(color);
-    if (material instanceof StandardMaterial) {
-      material.diffuseColor = colorValue;
-    } else if (material instanceof PBRMaterial) {
-      material.albedoColor = colorValue;
+  // 更新材质
+  const updateMaterial = () => {
+    if (!sceneRef.current || !materialRef.current) return;
+
+    const newMaterial = createMaterialByType(sceneRef.current, color, texture);
+    const oldMaterial = materialRef.current;
+
+    // 创建颜色过渡动画
+    if (oldMaterial instanceof StandardMaterial && newMaterial instanceof StandardMaterial) {
+      const animation = createColorAnimation(
+        oldMaterial.diffuseColor,
+        newMaterial.diffuseColor,
+        'diffuseColor'
+      );
+      oldMaterial.animations = [animation];
+      sceneRef.current.beginAnimation(oldMaterial, 0, 30);
+    } else if (oldMaterial instanceof PBRMaterial && newMaterial instanceof PBRMaterial) {
+      const animation = createColorAnimation(
+        oldMaterial.albedoColor,
+        newMaterial.albedoColor,
+        'albedoColor'
+      );
+      oldMaterial.animations = [animation];
+      sceneRef.current.beginAnimation(oldMaterial, 0, 30);
+    } else {
+      // 如果材质类型不同，直接替换
+      if (sphereRef.current) {
+        sphereRef.current.material = newMaterial;
+        materialRef.current = newMaterial;
+      }
     }
   };
 
@@ -213,7 +174,7 @@ const Background: React.FC<Props> = ({ color, texture, debug = false, mode = 'ca
     sphereRef.current.position = Vector3.Zero();
 
     // 创建初始材质
-    const newMaterial = createMaterial(scene, color, texture);
+    const newMaterial = createMaterialByType(scene, color, texture);
     materialRef.current = newMaterial;
     sphereRef.current.material = newMaterial;
 
@@ -232,37 +193,9 @@ const Background: React.FC<Props> = ({ color, texture, debug = false, mode = 'ca
     };
   };
 
-  // 当颜色改变时，创建并执行过渡动画
   useEffect(() => {
-    if (!sceneRef.current || !materialRef.current || !sphereRef.current) return;
-
-    const targetColor = hexToColor3(color);
-    const currentColor = materialRef.current instanceof StandardMaterial
-      ? materialRef.current.diffuseColor
-      : materialRef.current.albedoColor;
-
-    const property = materialRef.current instanceof StandardMaterial
-      ? 'diffuseColor'
-      : 'albedoColor';
-
-    const animation = createColorAnimation(currentColor, targetColor, property);
-    
-    materialRef.current.animations = [];
-    materialRef.current.animations.push(animation);
-    sceneRef.current.beginAnimation(materialRef.current, 0, 30, false);
-  }, [color]);
-
-  // 当纹理改变时更新材质
-  useEffect(() => {
-    if (!sceneRef.current || !sphereRef.current) return;
-    
-    const newMaterial = createMaterial(sceneRef.current, color, texture);
-    if (materialRef.current) {
-      materialRef.current.animations = [];
-    }
-    materialRef.current = newMaterial;
-    sphereRef.current.material = newMaterial;
-  }, [texture]);
+    updateMaterial();
+  }, [color, texture]);
 
   return (
     <>
