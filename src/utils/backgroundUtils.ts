@@ -7,6 +7,60 @@ import {
   EasingFunction,
   CircleEase,
 } from '@babylonjs/core';
+import createLogger from './logger';
+
+const logger = createLogger('backgroundUtils');
+
+// 材质缓存
+interface MaterialCache {
+  [key: string]: StandardMaterial | PBRMaterial;
+}
+
+// 为每个场景维护一个单独的缓存
+const sceneCache = new WeakMap<Scene, MaterialCache>();
+
+// 获取场景的材质缓存
+const getSceneMaterialCache = (scene: Scene): MaterialCache => {
+  if (!sceneCache.has(scene)) {
+    sceneCache.set(scene, {});
+  }
+  return sceneCache.get(scene)!;
+};
+
+// 生成材质缓存键
+const getMaterialCacheKey = (type: string, color: string): string => {
+  return `${type}_${color}`;
+};
+
+// 从缓存获取材质，如果不存在则创建
+const getMaterialFromCache = (
+  scene: Scene,
+  type: string,
+  color: string,
+  createFn: () => StandardMaterial | PBRMaterial
+): StandardMaterial | PBRMaterial => {
+  const cache = getSceneMaterialCache(scene);
+  const cacheKey = getMaterialCacheKey(type, color);
+  
+  if (cache[cacheKey]) {
+    logger.debug('Using cached material:', { type, color });
+    const material = cache[cacheKey];
+    
+    // 确保材质已准备好
+    if (material instanceof StandardMaterial) {
+      material.markAsDirty(StandardMaterial.TextureDirtyFlag);
+    } else if (material instanceof PBRMaterial) {
+      material.markAsDirty(PBRMaterial.TextureDirtyFlag);
+    }
+    
+    return material;
+  }
+  
+  logger.debug('Creating new material:', { type, color });
+  const material = createFn();
+  cache[cacheKey] = material;
+  return material;
+};
 
 /**
  * 将十六进制颜色转换为 Babylon Color3
@@ -61,14 +115,14 @@ export const createColorAnimation = (fromColor: Color3, toColor: Color3, propert
  * @returns StandardMaterial 对象
  */
 export const createSolidMaterial = (scene: Scene, color: string): StandardMaterial => {
-  const material = new StandardMaterial('solidMaterial', scene);
-  const colorValue = hexToColor3(color);
-  material.diffuseColor = colorValue;
-  material.specularColor = new Color3(0.2, 0.2, 0.2);
-  material.emissiveColor = new Color3(0, 0, 0);
-  material.ambientColor = new Color3(0, 0, 0);
-  material.roughness = 0.3;
-  return material;
+  return getMaterialFromCache(scene, 'solid', color, () => {
+    const material = new StandardMaterial('solidMaterial', scene);
+    const colorValue = hexToColor3(color);
+    material.diffuseColor = colorValue;
+    material.specularColor = new Color3(0.2, 0.2, 0.2);
+    material.specularPower = 64;
+    return material;
+  });
 };
 
 /**
@@ -78,13 +132,15 @@ export const createSolidMaterial = (scene: Scene, color: string): StandardMateri
  * @returns PBRMaterial 对象
  */
 export const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial => {
-  const material = new PBRMaterial('metallicMaterial', scene);
-  const colorValue = hexToColor3(color);
-  material.albedoColor = colorValue;
-  material.metallic = 0.8;
-  material.roughness = 0.2;
-  material.environmentIntensity = 0.5;
-  return material;
+  return getMaterialFromCache(scene, 'metallic', color, () => {
+    const material = new PBRMaterial('metallicMaterial', scene);
+    const colorValue = hexToColor3(color);
+    material.albedoColor = colorValue;
+    material.metallic = 0.8;
+    material.roughness = 0.2;
+    material.environmentIntensity = 0.5;
+    return material;
+  });
 };
 
 /**
@@ -94,28 +150,30 @@ export const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial
  * @returns PBRMaterial 对象
  */
 export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial => {
-  const material = new PBRMaterial('paintMaterial', scene);
-  const colorValue = hexToColor3(color);
-  
-  // 基础颜色
-  material.albedoColor = colorValue;
-  
-  // 金属度和粗糙度设置
-  material.metallic = 0.8;  // 较高的金属度
-  material.roughness = 0.15;  // 较低的粗糙度，使表面更光滑
-  
-  // 环境反射设置
-  material.environmentIntensity = 1.0;  // 环境贴图强度
-  material.clearCoat.isEnabled = true;  // 启用清漆层
-  material.clearCoat.intensity = 1.0;   // 清漆强度
-  material.clearCoat.roughness = 0.1;   // 清漆粗糙度
-  material.clearCoat.indexOfRefraction = 1.5;  // 清漆层的折射率
-  
-  // 基础层折射率
-  material.indexOfRefraction = 1.5;      // 基础涂层的折射率
-  material.subSurface.isRefractionEnabled = true;  // 启用折射
-  
-  return material;
+  return getMaterialFromCache(scene, 'glossy', color, () => {
+    const material = new PBRMaterial('paintMaterial', scene);
+    const colorValue = hexToColor3(color);
+    
+    // 基础颜色
+    material.albedoColor = colorValue;
+    
+    // 金属度和粗糙度设置
+    material.metallic = 0.8;  // 较高的金属度
+    material.roughness = 0.15;  // 较低的粗糙度，使表面更光滑
+    
+    // 环境反射设置
+    material.environmentIntensity = 1.0;  // 环境贴图强度
+    material.clearCoat.isEnabled = true;  // 启用清漆层
+    material.clearCoat.intensity = 1.0;   // 清漆强度
+    material.clearCoat.roughness = 0.1;   // 清漆粗糙度
+    material.clearCoat.indexOfRefraction = 1.5;  // 清漆层的折射率
+    
+    // 基础层折射率
+    material.indexOfRefraction = 1.5;      // 基础涂层的折射率
+    material.subSurface.isRefractionEnabled = true;  // 启用折射
+    
+    return material;
+  });
 };
 
 /**
@@ -125,28 +183,30 @@ export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial =
  * @returns PBRMaterial 对象
  */
 export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
-  const material = new PBRMaterial('glassMaterial', scene);
-  const colorValue = hexToColor3(color);
-  
-  // 基础颜色和透明度
-  material.albedoColor = colorValue;
-  material.alpha = 0.6;  // 透明度
-  material.metallic = 0.0;
-  
-  // 毛玻璃效果
-  material.roughness = 0.4;  // 较高的粗糙度产生磨砂效果
-  material.subSurface.isRefractionEnabled = true;  // 启用折射
-  material.subSurface.refractionIntensity = 0.8;  // 折射强度
-  material.indexOfRefraction = 1.5;  // 玻璃的折射率
-  
-  // 环境反射设置
-  material.environmentIntensity = 0.7;  // 环境反射强度
-  
-  // 半透明设置
-  material.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
-  material.backFaceCulling = false;  // 禁用背面剔除，使两面都可见
-  
-  return material;
+  return getMaterialFromCache(scene, 'glass', color, () => {
+    const material = new PBRMaterial('glassMaterial', scene);
+    const colorValue = hexToColor3(color);
+    
+    // 基础颜色和透明度
+    material.albedoColor = colorValue;
+    material.alpha = 0.6;  // 透明度
+    material.metallic = 0.0;
+    
+    // 毛玻璃效果
+    material.roughness = 0.4;  // 较高的粗糙度产生磨砂效果
+    material.subSurface.isRefractionEnabled = true;  // 启用折射
+    material.subSurface.refractionIntensity = 0.8;  // 折射强度
+    material.indexOfRefraction = 1.5;  // 玻璃的折射率
+    
+    // 环境反射设置
+    material.environmentIntensity = 0.7;  // 环境反射强度
+    
+    // 半透明设置
+    material.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
+    material.backFaceCulling = false;  // 禁用背面剔除，使两面都可见
+    
+    return material;
+  });
 };
 
 // 计算对比色

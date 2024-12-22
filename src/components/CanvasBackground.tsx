@@ -39,23 +39,16 @@ const CanvasBackground: React.FC = () => {
 
   // 更新材质
   const updateMaterial = () => {
-    if (!sceneRef.current || !materialRef.current) return;
+    if (!sceneRef.current || !sphereRef.current) return;
 
     const newMaterial = createMaterialByType(sceneRef.current, state.color, state.texture);
-    const oldMaterial = materialRef.current;
-
-    // 创建颜色过渡动画
-    if (oldMaterial instanceof StandardMaterial && newMaterial instanceof StandardMaterial) {
-      oldMaterial.diffuseColor = newMaterial.diffuseColor;
-    } else if (oldMaterial instanceof PBRMaterial && newMaterial instanceof PBRMaterial) {
-      oldMaterial.albedoColor = newMaterial.albedoColor;
-    } else {
-      // 如果材质类型不同，直接替换
-      if (sphereRef.current) {
-        sphereRef.current.material = newMaterial;
-        materialRef.current = newMaterial;
-      }
-    }
+    
+    // 直接应用新材质
+    sphereRef.current.material = newMaterial;
+    materialRef.current = newMaterial;
+    
+    // 确保场景重新渲染
+    sceneRef.current.markAllMaterialsAsDirty();
   };
 
   // 初始化3D场景
