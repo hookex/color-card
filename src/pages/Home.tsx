@@ -3,20 +3,21 @@ import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
+import useStore  from '../stores/useStore';
 import CanvasBackground from '../components/CanvasBackground';
 import DivBackground from '../components/DivBackground';
-import TextureTools, { TextureType } from '../components/TextureTools';
-import DevTools from '../components/DevTools';
-import useStore from '../stores/useStore';
+import TextureTools from '../components/TextureTools';
+import ColorCard from '../components/ColorCard';
 import { getContrastColor } from '../utils/backgroundUtils';
 import createLogger from '../utils/logger';
 import './Home.scss';
-import '../styles/components/ColorCard.scss';
 
 const logger = createLogger('home');
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const logger = createLogger('Home');
+
   const {
     color,
     texture,
@@ -97,14 +98,6 @@ const Home: React.FC = () => {
     '--text-color': getContrastColor(color)
   } as React.CSSProperties);
 
-  const splitColors = () => {
-    const midPoint = Math.ceil(colorCards.length / 2);
-    return {
-      leftColumn: colorCards.slice(0, midPoint),
-      rightColumn: colorCards.slice(midPoint)
-    };
-  };
-
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -115,6 +108,7 @@ const Home: React.FC = () => {
         <div className="container">
           {/* 色卡列表 - 可滑动 */}
           <animated.div
+            className="color-cards"
             {...bind()}
             style={{
               x,
@@ -124,46 +118,15 @@ const Home: React.FC = () => {
               pointerEvents: debug ? 'none' : 'auto' // 在调试模式下禁用指针事件
             }}
           >
-            <div className="color-columns-container">
-              <div className="color-column left-column">
-                {splitColors().leftColumn.map((card) => (
-                  <div
-                    key={card.color}
-                    className={`color-card ${color === card.color ? 'active' : ''}`}
-                    style={getCardStyle(card.color)}
-                    onClick={() => handleCardClick(card.color)}
-                  >
-                    <div className="color-info">
-                      <div className="zh-name">{card.zhName}</div>
-                      <div className="description">{card.description}</div>
-                      <div className="color-code">
-                        <span className="cmyk">CMYK {card.cmyk || '5 30 80 0'}</span>
-                        <span className="rgb">RGB {card.rgb || '241 189 63'}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="color-column right-column">
-                {splitColors().rightColumn.map((card) => (
-                  <div
-                    key={card.color}
-                    className={`color-card ${color === card.color ? 'active' : ''}`}
-                    style={getCardStyle(card.color)}
-                    onClick={() => handleCardClick(card.color)}
-                  >
-                    <div className="color-info">
-                      <div className="zh-name">{card.zhName}</div>
-                      <div className="description">{card.description}</div>
-                      <div className="color-code">
-                        <span className="cmyk">CMYK {card.cmyk || '5 30 80 0'}</span>
-                        <span className="rgb">RGB {card.rgb || '241 189 63'}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              {colorCards.map((card) => (
+                <ColorCard
+                  key={card.color}
+                  card={card}
+                  isActive={color === card.color}
+                  onClick={handleCardClick}
+                  getCardStyle={getCardStyle}
+                />
+              ))}
           </animated.div>
 
           {/* 工具栏 - 固定不动 */}

@@ -12,11 +12,32 @@ $colors: (
   veuve: #eeb422      // 凯歌香槟金
 );
 
+$base-unit: 16px;
+$golden-ratio: 1.618;
+$content-width: 1200px;
+
 // Mixins
 @mixin flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@mixin glass-effect {
+  --background: rgba(255, 255, 255, 0.1);
+  --border-style: solid;
+  --border-width: 1px;
+  --border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 -2px 10px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  @media (prefers-color-scheme: dark) {
+    --background: rgba(28, 28, 30, 0.2);
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
 }
 
 @mixin card-hover {
@@ -42,6 +63,120 @@ $colors: (
   flex-direction: column;
 }
 
+// Layout
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: calc($base-unit * 1.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+  max-width: $content-width;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: $base-unit;
+  }
+}
+
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  
+  &.debug-mode {
+    z-index: 2;
+  }
+}
+
+// Color Cards
+.color-cards {
+  width: 100%;
+  height: 100%;
+  padding: calc($base-unit * 2);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: calc($base-unit * 1.5);
+  overflow-y: auto;
+  
+  @media (max-width: $content-width) {
+    padding: $base-unit;
+    gap: $base-unit;
+  }
+}
+
+.color-card {
+  position: relative;
+  width: 100%;
+  padding-bottom: 61.8%; // 高宽比 0.618
+  border-radius: calc($base-unit * 0.75);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--card-color, white);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  @include card-hover;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .color-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: calc($base-unit * 1.5);
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color, black);
+    
+    .zh-name {
+      font-family: 'AlimamaDongFangDaKai', serif;
+      font-size: calc($base-unit * 2);
+      opacity: 0.9;
+      font-weight: normal;
+      letter-spacing: 0.1em;
+      margin: 0;
+    }
+
+    .description {
+      font-size: calc($base-unit * 0.75);
+      opacity: 0.75;
+      letter-spacing: 0.02em;
+      font-weight: 300;
+      margin-top: calc($base-unit * 0.25);
+      font-family: 'TsangerYuYang', sans-serif;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .color-code {
+      font-family: 'SF Mono', monospace;
+      font-size: calc($base-unit * 0.75);
+      opacity: 0.6;
+      letter-spacing: 0.05em;
+      margin-top: calc($base-unit * 0.5);
+      
+      .hex {
+        display: block;
+        text-transform: uppercase;
+      }
+    }
+  }
+}
+
 // Card container
 .card-container {
   padding: 20px;
@@ -64,7 +199,7 @@ $colors: (
   }
 }
 
-.color-card {
+.color-card--old {
   background-color: var(--card-color);
   color: var(--text-color);
   border-radius: 12px;
@@ -76,7 +211,7 @@ $colors: (
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 
-  .color-info {
+  .color-info--old {
     .zh-name {
       font-size: 1.5rem;
       font-weight: normal;
@@ -105,16 +240,106 @@ $colors: (
   }
 }
 
-ion-content {
-  font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+// Glass Toolbar
+.glass-toolbar {
+  @include glass-effect;
+  position: fixed;
+  z-index: 1000;
+  bottom: calc($base-unit * 2);
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: calc($base-unit * 0.5);
+  padding: calc($base-unit * 0.375);
+  width: calc($base-unit * 20);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ion-toolbar {
+    --background: transparent;
+    --border-color: transparent;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --min-height: calc($base-unit * 2);
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  ion-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0 calc($base-unit * 0.25);
+
+    ion-button {
+      flex: 1;
+      margin: 0 calc($base-unit * 0.1875);
+      height: calc($base-unit * 3);
+      --padding-start: 0;
+      --padding-end: 0;
+      min-width: calc($base-unit * 2);
+
+      &.selected {
+        ion-icon {
+          color: var(--toolbar-selected-color, #FFE57F);
+          transform: translateY(-1px);
+          text-shadow: 0 0 10px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 70%, transparent),
+                      0 0 20px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 50%, transparent),
+                      0 0 30px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 30%, transparent);
+          filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 30%, transparent));
+        }
+
+        .button-label {
+          color: var(--toolbar-selected-color, #FFE57F);
+          opacity: 0.95;
+          text-shadow: 0 0 10px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 60%, transparent),
+                      0 0 20px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 40%, transparent),
+                      0 0 30px color-mix(in srgb, var(--toolbar-selected-color, #FFE57F) 20%, transparent);
+        }
+      }
+
+      .button-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        position: relative;
+        z-index: 1;
+
+        ion-icon {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: calc($base-unit * 1.25);
+          margin-bottom: calc($base-unit * 0.25);
+          transition: all 0.2s ease;
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.4),
+                      0 0 16px rgba(255, 255, 255, 0.2),
+                      0 0 24px rgba(255, 255, 255, 0.15);
+          filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+        }
+
+        .button-label {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: calc($base-unit * 0.625);
+          opacity: 0.85;
+          font-family: 'TsangerYuYang', sans-serif;
+          transition: all 0.2s ease;
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.4),
+                      0 0 16px rgba(255, 255, 255, 0.2),
+                      0 0 24px rgba(255, 255, 255, 0.15);
+          font-weight: normal;
+        }
+      }
+    }
+  }
 }
 
-.container {
+ion-content {
   font-family: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
 }
 
 .toolbar-wrapper {

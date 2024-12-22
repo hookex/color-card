@@ -70,167 +70,83 @@ $card-width: $content-width / ($golden-ratio * 2);
   }
 }
 
-.color-columns-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  padding: calc($base-unit * ($golden-ratio / 2));
-  overflow-y: auto;
-  gap: $base-unit;
-  max-width: 1200px;
+.color-cards {
+  width: 100%;
+  height: 100%;
+  max-width: $content-width;
   margin: 0 auto;
+  padding: calc($base-unit * 2);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: calc($base-unit * 1.5);
+  overflow-y: auto;
   
-  .color-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  @media (max-width: $content-width) {
+    padding: $base-unit;
     gap: $base-unit;
-    max-width: calc($base-unit * ($golden-ratio * 15));
-    
-    &.left-column {
-      margin-right: calc($base-unit / 4);
-    }
-    
-    &.right-column {
-      margin-left: calc($base-unit / 4);
-    }
   }
 }
 
-.color-cards {
+.color-card {
+  position: relative;
   width: 100%;
-  max-width: $content-width;
-  margin: calc($base-unit * ($golden-ratio / 2)) auto;
-  padding: calc($base-unit * ($golden-ratio / 2));
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: calc($base-unit * ($golden-ratio / 2));
-  
-  @media (max-width: $content-width) {
-    padding: calc($base-unit * ($golden-ratio / 2)) $base-unit;
+  padding-bottom: 61.8%; // 高宽比 0.618
+  border-radius: calc($base-unit * 0.75);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--card-color, white);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
 
-  .color-column {
-    display: flex;
-    flex-direction: column;
-    gap: calc($base-unit * ($golden-ratio / 2));
-    border-radius: calc($base-unit * $golden-ratio);
-    overflow: hidden;
-  }
-  
-  .color-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: auto;
-    min-height: calc($base-unit * ($golden-ratio * 3.5));
-    padding: calc($base-unit * 1.2);
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: var(--card-color, white);
-    border-radius: calc($base-unit * 0.8);
-    box-shadow: 
-      0 2px 4px rgba(0, 0, 0, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      border-radius: inherit;
-      transition: opacity 0.3s ease;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        transparent 100%
-      );
-      mix-blend-mode: overlay;
-    }
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-
-      .color-info {
-        opacity: 0.98;
-      }
-    }
-
-    .color-info {
-      display: flex;
-      flex-direction: column;
-      gap: calc($base-unit * 0.8);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      z-index: 1;
-      color: var(--text-color, black);
-
-      .zh-name {
-        font-family: 'AlimamaDongFangDaKai', serif;
-        font-size: calc($base-unit * 2);
-        opacity: 0.9;
-        font-weight: normal;
-        letter-spacing: 0.1em;
-        margin: 0;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      .description {
-        font-size: calc($base-unit * 0.9);
-        line-height: 1.4;
-        opacity: 0.75;
-        letter-spacing: 0.02em;
-        font-weight: 300;
-        margin-top: calc($base-unit * 0.2);
-      }
-
-      .color-code {
-        font-family: 'SF Mono', monospace;
-        font-size: calc($base-unit * 0.8);
-        opacity: 0.6;
-        letter-spacing: 0.05em;
-        margin-top: calc($base-unit * 0.8);
-        
-        .cmyk, .rgb {
-          display: block;
-          margin-bottom: calc($base-unit * 0.3);
-        }
-      }
-
-      .year {
-        display: none; // 隐藏年份
-      }
-    }
-
-    &.active {
-      box-shadow: 
-        0 6px 12px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      
-      .color-info {
-        opacity: 1;
-      }
-    }
-  }
-
-  .year-label {
+  .color-info {
     position: absolute;
-    top: calc($base-unit * $golden-ratio);
-    right: calc($base-unit * $golden-ratio);
-    font-size: calc($base-unit * 2);
-    opacity: 0.2;
-    font-weight: 700;
-    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: calc($base-unit * 1.5);
+    display: flex;
+    flex-direction: column;
+    
+    .zh-name {
+      font-family: 'AlimamaDongFangDaKai', serif;
+      font-size: calc($base-unit * 2);
+      opacity: 0.9;
+      font-weight: normal;
+      letter-spacing: 0.1em;
+      margin: 0;
+    }
+
+    .description {
+      font-size: calc($base-unit * 0.75);
+      opacity: 0.75;
+      letter-spacing: 0.02em;
+      font-weight: 300;
+      margin-top: calc($base-unit * 0.25);
+      font-family: 'TsangerYuYang', sans-serif;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .color-code {
+      font-family: 'SF Mono', monospace;
+      font-size: calc($base-unit * 0.75);
+      opacity: 0.6;
+      letter-spacing: 0.05em;
+      margin-top: calc($base-unit * 0.5);
+      
+      .hex {
+        display: block;
+        text-transform: uppercase;
+      }
+    }
   }
 }
 
