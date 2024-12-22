@@ -43,8 +43,17 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
       material = createGlossyMaterial(scene, color);
       break;
     case 'glass':
+    case 'frosted':  // 毛玻璃效果也使用玻璃材质
       logger.debug('Creating glass material');
       material = createGlassMaterial(scene, color);
+      break;
+    case 'linear':  // 线性渐变效果使用标准材质
+      logger.debug('Creating linear gradient material');
+      material = createSolidMaterial(scene, color);
+      break;
+    case 'glow':    // 发光效果使用标准材质
+      logger.debug('Creating glow material');
+      material = createSolidMaterial(scene, color);
       break;
     default:
       logger.warn('Unknown texture type, falling back to solid material');
