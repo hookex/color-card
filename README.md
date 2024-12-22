@@ -59,3 +59,8 @@ The application is built using:
 ## License
 
 MIT
+
+
+# 字体
+
+https://www.iconfont.cn/fonts/detail?spm=a313x.fonts_index.i1.d9df05512.7c3b3a81pAhAHj&cnid=IhcTcFymWeyf
