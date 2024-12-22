@@ -15,6 +15,7 @@ import {
   leaf
 } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
+import { getEnabledTextures } from '../config/textureConfig';
 
 export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | 'glow' | 'frosted';
 
@@ -28,7 +29,7 @@ interface Props {
 const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextureChange }) => {
   const { t } = useTranslation();
 
-  const textures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
+  const allTextures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
     { type: 'solid', icon: colorPaletteOutline, activeIcon: colorPalette, label: '原色' },
     { type: 'linear', icon: contrastOutline, activeIcon: contrast, label: '线性' },
     { type: 'glow', icon: sparklesOutline, activeIcon: sparkles, label: '光芒' },
@@ -36,6 +37,11 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
     { type: 'paint', icon: carSportOutline, activeIcon: carSport, label: '车漆' },
     { type: 'frosted', icon: waterOutline, activeIcon: water, label: '毛玻璃' },
   ];
+
+  // 只显示启用的材质
+  const enabledTextures = allTextures.filter(texture => 
+    getEnabledTextures().includes(texture.type)
+  );
 
   // 生成选中态的样式
   const getSelectedStyle = (isSelected: boolean) => {
@@ -50,7 +56,7 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
     <div className="glass-toolbar" style={{ '--toolbar-selected-color': color } as React.CSSProperties}>
       <IonToolbar>
         <IonButtons slot="start">
-          {textures.map(({ type, icon, activeIcon, label }) => (
+          {enabledTextures.map(({ type, icon, activeIcon, label }) => (
             <IonButton
               key={type}
               onClick={() => onTextureChange(type)}
