@@ -101,21 +101,31 @@ const CanvasBackground: React.FC = () => {
     const gl = new GlowLayer('glow', scene);
     gl.intensity = 0.5;
 
+    // 处理窗口大小变化
+    const handleResize = () => {
+      if (canvasRef.current) {
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+        engine.resize();
+      }
+    };
+
+    // 初始设置画布大小
+    handleResize();
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', handleResize);
+
     // 渲染循环
     engine.runRenderLoop(() => {
       scene.render();
     });
 
-    // 自适应窗口大小
-    window.addEventListener('resize', () => {
-      engine.resize();
-    });
-
+    // 清理函数
     return () => {
+      window.removeEventListener('resize', handleResize);
       engine.dispose();
-      window.removeEventListener('resize', () => {
-        engine.resize();
-      });
+      scene.dispose();
     };
   };
 
@@ -136,12 +146,14 @@ const CanvasBackground: React.FC = () => {
     <canvas
       ref={canvasRef}
       style={{
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         position: 'fixed',
         top: 0,
         left: 0,
         zIndex: 0,
+        display: 'block',
+        touchAction: 'none'
       }}
     />
   );
