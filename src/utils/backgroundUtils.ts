@@ -88,23 +88,38 @@ export const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial
 };
 
 /**
- * 创建光泽材质
+ * 创建光泽材质（车漆）
  * @param scene Babylon Scene 对象
  * @param color 十六进制颜色值
- * @returns StandardMaterial 对象
+ * @returns PBRMaterial 对象
  */
-export const createGlossyMaterial = (scene: Scene, color: string): StandardMaterial => {
-  const material = new StandardMaterial('glossyMaterial', scene);
+export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial => {
+  const material = new PBRMaterial('paintMaterial', scene);
   const colorValue = hexToColor3(color);
-  material.diffuseColor = colorValue;
-  material.specularColor = new Color3(1, 1, 1);
-  material.specularPower = 32;
-  material.roughness = 0;
+  
+  // 基础颜色
+  material.albedoColor = colorValue;
+  
+  // 金属度和粗糙度设置
+  material.metallic = 0.8;  // 较高的金属度
+  material.roughness = 0.15;  // 较低的粗糙度，使表面更光滑
+  
+  // 环境反射设置
+  material.environmentIntensity = 1.0;  // 环境贴图强度
+  material.clearCoat.isEnabled = true;  // 启用清漆层
+  material.clearCoat.intensity = 1.0;   // 清漆强度
+  material.clearCoat.roughness = 0.1;   // 清漆粗糙度
+  material.clearCoat.indexOfRefraction = 1.5;  // 清漆层的折射率
+  
+  // 基础层折射率
+  material.indexOfRefraction = 1.5;      // 基础涂层的折射率
+  material.subSurface.isRefractionEnabled = true;  // 启用折射
+  
   return material;
 };
 
 /**
- * 创建玻璃材质
+ * 创建毛玻璃材质
  * @param scene Babylon Scene 对象
  * @param color 十六进制颜色值
  * @returns PBRMaterial 对象
@@ -112,12 +127,25 @@ export const createGlossyMaterial = (scene: Scene, color: string): StandardMater
 export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
   const material = new PBRMaterial('glassMaterial', scene);
   const colorValue = hexToColor3(color);
+  
+  // 基础颜色和透明度
   material.albedoColor = colorValue;
-  material.alpha = 0.5;
+  material.alpha = 0.6;  // 透明度
   material.metallic = 0.0;
-  material.roughness = 0.1;
-  material.environmentIntensity = 0.8;
-  material.indexOfRefraction = 1.5;
+  
+  // 毛玻璃效果
+  material.roughness = 0.4;  // 较高的粗糙度产生磨砂效果
+  material.subSurface.isRefractionEnabled = true;  // 启用折射
+  material.subSurface.refractionIntensity = 0.8;  // 折射强度
+  material.indexOfRefraction = 1.5;  // 玻璃的折射率
+  
+  // 环境反射设置
+  material.environmentIntensity = 0.7;  // 环境反射强度
+  
+  // 半透明设置
+  material.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
+  material.backFaceCulling = false;  // 禁用背面剔除，使两面都可见
+  
   return material;
 };
 

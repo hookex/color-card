@@ -8,6 +8,7 @@ import {
   PointLight,
   StandardMaterial,
   PBRMaterial,
+  CubeTexture,
 } from '@babylonjs/core';
 import { TextureType } from '../components/TextureTools';
 import {
@@ -16,23 +17,41 @@ import {
   createGlossyMaterial,
   createGlassMaterial,
 } from './backgroundUtils';
+import createLogger from './logger';
+
+const logger = createLogger('canvasBackground');
 
 /**
  * 根据纹理类型创建材质
  */
 export const createMaterialByType = (scene: Scene, color: string, type: TextureType) => {
+  logger.info('Creating material:', { type, color });
+  
+  let material;
   switch (type) {
     case 'solid':
-      return createSolidMaterial(scene, color);
+      logger.debug('Creating solid material');
+      material = createSolidMaterial(scene, color);
+      break;
     case 'leather':
-      return createMetallicMaterial(scene, color);
+      logger.debug('Creating leather material');
+      material = createMetallicMaterial(scene, color);
+      break;
     case 'paint':
-      return createGlossyMaterial(scene, color);
+      logger.debug('Creating paint material');
+      material = createGlossyMaterial(scene, color);
+      break;
     case 'glass':
-      return createGlassMaterial(scene, color);
+      logger.debug('Creating glass material');
+      material = createGlassMaterial(scene, color);
+      break;
     default:
-      return createSolidMaterial(scene, color);
+      logger.warn('Unknown texture type, falling back to solid material');
+      material = createSolidMaterial(scene, color);
   }
+
+  logger.info('Material created successfully');
+  return material;
 };
 
 /**
@@ -41,6 +60,14 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
 export const setupScene = (scene: Scene) => {
   scene.clearColor = new Color4(0, 0, 0, 0);
   scene.ambientColor = new Color3(0.3, 0.3, 0.3);
+  
+  // 创建HDR环境
+  const envTexture = CubeTexture.CreateFromPrefilteredData(
+    "https://assets.babylonjs.com/environments/environmentSpecular.env",
+    scene
+  );
+  scene.environmentTexture = envTexture;
+  scene.createDefaultSkybox(envTexture, true, 1000);
 };
 
 /**

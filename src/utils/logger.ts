@@ -19,7 +19,11 @@ const createLogger = (namespace: string) => {
     },
     info: (...args: unknown[]) => {
       console.info(`%c[${namespace}]`, 'color: green', ...args);
-      logger.extend('info')(...args);
+      logger(...args);
+    },
+    debug: (...args: unknown[]) => {
+      console.debug(`%c[${namespace}]`, 'color: gray', ...args);
+      logger(...args);
     },
     warn: (...args: unknown[]) => {
       console.warn(`%c[${namespace}]`, 'color: orange', ...args);
