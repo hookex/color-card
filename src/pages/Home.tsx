@@ -31,7 +31,7 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
   const [debug, setDebug] = useState(false);
   const [mode, setMode] = useState<'canvas' | 'div'>('div');
-  const [color, setColor] = useState('#ff0000');
+  const [color, setColor] = useState(colorCards[0].color);
   const [texture, setTexture] = useState<TextureType>('solid');
 
   const fadeIn = useSpring({
@@ -73,8 +73,7 @@ const Home: React.FC = () => {
     '--card-color': color,
     '--text-color': getContrastColor(color)
   } as React.CSSProperties);
-  
-  // 将颜色卡片分成两列
+
   const splitColors = () => {
     const midPoint = Math.ceil(colorCards.length / 2);
     return {
@@ -95,44 +94,51 @@ const Home: React.FC = () => {
       >
         <Background color={color} texture={texture} debug={debug} mode={mode} />
         <IonContent>
-          <div className="color-cards">
-            <div className="color-column">
-              {splitColors().leftColumn.map(({ color, name, zhName, year }) => (
-                <div
-                  key={name}
-                  className="color-card"
-                  style={getCardStyle(color)}
-                  onClick={() => handleCardClick(color)}
-                >
-                  <div className="year-label">{year}</div>
-                  <div className="card-info">
-                    <div className="en-name">{name}</div>
-                    <div className="zh-name">{zhName}</div>
-                    <div className="rgb">{color.toUpperCase()}</div>
+          <animated.div style={fadeIn}>
+            <div className="color-cards">
+              <div className="color-column">
+                {splitColors().leftColumn.map(({ color, name, zhName, year }) => (
+                  <div
+                    key={name}
+                    className="color-card"
+                    style={getCardStyle(color)}
+                    onClick={() => handleCardClick(color)}
+                  >
+                    <div className="year-label">{year}</div>
+                    <div className="card-info">
+                      <div className="en-name">{name}</div>
+                      <div className="zh-name">{zhName}</div>
+                      <div className="rgb">{color.toUpperCase()}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="color-column">
-              {splitColors().rightColumn.map(({ color, name, zhName, year }) => (
-                <div
-                  key={name}
-                  className="color-card"
-                  style={getCardStyle(color)}
-                  onClick={() => handleCardClick(color)}
-                >
-                  <div className="year-label">{year}</div>
-                  <div className="card-info">
-                    <div className="en-name">{name}</div>
-                    <div className="zh-name">{zhName}</div>
-                    <div className="rgb">{color.toUpperCase()}</div>
+                ))}
+              </div>
+              <div className="color-column">
+                {splitColors().rightColumn.map(({ color, name, zhName, year }) => (
+                  <div
+                    key={name}
+                    className="color-card"
+                    style={getCardStyle(color)}
+                    onClick={() => handleCardClick(color)}
+                  >
+                    <div className="year-label">{year}</div>
+                    <div className="card-info">
+                      <div className="en-name">{name}</div>
+                      <div className="zh-name">{zhName}</div>
+                      <div className="rgb">{color.toUpperCase()}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </animated.div>
         </IonContent>
-        <TextureTools color={color} onColorChange={setColor} texture={texture} onTextureChange={setTexture} />
+        <TextureTools
+          color={color}
+          onColorChange={setColor}
+          texture={texture}
+          onTextureChange={handleTextureChange}
+        />
       </DevTools>
     </IonPage>
   );
