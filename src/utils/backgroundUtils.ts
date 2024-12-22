@@ -6,6 +6,8 @@ import {
   Animation,
   EasingFunction,
   CircleEase,
+  NoiseProceduralTexture,
+  Texture,
 } from '@babylonjs/core';
 import createLogger from './logger';
 
@@ -157,9 +159,19 @@ export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial =
     // 基础颜色
     material.albedoColor = colorValue;
     
+    // 创建噪声纹理作为斑点效果
+    const noiseTexture = new NoiseProceduralTexture('noiseTexture', 256, scene);
+    noiseTexture.octaves = 4;  // 噪声的细节层级
+    noiseTexture.persistence = 0.8;  // 每层噪声的持续度
+    noiseTexture.animationSpeedFactor = 0;  // 禁用动画
+    noiseTexture.brightness = 0.5;  // 亮度调整
+    
+    // 使用噪声纹理作为金属度贴图
+    material.metallicTexture = noiseTexture;
+    
     // 金属度和粗糙度设置
-    material.metallic = 0.8;  // 较高的金属度
-    material.roughness = 0.15;  // 较低的粗糙度，使表面更光滑
+    material.metallic = 0.9;  // 较高的金属度
+    material.roughness = 0.2;  // 较低的粗糙度，使表面更光滑
     
     // 环境反射设置
     material.environmentIntensity = 1.0;  // 环境贴图强度
