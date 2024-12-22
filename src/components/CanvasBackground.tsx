@@ -104,30 +104,30 @@ const CanvasBackground: React.FC = () => {
     // 设置灯光
     setupLights(scene);
 
-    // 创建背景平面
+    // 创建背景平面（图片，在前面）
     const backgroundPlane = MeshBuilder.CreatePlane('backgroundPlane', {
-      size: 4,
+      size: 8,  // 增大图片平面尺寸
       sideOrientation: Mesh.DOUBLESIDE
     }, scene);
-    backgroundPlane.position = new Vector3(0, 0, -0.1); // 放在主平面后面
+    backgroundPlane.position = new Vector3(0, 0, 2);  // 放在前面
     backgroundPlaneRef.current = backgroundPlane;
 
-    // 创建背景材质
+    // 创建背景材质（使用纯色）
     const backgroundMaterial = new StandardMaterial('backgroundMaterial', scene);
-    const backgroundTexture = new Texture(backgroundImage, scene);
-    backgroundMaterial.diffuseTexture = backgroundTexture;
+    backgroundMaterial.diffuseColor = Color3.FromHexString(state.color);
+    backgroundMaterial.specularColor = new Color3(0.2, 0.2, 0.2);
     backgroundPlane.material = backgroundMaterial;
 
-    // 创建主平面（玻璃效果）
+    // 创建主平面（玻璃效果，在后面）
     const plane = MeshBuilder.CreatePlane('colorPlane', {
-      size: 2,
+      size: 2,  // 减小玻璃平面尺寸
       sideOrientation: Mesh.DOUBLESIDE
     }, scene);
-    plane.position = new Vector3(0, 0, 0);
+    plane.position = new Vector3(0, 0, -2);  // 放在后面
     planeRef.current = plane;
 
     // 创建并应用材质
-    const material = createMaterialByType(scene, state.color, state.texture);
+    const material = createMaterialByType(scene, '#FFFFFF', state.texture);  // 使用白色作为基础色
     plane.material = material;
     materialRef.current = material;
 

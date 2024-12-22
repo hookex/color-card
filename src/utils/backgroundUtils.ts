@@ -241,6 +241,8 @@ export const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial 
 
 /**
  * 创建毛玻璃材质
+ * 这是一个基于 PBR（基于物理的渲染）的材质，用于创建磨砂玻璃效果
+ * PBR 材质可以模拟现实世界中的材质外观，包括反射、折射、散射等效果
  * @param scene Babylon Scene 对象
  * @param color 十六进制颜色值
  * @returns PBRMaterial 对象
@@ -248,34 +250,114 @@ export const createLeatherMaterial = (scene: Scene, color: string): PBRMaterial 
 export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial => {
   return getMaterialFromCache(scene, 'glass', color, () => {
     const material = new PBRMaterial('glassMaterial', scene);
-    const colorValue = hexToColor3(color);
     
-    // 基础颜色和透明度设置
-    material.albedoColor = colorValue;
-    material.alpha = 0.2;  // 透明度
+    // ===== 基础材质属性 =====
+    
+    // albedoColor: 材质的基础颜色，这是材质在完全漫反射下的颜色
+    // 使用纯白色(1,1,1)以便让材质本身不带任何颜色，只体现毛玻璃效果
+    material.albedoColor = new Color3(1, 1, 1);
+    
+    // alpha: 材质的整体透明度
+    // 0 = 完全透明，1 = 完全不透明
+    // 设置为 0.6 来获得半透明效果
+    material.alpha = 0.6;
+    
+    // metallic: 材质的金属度
+    // 0 = 非金属（绝缘体），1 = 纯金属
+    // 设置较低的值(0.1)以模拟玻璃的非金属特性
     material.metallic = 0.1;
     
-    // 玻璃效果
-    material.roughness = 0.1;
-    material.subSurface.isRefractionEnabled = true;
-    material.subSurface.refractionIntensity = 1.0;
-    material.indexOfRefraction = 1.5;
+    // ===== 玻璃特定属性 =====
     
-    // 环境反射设置
-    material.environmentIntensity = 1.0;
+    // roughness: 材质的粗糙度
+    // 0 = 完全光滑（镜面反射），1 = 完全粗糙（漫反射）
+    // 设置为 0.3 来获得轻微的磨砂效果
+    material.roughness = 0.3;
     
-    // 透明度设置
+    // 折射相关设置
+    material.subSurface.isRefractionEnabled = true;  // 启用折射效果
+    
+    // refractionIntensity: 折射强度
+    // 控制透过材质看到的物体的扭曲程度
+    // 设置适中的值(0.4)以获得自然的折射效果
+    material.subSurface.refractionIntensity = 0.4;
+    
+    // indexOfRefraction: 折射率
+    // 控制光线通过材质时的弯曲程度
+    // 真实玻璃约为 1.5，这里设置为 1.2 以获得更柔和的效果
+    material.indexOfRefraction = 1.2;
+    
+    // ===== 环境和光照属性 =====
+    
+    // environmentIntensity: 环境反射强度
+    // 控制材质对环境光的反射程度
+    // 设置较低的值(0.3)以减少反射，增加磨砂感
+    material.environmentIntensity = 0.3;
+    
+    // ===== 透明度设置 =====
+    
+    // transparencyMode: 透明度模式
+    // PBRMATERIAL_ALPHABLEND = 启用 alpha 混合
     material.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
+    
+    // backFaceCulling: 背面剔除
+    // false = 双面渲染，使材质的两面都可见
     material.backFaceCulling = false;
-    material.alphaMode = PBRMaterial.PBRMATERIAL_ALPHABLEND;
-    material.useAlphaFromAlbedoTexture = false;
+    
+    // useAlphaFromAlbedoTexture: 是否使用反照率贴图的 alpha 通道
+    // 启用以便使用噪声纹理控制透明度
+    material.useAlphaFromAlbedoTexture = true;
+    
+    // forceAlphaTest: 强制 alpha 测试
+    // false = 使用正常的 alpha 混合
     material.forceAlphaTest = false;
+    
+    // ===== 噪声纹理设置 =====
+    
+    // 创建程序化噪声纹理
+    // 1024 = 纹理分辨率，更高的值会产生更细腻的效果
+    const noiseTexture = new NoiseProceduralTexture('noiseTexture', 1024, scene);
+    
+    // octaves: 噪声的叠加次数
+    // 更高的值会产生更复杂的噪声图案
+    noiseTexture.octaves = 128;
+    
+    // persistence: 每个八度的强度衰减
+    // 控制不同层级噪声的混合程度
+    noiseTexture.persistence = 2;
+    
+    // animationSpeedFactor: 动画速度
+    // 0 = 静态噪声
+    noiseTexture.animationSpeedFactor = 0;
+    
+    // brightness: 噪声纹理的亮度
+    // 影响整体的可见度
+    noiseTexture.brightness = 0.6;
+    
+    // ===== 纹理应用 =====
+    
+    // bumpTexture: 凹凸贴图
+    // 用于创建表面细节的视觉效果
+    material.bumpTexture = noiseTexture;
+    material.bumpTexture.level = 6;  // 控制凹凸效果的强度
+    
+    // opacityTexture: 不透明度贴图
+    // 用于创建不均匀的透明效果
+    material.opacityTexture = noiseTexture;
+    
+    // microSurfaceTexture: 微表面贴图
+    // 用于控制局部的粗糙度变化，增加更真实的磨砂效果
+    material.microSurfaceTexture = noiseTexture;
     
     return material;
   });
 };
 
-// 计算对比色
+/**
+ * 计算对比色
+ * @param hexcolor 十六进制颜色值
+ * @returns 对比色
+ */
 export const getContrastColor = (hexcolor: string): string => {
   // 移除 # 号
   const hex = hexcolor.replace('#', '');
