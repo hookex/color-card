@@ -3,15 +3,8 @@ import { TextureType } from './TextureTools';
 import { getTextureStyles } from '../utils/divBackgroundUtils';
 import createLogger from '../utils/logger';
 import useStore from '../stores/useStore';
-import { getContrastColor } from '../utils/backgroundUtils';
 
 const logger = createLogger('divBackground');
-
-interface Props {
-  color: string;
-  texture: TextureType;
-  debug?: boolean;
-}
 
 const DivBackground: React.FC = () => {
   const color = useStore(state => state.color);
@@ -19,7 +12,7 @@ const DivBackground: React.FC = () => {
   const debug = useStore(state => state.debug);
   
   // 获取纹理样式，但不包含背景色
-  const textureStyles = getTextureStyles(color, texture);
+  const textureStyles = getTextureStyles({ texture, startColor: color });
   
   // 构建最终的样式对象
   const finalStyles: React.CSSProperties = {

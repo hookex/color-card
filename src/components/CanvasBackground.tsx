@@ -46,7 +46,7 @@ const CanvasBackground: React.FC = () => {
 
   // 更新材质
   const updateMaterial = () => {
-    if (!sceneRef.current || !planeRef.current) return;
+    if (!sceneRef.current || !planeRef.current || !state.color || !state.texture) return;
 
     const newMaterial = createMaterialByType(sceneRef.current, state.color, state.texture);
     
@@ -55,7 +55,7 @@ const CanvasBackground: React.FC = () => {
     materialRef.current = newMaterial;
     
     // 确保场景重新渲染
-    sceneRef.current.markAllMaterialsAsDirty();
+    sceneRef.current.markAllMaterialsAsDirty(1);
   };
 
   // 更新相机控制

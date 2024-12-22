@@ -18,6 +18,7 @@ import './Home.scss';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
+import { TextureType } from '../components/TextureTools';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -81,7 +82,7 @@ const Home: React.FC = () => {
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
 
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    if (["finished", "skipped"].includes(status)) {
       setHasCompletedTutorial(true);
       setRunTutorial(false);
       
@@ -320,9 +321,6 @@ const Home: React.FC = () => {
           spotlight: {
             backgroundColor: 'transparent',
           },
-          floater: {
-            filter: 'none',
-          },
         }}
         floaterProps={{
           disableAnimation: true,
@@ -331,6 +329,9 @@ const Home: React.FC = () => {
               length: 8,
               spread: 12,
             },
+            floater: {
+              filter: 'none'
+            }
           },
         }}
         locale={{
@@ -404,7 +405,7 @@ const Home: React.FC = () => {
 
         <animated.div 
           className="wallpaper-button-container"
-          style={buttonAnimation}
+          style={buttonAnimation as any}
         >
           <div 
             className="glass-button" 
