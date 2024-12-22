@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { TextureType } from '../components/TextureTools';
 import { ColorCard, colorCards as initialColorCards } from '../config/brandColors';
-import { loadStoreState, saveStoreState } from '../utils/storage';
+import { loadStoreState, saveStoreState, StoreState } from '../utils/storage';
 import createLogger from '../utils/logger';
 import { textureConfigs } from '../config/textureConfig';
 
@@ -36,10 +36,10 @@ interface ColorCardState {
   resetScene: () => void;
 }
 
-const useStore = create<ColorCardState>()(
-  devtools(
-    persist(
-      (set, get) => ({
+const useStore = create<StoreState>()(
+  persist(
+    devtools(
+      (set, get): StoreState => ({
         // 初始状态
         color: savedState?.color || '#FF0000',
         texture: savedState?.texture || 'solid' as TextureType,
@@ -143,23 +143,23 @@ const useStore = create<ColorCardState>()(
         },
       }),
       {
-        name: 'colorcard-storage',
-        storage: {
-          getItem: () => {
-            const state = loadStoreState();
-            return Promise.resolve(state);
-          },
-          setItem: (_key, value) => {
-            saveStoreState(value);
-            return Promise.resolve();
-          },
-          removeItem: () => Promise.resolve(),
-        },
+        name: 'ColorCard',
+        enabled: true,
       }
     ),
     {
-      name: 'ColorCard',
-      enabled: true,
+      name: 'colorcard-storage',
+      storage: {
+        getItem: () => {
+          const state = loadStoreState();
+          return Promise.resolve(state);
+        },
+        setItem: (_key, value) => {
+          saveStoreState(value);
+          return Promise.resolve();
+        },
+        removeItem: () => Promise.resolve(),
+      },
     }
   )
 );
