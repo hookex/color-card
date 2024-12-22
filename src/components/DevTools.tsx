@@ -28,6 +28,8 @@ import './DevTools.scss';
 import createLogger from '../utils/logger';
 import { saveDevToolsState, loadDevToolsState } from '../utils/storage';
 import useStore from '../stores/useStore';
+import '@babylonjs/core/Debug/debugLayer';
+import '@babylonjs/inspector';
 
 const logger = createLogger('devtools');
 const InspectorWrapper = Inspector;
@@ -49,6 +51,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
   
   const debug = useStore(state => state.debug);
   const mode = useStore(state => state.mode);
+  const texture = useStore(state => state.texture);
   const setDebug = useStore(state => state.setDebug);
   const setMode = useStore(state => state.setMode);
   const resetScene = useStore(state => state.resetScene);
@@ -79,9 +82,10 @@ const DevTools: React.FC<Props> = ({ children }) => {
     saveDevToolsState({
       debug,
       mode,
-      language: i18n.language as string
+      language: i18n.language as string,
+      texture
     });
-  }, [debug, mode, i18n.language]);
+  }, [debug, mode, i18n.language, texture]);
 
   // 显示 Toast 提示
   const showToastMessage = (message: string) => {
@@ -210,7 +214,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const handleReset = () => {
     resetScene();
     setShowInspector(false);
-    if (window.BABYLON?.Inspector?.IsVisible) {
+    if (typeof window !== 'undefined' && window.BABYLON?.Inspector?.IsVisible) {
       window.BABYLON.Inspector.Hide();
     }
   };
