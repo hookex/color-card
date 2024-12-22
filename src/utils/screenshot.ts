@@ -2,26 +2,66 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { Camera } from '@capacitor/camera';
 import html2canvas from 'html2canvas';
-import { Permissions } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 
-// 检查并请求权限
-async function checkAndRequestPermissions() {
+// 检查权限（在 iOS 上不需要显式请求文件系统权限）
+async function checkPermissions() {
   if (!Capacitor.isNativePlatform()) return true;
-
-  const { storage } = await Permissions.query({ name: 'storage' });
   
-  if (storage === 'prompt' || storage === 'prompt-with-rationale') {
-    const { storage: newStatus } = await Permissions.request({ name: 'storage' });
-    return newStatus === 'granted';
+  if (Capacitor.getPlatform() === 'ios') {
+    return true; // iOS 通过 Info.plist 处理权限
   }
   
-  return storage === 'granted';
+  // Android 权限在保存时会自动请求
+  return true;
+}
+
+// 预览并保存图片
+async function previewAndSave(base64Data: string, fileName: string) {
+  if (Capacitor.getPlatform() === 'ios') {
+    try {
+      // 先保存到临时目录
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache
+      });
+
+      // 获取临时文件的 URI
+      const fileUri = await Filesystem.getUri({
+        path: fileName,
+        directory: Directory.Cache
+      });
+
+      // 使用 Share API 预览
+      await Share.share({
+        title: '预览壁纸',
+        url: fileUri.uri,
+        dialogTitle: '预览并保存壁纸'
+      });
+
+      return { success: true, fileName };
+    } catch (error) {
+      console.error('Preview failed:', error);
+      throw error;
+    }
+  } else {
+    // 非 iOS 平台直接保存
+    await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.External,
+      recursive: true
+    });
+    
+    return { success: true, fileName };
+  }
 }
 
 export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
   try {
     // 首先检查权限
-    const hasPermission = await checkAndRequestPermissions();
+    const hasPermission = await checkPermissions();
     if (!hasPermission) {
       throw new Error('Storage permission not granted');
     }
@@ -41,16 +81,40 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
       if (!backgroundDiv) {
         throw new Error('Background div not found');
       }
-      canvas = await html2canvas(backgroundDiv, {
-        backgroundColor: null,
-        scale: 2, // Higher quality
-      });
+      
+      // 创建一个克隆的元素用于截图
+      const clonedDiv = backgroundDiv.cloneNode(true) as HTMLElement;
+      clonedDiv.style.position = 'absolute';
+      clonedDiv.style.top = '-9999px';
+      clonedDiv.style.left = '-9999px';
+      document.body.appendChild(clonedDiv);
+      
+      try {
+        canvas = await html2canvas(clonedDiv, {
+          backgroundColor: null,
+          scale: 2, // Higher quality
+          logging: false,
+          allowTaint: true,
+          useCORS: true,
+          width: backgroundDiv.offsetWidth,
+          height: backgroundDiv.offsetHeight
+        });
+      } finally {
+        // 清理克隆的元素
+        document.body.removeChild(clonedDiv);
+      }
     }
 
     // Create a temporary canvas
     const tempCanvas = document.createElement('canvas');
+    tempCanvas.style.position = 'absolute';
+    tempCanvas.style.top = '-9999px';
+    tempCanvas.style.left = '-9999px';
+    document.body.appendChild(tempCanvas);
+    
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) {
+      document.body.removeChild(tempCanvas);
       throw new Error('Failed to get canvas context');
     }
 
@@ -83,41 +147,17 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
 
     // Get image data
     const dataUrl = tempCanvas.toDataURL('image/png');
+    
+    // Clean up
+    document.body.removeChild(tempCanvas);
+    
     const base64Data = dataUrl.split(',')[1];
 
     // Generate filename
     const timestamp = new Date().getTime();
     const fileName = `wallpaper_${timestamp}.png`;
 
-    if (Capacitor.isNativePlatform()) {
-      try {
-        // 保存到外部存储
-        await Filesystem.writeFile({
-          path: fileName,
-          data: base64Data,
-          directory: Directory.External,
-          recursive: true
-        });
-        
-        return { success: true, fileName };
-      } catch (error) {
-        // 如果外部存储失败，尝试保存到文档目录
-        await Filesystem.writeFile({
-          path: fileName,
-          data: base64Data,
-          directory: Directory.Documents,
-          recursive: true
-        });
-        
-        return { success: true, fileName };
-      }
-    } else {
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = dataUrl;
-      link.click();
-      return { success: true, fileName };
-    }
+    return await previewAndSave(base64Data, fileName);
   } catch (error) {
     console.error('Failed to take screenshot:', error);
     return { success: false, error };

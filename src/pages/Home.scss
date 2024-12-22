@@ -491,9 +491,8 @@ ion-content {
   }
 
   .color-card {
-    position: fixed;
-    top: calc(var(--ion-safe-area-top, 47px) + #{$base-unit});
-    left: 50%;
+    position: relative;
+    width: 100%;
     padding-bottom: 61.8%;
     border-radius: calc($base-unit * 0.75);
     cursor: pointer;
