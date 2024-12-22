@@ -1,13 +1,23 @@
 import { TextureType } from '../components/TextureTools';
 import { CSSProperties } from 'react';
 
+interface TextureStylesProps {
+  texture: TextureType;
+  startColor?: string;
+  endColor?: string;
+}
+
 /**
  * 获取纹理对应的样式
  */
-export const getTextureStyles = (texture: TextureType): CSSProperties => {
+export const getTextureStyles = ({ texture, startColor, endColor }: TextureStylesProps): CSSProperties => {
   switch (texture) {
     case 'solid':
       return {};
+    case 'linear':
+      return {
+        background: `linear-gradient(to bottom, ${startColor}, ${endColor})`,
+      };
     case 'leather':
       return {
         backgroundImage: 'linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%)',

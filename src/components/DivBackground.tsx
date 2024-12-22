@@ -3,6 +3,7 @@ import { TextureType } from './TextureTools';
 import { getTextureStyles } from '../utils/divBackgroundUtils';
 import createLogger from '../utils/logger';
 import useStore from '../stores/useStore';
+import { getContrastColor } from '../utils/backgroundUtils';
 
 const logger = createLogger('divBackground');
 
@@ -17,7 +18,11 @@ const DivBackground: React.FC = () => {
   const texture = useStore(state => state.texture);
   const debug = useStore(state => state.debug);
   
-  const textureStyles = getTextureStyles(texture);
+  const textureStyles = getTextureStyles({ 
+    texture, 
+    startColor: color,
+    endColor: texture === 'linear' ? getContrastColor(color) : undefined 
+  });
   
   logger.info('Rendering DivBackground:', { color, texture, debug });
 console.log('color, ', color)
@@ -26,7 +31,7 @@ console.log('color, ', color)
       className="background"
       style={{
         ...textureStyles,
-        backgroundColor: color,
+        backgroundColor: texture === 'linear' ? undefined : color,
         position: 'fixed',
         top: 0,
         left: 0,

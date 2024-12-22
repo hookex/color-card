@@ -373,3 +373,52 @@ export const getContrastColor = (hexcolor: string): string => {
   // 亮度大于 128 时使用深色文字，否则使用浅色文字
   return yiq >= 128 ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
 };
+
+/**
+ * 创建线性渐变材质
+ * @param scene Babylon Scene 对象
+ * @param startColor 起始颜色（十六进制）
+ * @param endColor 结束颜色（十六进制）
+ * @returns StandardMaterial 对象
+ */
+export const createLinearGradientMaterial = (
+  scene: Scene,
+  startColor: string,
+  endColor: string
+): StandardMaterial => {
+  return getMaterialFromCache(scene, 'linear_gradient', `${startColor}_${endColor}`, () => {
+    const material = new StandardMaterial('linearGradient', scene);
+    
+    // 创建画布来生成渐变纹理
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;  // 宽度为1像素以确保完全线性
+    canvas.height = 256;  // 高度决定渐变的精度
+    const ctx = canvas.getContext('2d')!;
+    
+    // 创建线性渐变
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, startColor);
+    gradient.addColorStop(1, endColor);
+    
+    // 填充渐变
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 创建纹理
+    const texture = new Texture('', scene, true);
+    texture.updateSize(canvas.width, canvas.height);
+    texture.hasAlpha = false;
+    
+    // 从画布更新纹理
+    texture.getContext().drawImage(canvas, 0, 0);
+    texture.update();
+    
+    // 设置材质属性
+    material.diffuseTexture = texture;
+    material.specularColor = new Color3(0, 0, 0); // 去除反光
+    material.emissiveColor = new Color3(0, 0, 0);
+    material.ambientColor = new Color3(1, 1, 1);
+    
+    return material;
+  });
+};
