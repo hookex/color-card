@@ -97,7 +97,7 @@ const Home: React.FC = () => {
         <IonContent>
           <div className="color-cards">
             <div className="color-column">
-              {splitColors().leftColumn.map(({ color, name, zhName, pinyin, rgb, cmyk, description, year }) => (
+              {splitColors().leftColumn.map(({ color, name, zhName, year }) => (
                 <div
                   key={name}
                   className="color-card"
@@ -106,19 +106,15 @@ const Home: React.FC = () => {
                 >
                   <div className="year-label">{year}</div>
                   <div className="card-info">
-                    <div className="pinyin">{pinyin}</div>
+                    <div className="en-name">{name}</div>
                     <div className="zh-name">{zhName}</div>
-                    {description && <div className="description">{description}</div>}
-                    <div className="color-values">
-                      <span data-label="RGB">{rgb}</span>
-                      <span data-label="CMYK">{cmyk}</span>
-                    </div>
+                    <div className="rgb">{color.toUpperCase()}</div>
                   </div>
                 </div>
               ))}
             </div>
             <div className="color-column">
-              {splitColors().rightColumn.map(({ color, name, zhName, pinyin, rgb, cmyk, description, year }) => (
+              {splitColors().rightColumn.map(({ color, name, zhName, year }) => (
                 <div
                   key={name}
                   className="color-card"
@@ -127,13 +123,9 @@ const Home: React.FC = () => {
                 >
                   <div className="year-label">{year}</div>
                   <div className="card-info">
-                    <div className="pinyin">{pinyin}</div>
+                    <div className="en-name">{name}</div>
                     <div className="zh-name">{zhName}</div>
-                    {description && <div className="description">{description}</div>}
-                    <div className="color-values">
-                      <span data-label="RGB">{rgb}</span>
-                      <span data-label="CMYK">{cmyk}</span>
-                    </div>
+                    <div className="rgb">{color.toUpperCase()}</div>
                   </div>
                 </div>
               ))}

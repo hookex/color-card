@@ -1,0 +1,49 @@
+@mixin ink-wash($color, $intensity: 1) {
+  position: relative;
+  background-color: $color;
+  overflow: hidden;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    mix-blend-mode: soft-light;
+    opacity: 0.15 * $intensity;
+    background-image: 
+      radial-gradient(
+        circle at 50% -20%,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 40%,
+        transparent 60%
+      ),
+      radial-gradient(
+        circle at 120% 50%,
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 60%
+      );
+    filter: blur(20px);
+    transform: scale(1.5);
+  }
+
+  &::after {
+    background-image: 
+      radial-gradient(
+        circle at 80% 120%,
+        transparent 0%,
+        rgba(0, 0, 0, 0.1) 40%,
+        transparent 60%
+      ),
+      radial-gradient(
+        circle at -20% 50%,
+        rgba(0, 0, 0, 0.1) 0%,
+        transparent 60%
+      );
+    mix-blend-mode: multiply;
+    filter: blur(30px);
+    opacity: 0.2 * $intensity;
+  }
+}

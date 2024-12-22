@@ -64,3 +64,5 @@ MIT
 # 字体
 
 https://www.iconfont.cn/fonts/detail?spm=a313x.fonts_index.i1.d9df05512.7c3b3a81pAhAHj&cnid=IhcTcFymWeyf
+
+https://www.iconfont.cn/user/detail?spm=a313x.fonts_index.i1.d562d1f9f.7c3b3a81pAhAHj&uid=9385510&nid=gB3z2oZnnF8N
