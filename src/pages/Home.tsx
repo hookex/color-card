@@ -40,14 +40,14 @@ const Home: React.FC = () => {
 
   const [bounds, setBounds] = useState(() => {
     const width = window.innerWidth;
-    const dragWidth = width * 0.4; // 40vw
+    const dragWidth = width * 0.2; // 40vw
     return { left: -dragWidth, right: dragWidth };
   });
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      const dragWidth = width * 0.4; // 40vw
+      const dragWidth = width * 0.3; // 40vw
       setBounds({ left: -dragWidth, right: dragWidth });
     };
 
@@ -64,30 +64,39 @@ const Home: React.FC = () => {
     }
   }));
 
+  const [isSwipedOut, setIsSwipedOut] = useState(false);
+
   const bind = useDrag(({ active, movement: [mx], offset: [ox], last, velocity: [vx], direction: [dx] }) => {
-    const threshold = window.innerWidth * 0.15;
+    const threshold = window.innerWidth * 0.15; // Increased threshold for swipe back
+    const velocityThreshold = 0.3; // Increased velocity threshold for swipe back
     const shouldSlideOut = Math.abs(ox) > threshold;
     
     if (active) {
+      console.log('Dragging:', { ox });
       api.start({ 
         x: ox,
         immediate: true,
       });
     } else if (last) {
-      const isSliding = Math.abs(vx) > 0.5;
-      const direction = shouldSlideOut ? Math.sign(ox) : (isSliding ? Math.sign(vx) : 0);
-      const targetX = direction ? direction * window.innerWidth : 0;
+      const isSliding = Math.abs(vx) > velocityThreshold;
+      const direction = dx > 0 ? 1 : -1; // Determine direction based on swipe
+      let targetX = direction > 0 ? window.innerWidth : 0; // Swipe out if direction is positive, otherwise swipe in
+
+      // Record swipe state at the end
+      setIsSwipedOut(targetX !== 0);
+
+      console.log('Swipe End:', { vx, direction, targetX, swipeDirection: targetX === 0 ? 'Swipe Back' : 'Swipe Out' });
       
       api.start({ 
         x: targetX,
         config: {
           mass: 1,
-          tension: 150,
-          friction: 16,
-          velocity: vx * 600,
+          tension: 300, // Increased tension for faster response
+          friction: 50, // Increased friction to dampen the bounce
         },
         onRest: () => {
           if (Math.abs(targetX) === window.innerWidth) {
+            console.log('Swipe completed to:', targetX);
           }
         }
       });
