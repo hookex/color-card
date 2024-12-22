@@ -116,3 +116,25 @@ ion-content {
   margin: 0 auto;
   padding: 2rem;
 }
+
+.toolbar-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 8px 16px;
+  --background: rgba(255, 255, 255, 0.5);
+  --border-style: solid;
+  --border-width: 1px;
+  --border-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 -2px 10px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  @media (prefers-color-scheme: dark) {
+    --background: rgba(28, 28, 30, 0.5);
+  }
+}

@@ -27,8 +27,8 @@ $alpha: (
 
 // Glass 效果
 $glass: (
-  bg: rgba($white, map-get($alpha, 15)),
-  border: rgba($white, map-get($alpha, 10)),
+  bg: rgba($white, map-get($alpha, 40)),
+  border: rgba($white, map-get($alpha, 20)),
   shadow: rgba($black, map-get($alpha, 10))
 );
 

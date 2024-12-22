@@ -1,11 +1,22 @@
 @import '../theme/colors.scss';
 
 @mixin glass-effect {
-  background: map-get($glass, bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid map-get($glass, border);
-  box-shadow: 0 4px 24px 0 map-get($glass, shadow);
+  --background: rgba(255, 255, 255, 0.1);
+  --border-style: solid;
+  --border-width: 1px;
+  --border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 -2px 10px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  @mixin glass-effect {
+    --background: rgba(28, 28, 30, 0.2);
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
 }
 
 @keyframes flow {
@@ -23,10 +34,10 @@
 .glass-toolbar {
   @include glass-effect;
   position: fixed;
+  z-index: 1000;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
   border-radius: 8px;
   padding: 6px;
   width: 320px;
@@ -119,6 +130,7 @@
 
   // 修改按钮样式
   ion-button {
+    --border-radius: 8px;
     --background: transparent;
     --background-hover: transparent;
     --background-activated: transparent;
@@ -210,5 +222,12 @@
     font-size: 18px;
     transition: color 0.2s ease;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+}
+
+// 暗色模式支持
+@media (prefers-color-scheme: dark) {
+  .glass-toolbar {
+    --background: rgba(28, 28, 30, 0.3);
   }
 }

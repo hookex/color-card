@@ -36,7 +36,7 @@ const Home: React.FC = () => {
     config: { duration: 1000 }
   });
 
-  const [{ x }, api] = useSpring(() => ({ 
+  const [{ x }, api] = useSpring(() => ({
     x: 0,
     config: { ...config.stiff, clamp: true }
   }));
@@ -45,7 +45,7 @@ const Home: React.FC = () => {
     if (last) {
       const shouldHide = vx > 0.5 || (mx > 50 && dx > 0);
       const shouldShow = vx < -0.3 || (mx < -30 && dx < 0);
-      
+
       if (shouldHide && !hideColorCard) {
         setHideColorCard(true);
         api.start({ x: window.innerWidth });
@@ -53,14 +53,14 @@ const Home: React.FC = () => {
         setHideColorCard(false);
         api.start({ x: 0 });
       } else {
-        api.start({ 
+        api.start({
           x: hideColorCard ? window.innerWidth : 0,
           config: { tension: 200, friction: 20 }
         });
       }
     } else {
       const currentX = hideColorCard ? window.innerWidth + mx : mx;
-      api.start({ 
+      api.start({
         x: currentX,
         immediate: true
       });
@@ -83,7 +83,7 @@ const Home: React.FC = () => {
   };
 
   const handleTextureChange = async (newTexture: TextureType) => {
-    logger.info('Setting new texture:', newTexture); 
+    logger.info('Setting new texture:', newTexture);
     updateTexture(newTexture);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
@@ -111,10 +111,10 @@ const Home: React.FC = () => {
         <div className={`canvas-container ${debug ? 'debug-mode' : ''}`}>
           {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
         </div>
-        
+
         <div className="container">
           {/* 色卡列表 - 可滑动 */}
-          <animated.div 
+          <animated.div
             {...bind()}
             style={{
               x,
@@ -122,7 +122,7 @@ const Home: React.FC = () => {
               zIndex: debug ? 0 : 1, // 在调试模式下降低层级
               touchAction: 'none',
               pointerEvents: debug ? 'none' : 'auto' // 在调试模式下禁用指针事件
-            }} 
+            }}
           >
             <div className="color-columns-container">
               <div className="color-column left-column">
@@ -161,14 +161,12 @@ const Home: React.FC = () => {
           </animated.div>
 
           {/* 工具栏 - 固定不动 */}
-          <div className="toolbar-wrapper">
-            <TextureTools
-              color={color}
-              onColorChange={updateColor}
-              texture={texture}
-              onTextureChange={handleTextureChange}
-            />
-          </div>
+          <TextureTools
+            color={color}
+            onColorChange={updateColor}
+            texture={texture}
+            onTextureChange={handleTextureChange}
+          />
         </div>
       </IonContent>
     </IonPage>

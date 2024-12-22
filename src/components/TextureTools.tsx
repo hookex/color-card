@@ -56,7 +56,7 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
             <IonButton
               key={type}
               onClick={() => onTextureChange(type)}
-              className={texture === type ? 'selected' : ''}
+              className={texture === type ? 'active' : ''}
               style={getSelectedStyle(texture === type)}
             >
               <div className="button-content">
