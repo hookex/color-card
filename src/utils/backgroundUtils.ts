@@ -254,8 +254,8 @@ export const createGlassMaterial = (scene: Scene, color: string): PBRMaterial =>
     // ===== 基础材质属性 =====
     
     // albedoColor: 材质的基础颜色，这是材质在完全漫反射下的颜色
-    // 使用纯白色(1,1,1)以便让材质本身不带任何颜色，只体现毛玻璃效果
-    material.albedoColor = new Color3(1, 1, 1);
+    // 使用传入的颜色作为基础色
+    material.albedoColor = Color3.FromHexString(color);
     
     // alpha: 材质的整体透明度
     // 0 = 完全透明，1 = 完全不透明
