@@ -103,12 +103,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const fadeIn = useSpring({
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-    config: { duration: 1000 }
-  });
-
   const [bounds, setBounds] = useState(() => {
     const width = window.innerWidth;
     const dragWidth = width * 0.2; // 40vw
@@ -251,18 +245,6 @@ const Home: React.FC = () => {
 
   const currentMode = useStore(state => state.mode);
 
-  const [preloadedCanvas, setPreloadedCanvas] = useState<React.ReactNode | null>(null);
-
-  useEffect(() => {
-    // 在后台预加载 Canvas 组件
-    if (mode === 'div') {
-      const canvas = <CanvasBackground />;
-      setPreloadedCanvas(canvas);
-    } else {
-      setPreloadedCanvas(null);
-    }
-  }, [mode]);
-
   const handleSave = async () => {
     try {
       if (mode === 'canvas') {
@@ -361,14 +343,15 @@ const Home: React.FC = () => {
         callback={handleJoyrideCallback}
       />
       <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
-        {preloadedCanvas}
       </div>
-      {mode === 'canvas' ? (
-        <CanvasBackground />
-      ) : (
-        <DivBackground />
-      )}
-      <IonContent fullscreen {...bind()} style={{ touchAction: 'none' }}>
+      <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 0 }}>
+        {mode === 'canvas' ? (
+          <CanvasBackground />
+        ) : (
+          <DivBackground />
+        )}
+      </div>
+      <IonContent fullscreen {...bind()} style={{ touchAction: 'none', position: 'relative', zIndex: 1 }}>
         <animated.div 
           className="container"
           style={{
