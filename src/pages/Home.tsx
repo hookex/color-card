@@ -39,38 +39,19 @@ const Home: React.FC = () => {
 
   const [{ x }, api] = useSpring(() => ({
     x: 0,
-    config: { ...config.stiff, clamp: true }
+    config: { ...config.stiff }
   }));
 
-  const bind = useDrag(({ movement: [mx], direction: [dx], velocity: [vx], last }) => {
-    if (last) {
-      const shouldHide = vx > 0.5 || (mx > 50 && dx > 0);
-      const shouldShow = vx < -0.3 || (mx < -30 && dx < 0);
-
-      if (shouldHide && !hideColorCard) {
-        setHideColorCard(true);
-        api.start({ x: window.innerWidth });
-      } else if (shouldShow && hideColorCard) {
-        setHideColorCard(false);
-        api.start({ x: 0 });
-      } else {
-        api.start({
-          x: hideColorCard ? window.innerWidth : 0,
-          config: { tension: 200, friction: 20 }
-        });
-      }
-    } else {
-      const currentX = hideColorCard ? window.innerWidth + mx : mx;
-      api.start({
-        x: currentX,
-        immediate: true
-      });
+  const bind = useDrag(({ active, movement: [mx], last }) => {
+    if (active) {
+      api.start({ x: mx, immediate: true });
+    } else if (last) {
+      api.start({ x: 0, config: { tension: 200, friction: 20 } });
     }
   }, {
-    bounds: { left: 0, right: window.innerWidth },
-    rubberband: true,
     axis: 'x',
-    from: () => [x.get(), 0]
+    filterTaps: true,
+    bounds: { left: -100, right: 100 }
   });
 
   const handleCardClick = async (newColor: string) => {
@@ -105,17 +86,21 @@ const Home: React.FC = () => {
           {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
         </div>
 
-        <div className="container">
-          {/* 色卡列表 - 可滑动 */}
-          <animated.div
+        <animated.div 
+          className="container"
+          {...bind()}
+          style={{
+            touchAction: 'none',
+            transform: x.to(value => `translateX(${value}px)`)
+          }}
+        >
+          {/* 色卡列表 */}
+          <div
             className="color-cards"
-            {...bind()}
             style={{
-              x,
               position: 'relative',
-              zIndex: debug ? 0 : 1, // 在调试模式下降低层级
-              touchAction: 'none',
-              pointerEvents: debug ? 'none' : 'auto' // 在调试模式下禁用指针事件
+              zIndex: debug ? 0 : 1,
+              pointerEvents: debug ? 'none' : 'auto'
             }}
           >
               {colorCards.map((card) => (
@@ -127,16 +112,16 @@ const Home: React.FC = () => {
                   getCardStyle={getCardStyle}
                 />
               ))}
-          </animated.div>
+          </div>
 
-          {/* 工具栏 - 固定不动 */}
+          {/* 工具栏 */}
           <TextureTools
             color={color}
             onColorChange={updateColor}
             texture={texture}
             onTextureChange={handleTextureChange}
           />
-        </div>
+        </animated.div>
       </IonContent>
     </IonPage>
   );
