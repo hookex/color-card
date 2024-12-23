@@ -38,9 +38,22 @@ export const getTextureStyles = ({ texture, startColor, endColor }: TextureStyle
         backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%)',
       };
     case 'glass':
+      if (!startColor) return {};
       return {
-        backdropFilter: 'blur(10px)',
-        opacity: 0.8,
+        backgroundColor: `${toRGBA(startColor)}`,
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        border: '1px solid rgba(255, 255, 255, 0.18)'
+      };
+    case 'frosted':
+      if (!startColor) return {};
+      return {
+        backgroundColor: `${toRGBA(startColor)}`,
+        backdropFilter: 'blur(10px) saturate(120%)',
+        WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+        boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.15)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       };
     default:
       return {};

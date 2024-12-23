@@ -20,21 +20,21 @@ export const textureConfigs: Record<TextureType, TextureConfig> = {
     renderMode: 'canvas',
     enabled: false  // 暂时禁用
   },
+  glass: {
+    renderMode: 'div',
+    enabled: true  // 启用毛玻璃效果
+  },
   paint: {
     renderMode: 'canvas',
     enabled: true
-  },
-  glass: {
-    renderMode: 'canvas',
-    enabled: false  // 暂时禁用
   },
   glow: {
     renderMode: 'canvas',
     enabled: false  // 暂时禁用
   },
   frosted: {
-    renderMode: 'canvas',
-    enabled: false  // 暂时禁用
+    renderMode: 'div',
+    enabled: true  // 启用磨砂玻璃效果
   }
 };
 
