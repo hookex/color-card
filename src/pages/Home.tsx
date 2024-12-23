@@ -40,6 +40,7 @@ const Home: React.FC = () => {
 
   const [showSaveButton, setShowSaveButton] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'reset'>('reset');
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -80,6 +81,60 @@ const Home: React.FC = () => {
     gesture.enable();
     return () => gesture.destroy();
   }, [colorType]);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const twoFingerGesture = createGesture({
+      el: contentRef.current,
+      gestureName: 'two-finger-swipe',
+      threshold: 10,
+      canStart: (detail) => {
+        // Ensure two fingers are used
+        return detail.touches === 2;
+      },
+      onStart: () => {
+        // Toggle minimized state
+        setIsMinimized(prev => !prev);
+        
+        // Provide haptic feedback
+        try {
+          Haptics.impact({ style: ImpactStyle.Light });
+        } catch (error) {
+          logger.error('Haptics not available:', error);
+        }
+      }
+    });
+
+    twoFingerGesture.enable();
+    return () => twoFingerGesture.destroy();
+  }, []);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const handleContextMenu = (e: MouseEvent) => {
+      // Prevent default right-click menu
+      e.preventDefault();
+      
+      // Toggle minimized state
+      setIsMinimized(prev => !prev);
+      
+      // Provide haptic feedback
+      try {
+        Haptics.impact({ style: ImpactStyle.Light });
+      } catch (error) {
+        logger.error('Haptics not available:', error);
+      }
+    };
+
+    const currentElement = contentRef.current;
+    currentElement.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      currentElement.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
 
   const handleCardClick = async (newColor: string) => {
     logger.info('Changing color:', newColor);
@@ -210,53 +265,57 @@ const Home: React.FC = () => {
       {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
       <IonContent ref={contentRef} className="ion-content-transparent">
         <div className="container">
-          <div className="color-type-segment">
-            <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
-              <IonSegmentButton value="brand">
-                <IonLabel>品牌色</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="chinese">
-                <IonLabel>中国色</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="nature">
-                <IonLabel>自然色</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="food">
-                <IonLabel>美食色</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="mood">
-                <IonLabel>心情色</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="space">
-                <IonLabel>太空色</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </div>
-          <div className={`color-cards slide-${slideDirection}`}>
-            {getColorCards().map((card) => (
-              <ColorCard
-                key={card.color}
-                card={card}
-                isActive={card.color === color}
-                onClick={handleCardClick}
-                getCardStyle={getCardStyle}
+          {!isMinimized && (
+            <div>
+              <div className="color-type-segment">
+                <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
+                  <IonSegmentButton value="brand">
+                    <IonLabel>品牌色</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="chinese">
+                    <IonLabel>中国色</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="nature">
+                    <IonLabel>自然色</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="food">
+                    <IonLabel>美食色</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="mood">
+                    <IonLabel>心情色</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="space">
+                    <IonLabel>太空色</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+              </div>
+              <div className={`color-cards slide-${slideDirection}`}>
+                {getColorCards().map((card) => (
+                  <ColorCard
+                    key={card.color}
+                    card={card}
+                    isActive={card.color === color}
+                    onClick={handleCardClick}
+                    getCardStyle={getCardStyle}
+                  />
+                ))}
+              </div>
+              <TextureTools
+                color={color}
+                onColorChange={updateColor}
+                texture={texture}
+                onTextureChange={handleTextureChange}
               />
-            ))}
-          </div>
-          <TextureTools
-            color={color}
-            onColorChange={updateColor}
-            texture={texture}
-            onTextureChange={handleTextureChange}
-          />
+            </div>
+          )}
+          {showSaveButton && (
+            <div className="save-button">
+              <IonFabButton onClick={handleSetWallpaper}>
+                <IonIcon icon={save} />
+              </IonFabButton>
+            </div>
+          )}
         </div>
-        {showSaveButton && (
-          <div className="save-button">
-            <IonFabButton onClick={handleSetWallpaper}>
-              <IonIcon icon={save} />
-            </IonFabButton>
-          </div>
-        )}
       </IonContent>
     </IonPage>
   );
