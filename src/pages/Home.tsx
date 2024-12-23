@@ -260,6 +260,19 @@ const Home: React.FC = () => {
     }
   }, [hideColorCard]);
 
+  const filteredCards = getColorCards().filter(card => {
+    // Ensure required properties exist before filtering
+    const hasRequiredProps = card.name && card.zhName && card.description;
+    return hasRequiredProps && 
+      (colorType === 'brand' || 
+       colorType === 'nature' || 
+       colorType === 'food' || 
+       colorType === 'mood' || 
+       colorType === 'space' || 
+       card.zhName.includes(colorType) || 
+       card.description.includes(colorType));
+  });
+
   return (
     <IonPage className="home-page">
       {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
@@ -290,10 +303,18 @@ const Home: React.FC = () => {
                 </IonSegment>
               </div>
               <div className={`color-cards slide-${slideDirection}`}>
-                {getColorCards().map((card) => (
+                {filteredCards.map((card) => (
                   <ColorCard
-                    key={card.color}
-                    card={card}
+                    key={card.color} 
+                    card={{
+                      ...card,
+                      name: card.name || card.zhName,
+                      zhName: card.zhName,
+                      pinyin: card.pinyin || '',
+                      rgb: card.rgb || '',
+                      cmyk: card.cmyk || '',
+                      year: card.year || 2000
+                    }} 
                     isActive={card.color === color}
                     onClick={handleCardClick}
                     getCardStyle={getCardStyle}

@@ -1,12 +1,12 @@
 export interface ColorCard {
   color: string;
-  name: string;
+  name?: string;
   zhName: string;
-  pinyin: string;
-  rgb: string;
-  cmyk: string;
+  pinyin?: string;
+  rgb?: string;
+  cmyk?: string;
   description: string;
-  year: number;
+  year?: number;
 }
 
 export const colorCards: ColorCard[] = [

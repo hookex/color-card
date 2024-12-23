@@ -7,7 +7,9 @@ import {
   IonToast, 
   IonPopover,
   IonContent,
-  IonLabel
+  IonLabel,
+  IonButton,
+  IonModal
 } from '@ionic/react';
 import { 
   buildOutline, 
@@ -49,13 +51,16 @@ const DevTools: React.FC<Props> = ({ children }) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   
-  const debug = useStore(state => state.debug);
-  const mode = useStore(state => state.mode);
-  const texture = useStore(state => state.texture);
-  const setDebug = useStore(state => state.setDebug);
-  const setMode = useStore(state => state.setMode);
-  const resetScene = useStore(state => state.resetScene);
-  const setHasCompletedTutorial = useStore(state => state.setHasCompletedTutorial);
+  const { 
+    debug, 
+    setDebug, 
+    mode, 
+    setMode, 
+    resetScene, 
+    hasCompletedTutorial, 
+    setHasCompletedTutorial,
+    texture
+  } = useStore();
 
   // 初始化时加载保存的状态
   useEffect(() => {
