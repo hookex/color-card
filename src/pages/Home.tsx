@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { save } from 'ionicons/icons';
-import { useStore, ColorType } from '../stores/useStore';
+import useStore, { ColorType } from '../stores/useStore';
 import ColorCard from '../components/ColorCard';
 import TextureTools from '../components/TextureTools';
 import { takeScreenshot } from '../utils/screenshot';
@@ -17,6 +17,7 @@ import html2canvas from 'html2canvas';
 import { TextureType } from '../components/TextureTools';
 import { colorCards as brandColors } from '../config/brandColors';
 import { chineseColors, natureColors, foodColors, moodColors, spaceColors } from '../config/colorTypes';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
