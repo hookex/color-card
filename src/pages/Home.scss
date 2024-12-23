@@ -12,7 +12,7 @@ $colors: (
   veuve: #eeb422      // 凯歌香槟金
 );
 
-$base-unit: 16px;
+$base-unit: 0.5rem;
 $golden-ratio: 1.618;
 $content-width: 1200px;
 
@@ -105,12 +105,12 @@ $font-size-lg: 1.5rem;
   position: relative;
   width: 100%;
   height: 100%;
-  padding: calc($base-unit * 2);
-  padding-top: calc($base-unit * 6 + var(--ion-safe-area-top, 2.9375rem));
-  padding-bottom: calc($base-unit * 8 + var(--ion-safe-area-bottom, 2.125rem));
+  padding: calc(var(--base-unit, 0.5rem) * 2);
+  padding-top: calc(var(--base-unit, 0.5rem) * 10 + var(--ion-safe-area-top, 2.9375rem)); 
+  padding-bottom: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-bottom, 2.125rem));
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: calc($base-unit * 1.5);
+  gap: calc(var(--base-unit, 0.5rem) * 1.5);
   overflow-y: auto;
   flex: 1;
   
@@ -119,18 +119,18 @@ $font-size-lg: 1.5rem;
   }
   
   @media (max-width: $content-width) {
-    padding: $base-unit;
-    padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
-    padding-bottom: calc($base-unit * 7);
-    gap: $base-unit;
+    padding: var(--base-unit, 0.5rem);
+    padding-top: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-top, 2.9375rem)); 
+    padding-bottom: calc(var(--base-unit, 0.5rem) * 7);
+    gap: var(--base-unit, 0.5rem);
   }
 }
 
 .color-card {
   position: relative;
   width: 100%;
-  padding-bottom: 100%; // 保持正方形比例
-  border-radius: calc($base-unit * 0.75);
+  height: auto;
+  border-radius: calc(var(--base-unit, 0.5rem) * 0.75);
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
@@ -141,19 +141,17 @@ $font-size-lg: 1.5rem;
   }
 
   .color-info {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: calc($base-unit * 1.5);
+    position: relative; 
+    width: 100%;
+    padding: calc(var(--base-unit, 0.5rem) * 1.5);
     display: flex;
     flex-direction: column;
+    gap: calc(var(--base-unit, 0.5rem) * 0.5); 
     color: var(--text-color, black);
     
     .zh-name {
       font-family: 'AlimamaDongFangDaKai', serif;
-      font-size: $font-size-lg;
+      font-size: clamp(0.875rem, 4vw, 1.25rem);
       opacity: 0.9;
       font-weight: normal;
       letter-spacing: 0.05em;
@@ -165,11 +163,10 @@ $font-size-lg: 1.5rem;
     }
 
     .description {
-      font-size: $font-size-sm;
+      font-size: clamp(0.675rem, 3vw, 1rem);
       opacity: 0.75;
       letter-spacing: 0.02em;
       font-weight: 300;
-      margin-top: calc($base-unit * 0.25);
       font-family: 'TsangerYuYang', sans-serif;
       white-space: nowrap;
       overflow: hidden;
@@ -179,10 +176,11 @@ $font-size-lg: 1.5rem;
 
     .color-code {
       font-family: 'SF Mono', monospace;
-      font-size: $font-size-xs;
+      font-size: clamp(0.5rem, 2.5vw, 0.75rem);
       opacity: 0.6;
-      margin-top: auto;
       letter-spacing: 0.05em;
+      align-self: flex-start; 
+      margin-top: auto; 
     }
   }
 }
@@ -490,12 +488,12 @@ ion-content {
   }
 
   .color-cards {
-    padding: calc($base-unit * 2);
-    padding-top: calc($base-unit * 6 + var(--ion-safe-area-top, 2.9375rem));
-    padding-bottom: calc($base-unit * 8 + var(--ion-safe-area-bottom, 2.125rem));
+    padding: calc(var(--base-unit, 0.5rem) * 2);
+    padding-top: calc(var(--base-unit, 0.5rem) * 10 + var(--ion-safe-area-top, 2.9375rem)); 
+    padding-bottom: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-bottom, 2.125rem));
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: calc($base-unit * 1.5);
+    gap: calc(var(--base-unit, 0.5rem) * 1.5);
     overflow-y: auto;
     flex: 1;
     transform: translateX(0);
@@ -521,18 +519,18 @@ ion-content {
     scrollbar-width: none;
     
     @media (max-width: $content-width) {
-      padding: $base-unit;
-      padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
-      padding-bottom: calc($base-unit * 7);
-      gap: $base-unit;
+      padding: var(--base-unit, 0.5rem);
+      padding-top: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-top, 2.9375rem)); 
+      padding-bottom: calc(var(--base-unit, 0.5rem) * 7);
+      gap: var(--base-unit, 0.5rem);
     }
   }
 
   .color-card {
     position: relative;
     width: 100%;
-    padding-bottom: 100%; // 保持正方形比例
-    border-radius: calc($base-unit * 0.75);
+    height: auto;
+    border-radius: calc(var(--base-unit, 0.5rem) * 0.75);
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
@@ -543,19 +541,17 @@ ion-content {
     }
 
     .color-info {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: calc($base-unit * 1.5);
+      position: relative; 
+      width: 100%;
+      padding: calc(var(--base-unit, 0.5rem) * 1.5);
       display: flex;
       flex-direction: column;
+      gap: calc(var(--base-unit, 0.5rem) * 0.5); 
       color: var(--text-color, black);
       
       .zh-name {
         font-family: 'AlimamaDongFangDaKai', serif;
-        font-size: $font-size-lg;
+        font-size: clamp(0.875rem, 4vw, 1.25rem); 
         opacity: 0.9;
         font-weight: normal;
         letter-spacing: 0.05em;
@@ -567,11 +563,10 @@ ion-content {
       }
 
       .description {
-        font-size: $font-size-sm;
+        font-size: clamp(0.675rem, 3vw, 1rem); 
         opacity: 0.75;
         letter-spacing: 0.02em;
         font-weight: 300;
-        margin-top: calc($base-unit * 0.25);
         font-family: 'TsangerYuYang', sans-serif;
         white-space: nowrap;
         overflow: hidden;
@@ -581,10 +576,11 @@ ion-content {
 
       .color-code {
         font-family: 'SF Mono', monospace;
-        font-size: $font-size-xs;
+        font-size: clamp(0.5rem, 2.5vw, 0.75rem); 
         opacity: 0.6;
-        margin-top: auto;
         letter-spacing: 0.05em;
+        align-self: flex-start; 
+        margin-top: auto; 
       }
     }
   }
@@ -593,13 +589,13 @@ ion-content {
     @include glass-effect;
     position: fixed;
     z-index: 1000;
-    bottom: calc($base-unit * 2);
+    bottom: calc(var(--base-unit, 0.5rem) * 2);
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: $content-width;
-    border-radius: $base-unit;
-    padding: calc($base-unit / 2);
+    border-radius: var(--base-unit, 0.5rem);
+    padding: calc(var(--base-unit, 0.5rem) / 2);
     isolation: isolate;
     background: var(--background);
   }
@@ -610,75 +606,61 @@ ion-content {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    padding: $base-unit;
+    padding: var(--base-unit, 0.5rem);
   }
 }
 
 .color-type-segment {
   @include glass-effect;
   position: fixed;
-  top: calc(var(--ion-safe-area-top, 2.9375rem) + #{$base-unit});
+  top: calc(var(--ion-safe-area-top, 2.9375rem) + var(--base-unit, 0.5rem));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   width: 90%;
   max-width: $content-width;
-  border-radius: $base-unit;
-  padding: calc($base-unit / 2);
+  border-radius: var(--base-unit, 0.5rem);
+  padding: calc(var(--base-unit, 0.5rem) / 2);
   margin: 0 auto;
 
   ion-segment {
-    --background: transparent;
-    border-radius: calc($base-unit / 2);
+    border-radius: calc(var(--base-unit, 0.5rem) / 2);
     margin: 0;
+    overflow: hidden; // 隐藏溢出
     
     &::part(scroll) {
-      padding: 0 calc($base-unit / 4);
+      padding: 0 calc(var(--base-unit, 0.5rem) / 4);
+      scrollbar-width: none; // Firefox隐藏滚动条
+      -ms-overflow-style: none; // IE和Edge隐藏滚动条
+    }
+
+    // 针对WebKit浏览器（Chrome, Safari, 新版Edge）隐藏滚动条
+    &::-webkit-scrollbar {
+      display: none;
     }
     
     ion-segment-button {
-      --background: transparent;
       --background-checked: rgba(255, 255, 255, 0.2);
       --background-hover: rgba(255, 255, 255, 0.15);
       --background-focused: rgba(255, 255, 255, 0.15);
-      --border-radius: calc($base-unit / 2);
+      --border-radius: calc(var(--base-unit, 0.5rem) / 2);
       --border-width: 0;
       --margin-top: 0;
       --margin-bottom: 0;
-      --margin-start: calc($base-unit / 4);
-      --margin-end: calc($base-unit / 4);
-      --padding-top: calc($base-unit / 4);
-      --padding-bottom: calc($base-unit / 4);
-      --padding-start: calc($base-unit / 2);
-      --padding-end: calc($base-unit / 2);
+      --margin-start: calc(var(--base-unit, 0.5rem) / 4);
+      --margin-end: calc(var(--base-unit, 0.5rem) / 4);
+      --padding-top: calc(var(--base-unit, 0.5rem) / 4);
+      --padding-bottom: calc(var(--base-unit, 0.5rem) / 4);
+      --padding-start: calc(var(--base-unit, 0.5rem) / 2);
+      --padding-end: calc(var(--base-unit, 0.5rem) / 2);
       --color: rgba(255, 255, 255, 0.7);
       --color-checked: rgba(255, 255, 255, 1);
       --indicator-color: transparent;
-      min-height: calc($base-unit * 2);
-      font-size: $font-size-sm;
+      min-height: calc(var(--base-unit, 0.5rem) * 2);
+      font-size: clamp(0.675rem, 3vw, 0.875rem);
       font-weight: 500;
       letter-spacing: 0.02em;
-      text-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.3),
-        0 2px 6px rgba(0, 0, 0, 0.2),
-        0 3px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
-
-      &::part(indicator) {
-        display: none;
-      }
-
-      &:first-child {
-        --margin-start: 0;
-      }
-
-      &:last-child {
-        --margin-end: 0;
-      }
-
-      ion-label {
-        margin: 0;
-      }
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
   }
 }
