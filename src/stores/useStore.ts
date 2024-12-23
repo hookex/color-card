@@ -23,8 +23,6 @@ export interface ColorCardState {
   setSelectedColor: (color: string) => void;
   selectedTexture: TextureType;
   setSelectedTexture: (texture: TextureType) => void;
-  hasCompletedTutorial: boolean;
-  setHasCompletedTutorial: (completed: boolean) => void;
   setColor: (color: string) => void;
   setTexture: (texture: TextureType) => void;
   setDebug: (debug: boolean) => void;
@@ -49,7 +47,6 @@ const useStore = create<ColorCardState>()(
         hideColorCard: savedState?.hideColorCard || false,
         selectedColor: savedState?.selectedColor || '#FFFFFF',
         selectedTexture: savedState?.selectedTexture || 'solid' as TextureType,
-        hasCompletedTutorial: savedState?.hasCompletedTutorial || localStorage.getItem('hasCompletedTutorial') === 'true',
 
         // Actions
         setColor: (color: string) => {
@@ -96,25 +93,16 @@ const useStore = create<ColorCardState>()(
           saveStoreState(state);
         },
 
-        setHasCompletedTutorial: (completed: boolean) => {
-          localStorage.setItem('hasCompletedTutorial', String(completed));
-          set({ hasCompletedTutorial: completed });
-          const state = get();
-          saveStoreState(state);
-        },
-
         addColorCard: (card: ColorCard) => {
-          set((state) => ({
-            colorCards: [...state.colorCards, card]
-          }));
+          const currentCards = get().colorCards;
+          set({ colorCards: [...currentCards, card] });
           const state = get();
           saveStoreState(state);
         },
 
         removeColorCard: (color: string) => {
-          set((state) => ({
-            colorCards: state.colorCards.filter((card) => card.color !== color)
-          }));
+          const currentCards = get().colorCards;
+          set({ colorCards: currentCards.filter(card => card.color !== color) });
           const state = get();
           saveStoreState(state);
         },
@@ -125,7 +113,6 @@ const useStore = create<ColorCardState>()(
           saveStoreState(state);
         },
 
-        // 重置场景到初始状态
         resetScene: () => {
           set({
             color: '#FF0000',
@@ -136,7 +123,6 @@ const useStore = create<ColorCardState>()(
             hideColorCard: false,
             selectedColor: '#FFFFFF',
             selectedTexture: 'solid' as TextureType,
-            hasCompletedTutorial: localStorage.getItem('hasCompletedTutorial') === 'true',
           });
           const state = get();
           saveStoreState(state);
@@ -148,18 +134,17 @@ const useStore = create<ColorCardState>()(
       }
     ),
     {
-      name: 'colorcard-storage',
-      storage: {
+      name: 'color-card-storage',
+      getStorage: () => ({
         getItem: () => {
-          const state = loadStoreState();
-          return Promise.resolve(state ? { state } : null);
+          return Promise.resolve(null);
         },
         setItem: (_key, value) => {
-          saveStoreState(value.state);
+          saveStoreState(JSON.parse(value));
           return Promise.resolve();
         },
         removeItem: () => Promise.resolve(),
-      },
+      }),
     }
   )
 );
