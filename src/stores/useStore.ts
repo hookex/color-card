@@ -12,6 +12,8 @@ const logger = createLogger('store');
 const savedState = loadStoreState();
 logger.info('Loaded initial state:', savedState);
 
+export type ColorType = 'brand' | 'chinese' | 'nature';
+
 export interface ColorCardState {
   color: string;
   texture: TextureType;
@@ -20,6 +22,7 @@ export interface ColorCardState {
   colorCards: ColorCard[];
   hideColorCard: boolean;
   selectedColor: string;
+  colorType: ColorType;
   setSelectedColor: (color: string) => void;
   selectedTexture: TextureType;
   setSelectedTexture: (texture: TextureType) => void;
@@ -28,6 +31,7 @@ export interface ColorCardState {
   setDebug: (debug: boolean) => void;
   setMode: (mode: 'canvas' | 'div') => void;
   setHideColorCard: (hide: boolean) => void;
+  setColorType: (type: ColorType) => void;
   addColorCard: (card: ColorCard) => void;
   removeColorCard: (color: string) => void;
   updateColorCards: (cards: ColorCard[]) => void;
@@ -47,6 +51,7 @@ const useStore = create<ColorCardState>()(
         hideColorCard: savedState?.hideColorCard || false,
         selectedColor: savedState?.selectedColor || '#FFFFFF',
         selectedTexture: savedState?.selectedTexture || 'solid' as TextureType,
+        colorType: savedState?.colorType || 'brand',
 
         // Actions
         setColor: (color: string) => {
@@ -93,6 +98,12 @@ const useStore = create<ColorCardState>()(
           saveStoreState(state);
         },
 
+        setColorType: (type: ColorType) => {
+          set({ colorType: type });
+          const state = get();
+          saveStoreState(state);
+        },
+
         addColorCard: (card: ColorCard) => {
           const currentCards = get().colorCards;
           set({ colorCards: [...currentCards, card] });
@@ -123,6 +134,7 @@ const useStore = create<ColorCardState>()(
             hideColorCard: false,
             selectedColor: '#FFFFFF',
             selectedTexture: 'solid' as TextureType,
+            colorType: 'brand',
           });
           const state = get();
           saveStoreState(state);

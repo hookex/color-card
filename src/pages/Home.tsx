@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonPage, IonFabButton, IonIcon } from '@ionic/react';
+import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { save } from 'ionicons/icons';
 import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import useStore from '../stores/useStore';
+import useStore, { ColorType } from '../stores/useStore';
 import ColorCard from '../components/ColorCard';
 import TextureTools from '../components/TextureTools';
 import { takeScreenshot } from '../utils/screenshot';
@@ -18,6 +18,8 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
 import { TextureType } from '../components/TextureTools';
+import { colorCards as brandColors } from '../config/brandColors';
+import { chineseColors, natureColors } from '../config/colorTypes';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -28,12 +30,13 @@ const Home: React.FC = () => {
     texture,
     debug,
     mode,
-    colorCards,
     hideColorCard,
+    colorType,
     setColor: updateColor,
     setTexture: updateTexture,
     setMode,
     setHideColorCard,
+    setColorType,
   } = useStore();
 
   const [showSaveButton, setShowSaveButton] = useState(false);
@@ -198,6 +201,28 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleColorTypeChange = (type: ColorType) => {
+    setColorType(type);
+    try {
+      Haptics.impact({ style: ImpactStyle.Light });
+    } catch (error) {
+      logger.error('Haptics not available:', error);
+    }
+  };
+
+  const getColorCards = () => {
+    switch (colorType) {
+      case 'brand':
+        return brandColors;
+      case 'chinese':
+        return chineseColors;
+      case 'nature':
+        return natureColors;
+      default:
+        return brandColors;
+    }
+  };
+
   return (
     <IonPage className="home-page">
       {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
@@ -210,8 +235,21 @@ const Home: React.FC = () => {
             touchAction: 'none',
           }}
         >
+          <div className="color-type-segment">
+            <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)}>
+              <IonSegmentButton value="brand">
+                <IonLabel>品牌色</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="chinese">
+                <IonLabel>中国色</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="nature">
+                <IonLabel>自然色</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          </div>
           <div className="color-cards">
-            {colorCards.map((card) => (
+            {getColorCards().map((card) => (
               <ColorCard
                 key={card.color}
                 card={card}
