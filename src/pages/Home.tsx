@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel } from '@ionic/react';
+import React, { useEffect, useState, useRef } from 'react';
+import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel, createGesture } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { save } from 'ionicons/icons';
 import useStore, { ColorType } from '../stores/useStore';
@@ -22,6 +22,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 const Home: React.FC = () => {
   const { t } = useTranslation();
   const logger = createLogger('Home');
+  const contentRef = useRef<HTMLIonContentElement>(null);
 
   const {
     color,
@@ -38,6 +39,7 @@ const Home: React.FC = () => {
   } = useStore();
 
   const [showSaveButton, setShowSaveButton] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'reset'>('reset');
 
   useEffect(() => {
     const handleResize = () => {
@@ -48,6 +50,36 @@ const Home: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const gesture = createGesture({
+      el: contentRef.current,
+      threshold: 15,
+      gestureName: 'swipe-segment',
+      onMove: (detail) => {
+        const velocity = detail.velocityX;
+        const deltaX = detail.deltaX;
+        
+        if (Math.abs(velocity) > 0.2 && Math.abs(deltaX) > 50) {
+          const colorTypes: ColorType[] = ['brand', 'chinese', 'nature', 'food', 'mood', 'space'];
+          const currentIndex = colorTypes.indexOf(colorType);
+          
+          if (velocity < 0 && currentIndex < colorTypes.length - 1) {
+            // Swipe left - go to next
+            handleColorTypeChange(colorTypes[currentIndex + 1]);
+          } else if (velocity > 0 && currentIndex > 0) {
+            // Swipe right - go to previous
+            handleColorTypeChange(colorTypes[currentIndex - 1]);
+          }
+        }
+      }
+    });
+
+    gesture.enable();
+    return () => gesture.destroy();
+  }, [colorType]);
 
   const handleCardClick = async (newColor: string) => {
     logger.info('Changing color:', newColor);
@@ -122,10 +154,25 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleColorTypeChange = (type: ColorType) => {
-    setColorType(type);
+  const handleColorTypeChange = async (newType: ColorType) => {
+    if (!newType) return;
+    
+    const colorTypes: ColorType[] = ['brand', 'chinese', 'nature', 'food', 'mood', 'space'];
+    const currentIndex = colorTypes.indexOf(colorType);
+    const newIndex = colorTypes.indexOf(newType);
+    
+    // Determine slide direction based on index change
+    const direction = newIndex > currentIndex ? 'left' : 'right';
+    setSlideDirection(direction);
+    
+    // Reset the slide after animation
+    setTimeout(() => {
+      setColorType(newType);
+      setSlideDirection('reset');
+    }, 300); // Match this with the CSS transition duration
+    
     try {
-      Haptics.impact({ style: ImpactStyle.Light });
+      await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
       logger.error('Haptics not available:', error);
     }
@@ -161,7 +208,7 @@ const Home: React.FC = () => {
   return (
     <IonPage className="home-page">
       {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
-      <IonContent className="ion-content-transparent">
+      <IonContent ref={contentRef} className="ion-content-transparent">
         <div className="container">
           <div className="color-type-segment">
             <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
@@ -185,7 +232,7 @@ const Home: React.FC = () => {
               </IonSegmentButton>
             </IonSegment>
           </div>
-          <div className="color-cards">
+          <div className={`color-cards slide-${slideDirection}`}>
             {getColorCards().map((card) => (
               <ColorCard
                 key={card.color}
