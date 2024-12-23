@@ -93,7 +93,7 @@ $font-size-lg: 1.5rem;
   width: 100%;
   height: 100%;
   padding: calc($base-unit * 2);
-  padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
+  padding-top: calc($base-unit * 6 + var(--ion-safe-area-top, 2.9375rem));
   padding-bottom: calc($base-unit * 8 + var(--ion-safe-area-bottom, 2.125rem));
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -107,7 +107,7 @@ $font-size-lg: 1.5rem;
   
   @media (max-width: $content-width) {
     padding: $base-unit;
-    padding-top: calc($base-unit * 4 + var(--ion-safe-area-top, 2.9375rem));
+    padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
     padding-bottom: calc($base-unit * 7);
     gap: $base-unit;
   }
@@ -466,7 +466,7 @@ ion-content {
     width: 100%;
     height: 100%;
     padding: calc($base-unit * 2);
-    padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
+    padding-top: calc($base-unit * 6 + var(--ion-safe-area-top, 2.9375rem));
     padding-bottom: calc($base-unit * 8 + var(--ion-safe-area-bottom, 2.125rem));
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -482,7 +482,7 @@ ion-content {
     
     @media (max-width: $content-width) {
       padding: $base-unit;
-      padding-top: calc($base-unit * 4 + var(--ion-safe-area-top, 2.9375rem));
+      padding-top: calc($base-unit * 5 + var(--ion-safe-area-top, 2.9375rem));
       padding-bottom: calc($base-unit * 7);
       gap: $base-unit;
     }
@@ -577,7 +577,7 @@ ion-content {
 .color-type-segment {
   @include glass-effect;
   position: fixed;
-  top: var(--ion-safe-area-top, 2.9375rem);
+  top: calc(var(--ion-safe-area-top, 2.9375rem) + #{$base-unit});
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -585,11 +585,16 @@ ion-content {
   max-width: $content-width;
   border-radius: $base-unit;
   padding: calc($base-unit / 2);
+  margin: 0 auto;
 
   ion-segment {
     --background: transparent;
     border-radius: calc($base-unit / 2);
     margin: 0;
+    
+    &::part(scroll) {
+      padding: 0 calc($base-unit / 4);
+    }
     
     ion-segment-button {
       --background: transparent;
@@ -600,8 +605,8 @@ ion-content {
       --border-width: 0;
       --margin-top: 0;
       --margin-bottom: 0;
-      --margin-start: 0;
-      --margin-end: 0;
+      --margin-start: calc($base-unit / 4);
+      --margin-end: calc($base-unit / 4);
       --padding-top: calc($base-unit / 4);
       --padding-bottom: calc($base-unit / 4);
       --padding-start: calc($base-unit / 2);
@@ -621,6 +626,14 @@ ion-content {
 
       &::part(indicator) {
         display: none;
+      }
+
+      &:first-child {
+        --margin-start: 0;
+      }
+
+      &:last-child {
+        --margin-end: 0;
       }
 
       ion-label {
