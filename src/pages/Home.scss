@@ -575,19 +575,21 @@ ion-content {
 }
 
 .color-type-segment {
+  @include glass-effect;
   position: fixed;
   top: var(--ion-safe-area-top, 2.9375rem);
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
-  padding: calc($base-unit / 2) $base-unit;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  width: 90%;
+  max-width: $content-width;
+  border-radius: $base-unit;
+  padding: calc($base-unit / 2);
 
   ion-segment {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: transparent;
     border-radius: calc($base-unit / 2);
+    margin: 0;
     
     ion-segment-button {
       --background: transparent;
