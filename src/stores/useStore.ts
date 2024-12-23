@@ -61,9 +61,20 @@ const useStore = create<ColorCardState>()(
         },
         
         setTexture: (texture: TextureType) => {
-          logger.info('Setting texture:', { texture, config: textureConfigs[texture] });
-          const { renderMode } = textureConfigs[texture];
-          set({ texture, mode: renderMode });
+          // 使用 find 方法找到对应的纹理配置，如果没找到则使用默认配置
+          const textureConfig = textureConfigs.find(config => config.type === texture) || {
+            type: texture,
+            renderMode: 'div', // 默认渲染模式
+            enabled: true
+          };
+          
+          logger.info('Setting texture:', { texture, config: textureConfig });
+          
+          set({ 
+            texture, 
+            mode: textureConfig.renderMode 
+          });
+          
           const state = get();
           saveStoreState(state);
         },
