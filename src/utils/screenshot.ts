@@ -4,6 +4,11 @@ import { Camera } from '@capacitor/camera';
 import html2canvas from 'html2canvas';
 import { Share } from '@capacitor/share';
 
+// 定义返回类型
+type ScreenshotResult = 
+  | { success: true; fileName: string }
+  | { success: false; error: unknown };
+
 // 检查权限（在 iOS 上不需要显式请求文件系统权限）
 async function checkPermissions() {
   if (!Capacitor.isNativePlatform()) return true;
@@ -17,7 +22,7 @@ async function checkPermissions() {
 }
 
 // 预览并保存图片
-async function previewAndSave(base64Data: string, fileName: string) {
+async function previewAndSave(base64Data: string, fileName: string): Promise<ScreenshotResult> {
   if (Capacitor.getPlatform() === 'ios') {
     try {
       // 先保存到临时目录
@@ -43,27 +48,32 @@ async function previewAndSave(base64Data: string, fileName: string) {
       return { success: true, fileName };
     } catch (error) {
       console.error('Preview failed:', error);
-      throw error;
+      return { success: false, error };
     }
   } else {
-    // 非 iOS 平台直接保存
-    await Filesystem.writeFile({
-      path: fileName,
-      data: base64Data,
-      directory: Directory.External,
-      recursive: true
-    });
-    
-    return { success: true, fileName };
+    try {
+      // 非 iOS 平台直接保存
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.External,
+        recursive: true
+      });
+      
+      return { success: true, fileName };
+    } catch (error) {
+      console.error('Save failed:', error);
+      return { success: false, error };
+    }
   }
 }
 
-export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
+export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div'): Promise<ScreenshotResult> => {
   try {
     // 首先检查权限
     const hasPermission = await checkPermissions();
     if (!hasPermission) {
-      throw new Error('Storage permission not granted');
+      return { success: false, error: 'Storage permission not granted' };
     }
 
     let canvas: HTMLCanvasElement;
@@ -72,14 +82,14 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
       // Canvas mode: get canvas element directly
       const canvasElement = document.querySelector('canvas') as HTMLCanvasElement;
       if (!canvasElement) {
-        throw new Error('Canvas element not found');
+        return { success: false, error: 'Canvas element not found' };
       }
       canvas = canvasElement;
     } else {
       // Div mode: convert div to canvas using html2canvas
       const backgroundDiv = document.querySelector('.background') as HTMLElement;
       if (!backgroundDiv) {
-        throw new Error('Background div not found');
+        return { success: false, error: 'Background div not found' };
       }
       
       // 创建一个克隆的元素用于截图
@@ -115,7 +125,7 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) {
       document.body.removeChild(tempCanvas);
-      throw new Error('Failed to get canvas context');
+      return { success: false, error: 'Failed to get canvas context' };
     }
 
     // Set iPhone wallpaper dimensions
@@ -157,7 +167,15 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div') => {
     const timestamp = new Date().getTime();
     const fileName = `wallpaper_${timestamp}.png`;
 
-    return await previewAndSave(base64Data, fileName);
+    if (Capacitor.isNativePlatform()) {
+      return await previewAndSave(base64Data, fileName);
+    } else {
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = dataUrl;
+      link.click();
+      return { success: true, fileName };
+    }
   } catch (error) {
     console.error('Failed to take screenshot:', error);
     return { success: false, error };

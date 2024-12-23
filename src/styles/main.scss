@@ -1,9 +1,7 @@
 // 暂时注释掉字体导入，稍后再添加
-@import './fonts/fonts.scss';
+// @use './fonts/fonts.scss';
 
-@import './variables.scss';
-@import './mixins.scss';
-@import './global.scss';
+@use 'index' as *;
 
 /* Global font styles */
 body {

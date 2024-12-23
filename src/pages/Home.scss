@@ -445,16 +445,19 @@ ion-content {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: -1;
+    margin: 0;
+    padding: 0;
   }
 
   ion-content {
     --background: transparent;
     --backdrop-filter: none;
     --webkit-backdrop-filter: none;
-    --padding-top: var(--ion-safe-area-top, 47px);
+    --padding-top: 0;
+    --padding-bottom: 0;
   }
 
   .container {
@@ -462,6 +465,7 @@ ion-content {
     width: 100%;
     min-height: 100%;
     padding-top: var(--ion-safe-area-top, 47px);
+    padding-bottom: var(--ion-safe-area-bottom, 34px);
     box-sizing: border-box;
   }
 
@@ -470,7 +474,8 @@ ion-content {
     width: 100%;
     height: 100%;
     padding: calc($base-unit * 2);
-    padding-bottom: calc($base-unit * 8);
+    padding-top: calc($base-unit * 2 + var(--ion-safe-area-top, 47px));
+    padding-bottom: calc($base-unit * 8 + var(--ion-safe-area-bottom, 34px));
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: calc($base-unit * 1.5);
@@ -485,7 +490,7 @@ ion-content {
     
     @media (max-width: $content-width) {
       padding: $base-unit;
-      padding-bottom: calc($base-unit * 7);
+      padding-bottom: calc($base-unit * 7); // 移动端底部留出更多空间
       gap: $base-unit;
     }
   }
