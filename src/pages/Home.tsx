@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { save } from 'ionicons/icons';
-import { useSpring, animated, config } from '@react-spring/web';
-import { useDrag } from '@use-gesture/react';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import useStore, { ColorType } from '../stores/useStore';
+import { useStore, ColorType } from '../stores/useStore';
 import ColorCard from '../components/ColorCard';
 import TextureTools from '../components/TextureTools';
 import { takeScreenshot } from '../utils/screenshot';
@@ -41,92 +38,15 @@ const Home: React.FC = () => {
 
   const [showSaveButton, setShowSaveButton] = useState(false);
 
-  const [bounds, setBounds] = useState(() => {
-    const width = window.innerWidth;
-    const dragWidth = width * 0.2;
-    return { left: -dragWidth, right: dragWidth };
-  });
-
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const dragWidth = width * 0.3;
-      setBounds({ left: -dragWidth, right: dragWidth });
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const [{ x }, api] = useSpring(() => ({
-    x: hideColorCard ? -window.innerWidth : 0,
-    config: {
-      mass: 1,
-      tension: 200,
-      friction: 20,
-    }
-  }));
-
-  const [isSwipedOut, setIsSwipedOut] = useState(false);
-
-  const buttonAnimation = useSpring({
-    opacity: isSwipedOut ? 1 : 0,
-    y: isSwipedOut ? 0 : 20,
-    scale: isSwipedOut ? 1 : 0.9,
-    transform: `translate(-50%, ${isSwipedOut ? 0 : 20}px) scale(${isSwipedOut ? 1 : 0.9})`,
-    pointerEvents: isSwipedOut ? 'auto' : 'none',
-    config: {
-      mass: 0.5,
-      tension: 280,
-      friction: 24,
-      clamp: false,
-      duration: undefined
-    }
-  });
-
-  const threshold = 200;
-  const velocityThreshold = 0.3;
-
-  const bind = useDrag(
-    ({ down, movement: [mx], last, velocity: [vx], direction: [dx] }) => {
-      const ox = mx;
-      if (down) {
-        api.start({
-          x: ox,
-          immediate: true,
-        });
-        setIsSwipedOut(ox < -threshold);
-      } else if (last) {
-        const isSliding = Math.abs(vx) > velocityThreshold;
-        const direction = dx < 0 ? 1 : -1;
-        const shouldSlideOut = isSliding ? direction > 0 : Math.abs(ox) > threshold;
-        const targetX = shouldSlideOut ? -window.innerWidth : 0;
-
-        setIsSwipedOut(shouldSlideOut);
-
-        api.start({
-          x: targetX,
-          immediate: false,
-          config: {
-            duration: isSliding ? 400 : 800,
-          },
-        } as const);
-      }
-    },
-    {
-      axis: 'x',
-      bounds: { left: -window.innerWidth, right: 0 },
-      rubberband: true,
-    }
-  );
-
-  useEffect(() => {
-    if (x.get() < -50) {
-      setShowSaveButton(true);
-    } else {
-      setShowSaveButton(false);
-    }
-  }, [x.get()]);
 
   const handleCardClick = async (newColor: string) => {
     logger.info('Changing color:', newColor);
@@ -229,18 +149,19 @@ const Home: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (hideColorCard) {
+      setShowSaveButton(true);
+    } else {
+      setShowSaveButton(false);
+    }
+  }, [hideColorCard]);
+
   return (
     <IonPage className="home-page">
       {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
       <IonContent className="ion-content-transparent">
-        <animated.div
-          {...bind()}
-          className="container"
-          style={{
-            x,
-            touchAction: 'none',
-          }}
-        >
+        <div className="container">
           <div className="color-type-segment">
             <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
               <IonSegmentButton value="brand">
@@ -280,13 +201,13 @@ const Home: React.FC = () => {
             texture={texture}
             onTextureChange={handleTextureChange}
           />
-        </animated.div>
+        </div>
         {showSaveButton && (
-          <animated.div style={buttonAnimation} className="save-button">
+          <div className="save-button">
             <IonFabButton onClick={handleSetWallpaper}>
               <IonIcon icon={save} />
             </IonFabButton>
-          </animated.div>
+          </div>
         )}
       </IonContent>
     </IonPage>
