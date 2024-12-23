@@ -12,7 +12,7 @@ const logger = createLogger('store');
 const savedState = loadStoreState();
 logger.info('Loaded initial state:', savedState);
 
-export type ColorType = 'brand' | 'chinese' | 'nature';
+export type ColorType = 'brand' | 'chinese' | 'nature' | 'food' | 'mood' | 'space';
 
 export interface ColorCardState {
   color: string;

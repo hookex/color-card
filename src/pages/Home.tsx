@@ -19,7 +19,7 @@ import { Capacitor } from '@capacitor/core';
 import html2canvas from 'html2canvas';
 import { TextureType } from '../components/TextureTools';
 import { colorCards as brandColors } from '../config/brandColors';
-import { chineseColors, natureColors } from '../config/colorTypes';
+import { chineseColors, natureColors, foodColors, moodColors, spaceColors } from '../config/colorTypes';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -218,6 +218,12 @@ const Home: React.FC = () => {
         return chineseColors;
       case 'nature':
         return natureColors;
+      case 'food':
+        return foodColors;
+      case 'mood':
+        return moodColors;
+      case 'space':
+        return spaceColors;
       default:
         return brandColors;
     }
@@ -236,7 +242,7 @@ const Home: React.FC = () => {
           }}
         >
           <div className="color-type-segment">
-            <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)}>
+            <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
               <IonSegmentButton value="brand">
                 <IonLabel>品牌色</IonLabel>
               </IonSegmentButton>
@@ -245,6 +251,15 @@ const Home: React.FC = () => {
               </IonSegmentButton>
               <IonSegmentButton value="nature">
                 <IonLabel>自然色</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="food">
+                <IonLabel>美食色</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="mood">
+                <IonLabel>心情色</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="space">
+                <IonLabel>太空色</IonLabel>
               </IonSegmentButton>
             </IonSegment>
           </div>
