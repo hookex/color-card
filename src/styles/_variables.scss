@@ -1,6 +1,13 @@
 // Variables
-$base-unit: 16px;
-$content-width: 768px;
+$base-unit: 1rem;
+$content-width: 48rem; // 768px
+
+// Font sizes
+$font-size-xs: 0.75rem;   // 12px
+$font-size-sm: 0.875rem;  // 14px
+$font-size-base: 1rem;    // 16px
+$font-size-lg: 1.25rem;   // 20px
+$font-size-xl: 1.5rem;    // 24px
 
 // Colors
 $primary-color: #007bff;
@@ -14,7 +21,7 @@ $dark-color: #343a40;
 
 // Breakpoints
 $breakpoint-xs: 0;
-$breakpoint-sm: 576px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 992px;
-$breakpoint-xl: 1200px;
+$breakpoint-sm: 36rem;    // 576px
+$breakpoint-md: 48rem;    // 768px
+$breakpoint-lg: 62rem;    // 992px
+$breakpoint-xl: 75rem;    // 1200px
