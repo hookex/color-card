@@ -89,9 +89,9 @@ const Home: React.FC = () => {
       el: contentRef.current,
       gestureName: 'two-finger-swipe',
       threshold: 10,
-      canStart: (detail) => {
+      canStart: (detail: any) => {
         // Ensure two fingers are used
-        return detail.touches === 2;
+        return detail.event.touches.length === 2;
       },
       onStart: () => {
         // Toggle minimized state
