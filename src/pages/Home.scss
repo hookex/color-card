@@ -622,19 +622,22 @@ ion-content {
   border-radius: var(--base-unit, 0.5rem);
   padding: calc(var(--base-unit, 0.5rem) / 2);
   margin: 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   ion-segment {
+    background: transparent;
     border-radius: calc(var(--base-unit, 0.5rem) / 2);
     margin: 0;
-    overflow: hidden; // 隐藏溢出
+    overflow: hidden;
     
     &::part(scroll) {
       padding: 0 calc(var(--base-unit, 0.5rem) / 4);
-      scrollbar-width: none; // Firefox隐藏滚动条
-      -ms-overflow-style: none; // IE和Edge隐藏滚动条
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    // 针对WebKit浏览器（Chrome, Safari, 新版Edge）隐藏滚动条
     &::-webkit-scrollbar {
       display: none;
     }
