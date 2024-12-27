@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ios": "ionic cap sync ios && ionic cap open ios",
+    "build:ios": "ionic build && ionic cap sync ios",
+    "deploy:ios": "ionic build && ionic cap sync ios && ionic cap open ios"
   },
   "dependencies": {
     "@babylonjs/core": "^7.41.1",
