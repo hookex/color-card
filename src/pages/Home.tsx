@@ -18,6 +18,7 @@ import { TextureType } from '../components/TextureTools';
 import { colorCards as brandColors } from '../config/brandColors';
 import { chineseColors, natureColors, foodColors, moodColors, spaceColors } from '../config/colorTypes';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { tabs } from '../config/tabConfig';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -282,26 +283,14 @@ const Home: React.FC = () => {
             <div>
               <div className="color-type-segment">
                 <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
-                  <IonSegmentButton value="brand">
-                    <IonLabel>品牌色</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="chinese">
-                    <IonLabel>中国色</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="nature">
-                    <IonLabel>自然色</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="food">
-                    <IonLabel>美食色</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="mood">
-                    <IonLabel>心情色</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="space">
-                    <IonLabel>太空色</IonLabel>
-                  </IonSegmentButton>
+                  {tabs.map(tab => (
+                    <IonSegmentButton key={tab.value} value={tab.value}>
+                      <IonLabel>{tab.label}</IonLabel>
+                    </IonSegmentButton>
+                  ))}
                 </IonSegment>
               </div>
+              
               <div className={`color-cards slide-${slideDirection}`}>
                 {filteredCards.map((card) => (
                   <ColorCard
