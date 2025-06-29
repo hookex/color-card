@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
 import DevTools from './components/DevTools';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -41,18 +42,22 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <DevTools>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route exact path="/home">
-            <Home />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/home" />
-          </Route>
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </DevTools>
+    <ErrorBoundary>
+      <DevTools>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <Route exact path="/home">
+              <ErrorBoundary>
+                <Home />
+              </ErrorBoundary>
+            </Route>
+            <Route exact path="/">
+              <Redirect to="/home" />
+            </Route>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </DevTools>
+    </ErrorBoundary>
   </IonApp>
 );
 

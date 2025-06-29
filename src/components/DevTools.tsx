@@ -29,7 +29,7 @@ import html2canvas from 'html2canvas';
 import './DevTools.scss';
 import createLogger from '../utils/logger';
 import { saveDevToolsState, loadDevToolsState } from '../utils/storage';
-import useStore from '../stores/useStore';
+import { useAppStore } from '../stores/useAppStore';
 import '@babylonjs/core/Debug/debugLayer';
 import '@babylonjs/inspector';
 
@@ -60,7 +60,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
     hasCompletedTutorial, 
     setHasCompletedTutorial,
     texture
-  } = useStore();
+  } = useAppStore();
 
   // 初始化时加载保存的状态
   useEffect(() => {

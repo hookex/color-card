@@ -18,21 +18,20 @@ import {
 } from '@babylonjs/core';
 import '@babylonjs/core/Debug/debugLayer';
 import '@babylonjs/inspector';
-import { TextureType } from './TextureTools';
-import { useBackground } from '../hooks/useBackground';
+import { TextureType } from '../stores/slices/textureSlice';
 import {
   createMaterialByType,
   setupCamera,
   setupLights,
   setupScene,
 } from '../utils/canvasBackgroundUtils';
-import useStore from '../stores/useStore';
+import { useAppStoreSelectors } from '../stores/useAppStore';
 import backgroundImage from '../assets/background.jpg';
 
 const CanvasBackground: React.FC = () => {
-  const color = useStore(state => state.color);
-  const texture = useStore(state => state.texture);
-  const debug = useStore(state => state.debug);
+  const color = useAppStoreSelectors.useColor();
+  const texture = useAppStoreSelectors.useTexture();
+  const debug = useAppStoreSelectors.useDebug();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
@@ -42,15 +41,13 @@ const CanvasBackground: React.FC = () => {
   const materialRef = useRef<Material | null>(null);
   const backgroundPlaneRef = useRef<Mesh | null>(null);
 
-  const state = useBackground(color, texture, debug);
-
   // 更新材质
   const updateMaterial = () => {
     if (!sceneRef.current || !planeRef.current) return;
     
     // 确保有默认颜色
-    const currentColor = state.color || color || '#ff6b6b';
-    const currentTexture = state.texture || texture || 'paint';
+    const currentColor = color || '#ff6b6b';
+    const currentTexture = texture || 'paint';
 
     try {
       const newMaterial = createMaterialByType(sceneRef.current, currentColor, currentTexture);
@@ -87,7 +84,7 @@ const CanvasBackground: React.FC = () => {
   useEffect(() => {
     if (!cameraRef.current || !canvasRef.current) return;
     
-    if (state.debug) {
+    if (debug) {
       cameraRef.current.attachControl(canvasRef.current, true);
       cameraRef.current.lowerRadiusLimit = 2;
       cameraRef.current.upperRadiusLimit = 10;
@@ -98,7 +95,7 @@ const CanvasBackground: React.FC = () => {
       cameraRef.current.setPosition(new Vector3(0, 0, 5));
       cameraRef.current.setTarget(Vector3.Zero());
     }
-  }, [state.debug]);
+  }, [debug]);
 
   // 初始化3D场景
   useEffect(() => {
@@ -119,7 +116,7 @@ const CanvasBackground: React.FC = () => {
     // 初始化场景
     const scene = new Scene(engine);
     // 设置初始背景色（使用当前颜色或默认颜色）
-    const currentColor = state.color || color || '#ff6b6b';
+    const currentColor = color || '#ff6b6b';
     const bgColor = Color3.FromHexString(currentColor);
     scene.clearColor = new Color4(bgColor.r, bgColor.g, bgColor.b, 1.0); // 不透明背景
     scene.autoClear = true; // 启用自动清除确保渲染正确
@@ -133,7 +130,7 @@ const CanvasBackground: React.FC = () => {
     const camera = setupCamera(scene);
     cameraRef.current = camera;
 
-    if (!state.debug) {
+    if (!debug) {
       camera.detachControl();
     }
     
@@ -178,7 +175,7 @@ const CanvasBackground: React.FC = () => {
     gl.intensity = 0.5;
 
     // 在调试模式下启用 Inspector
-    if (state.debug) {
+    if (debug) {
       scene.debugLayer.show({
         embedMode: true,
         handleResize: true,
@@ -223,10 +220,10 @@ const CanvasBackground: React.FC = () => {
     updateMaterial();
     
     // 同时更新场景背景色
-    const currentColor = state.color || color || '#ff6b6b';
+    const currentColor = color || '#ff6b6b';
     const bgColor = Color3.FromHexString(currentColor);
     sceneRef.current.clearColor = new Color4(bgColor.r, bgColor.g, bgColor.b, 1.0);
-  }, [state.color, state.texture, color]);
+  }, [color, texture]);
 
   return (
     <canvas

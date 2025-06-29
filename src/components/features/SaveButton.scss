@@ -1,0 +1,253 @@
+/**
+ * 保存按钮组件样式
+ * 液体玻璃效果和动画
+ */
+
+// 导入全局变量
+@import '../../pages/Home.scss';
+
+.save-button-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--base-unit, 0.5rem) * 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &__primary {
+    position: relative;
+    z-index: 10;
+  }
+  
+  &__secondary {
+    position: absolute;
+    bottom: 100%;
+    margin-bottom: calc(var(--base-unit, 0.5rem) * 1);
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+  
+  &__main {
+    position: relative;
+    --background: rgba(255, 255, 255, 0.1);
+    --background-activated: rgba(255, 255, 255, 0.2);
+    --background-focused: rgba(255, 255, 255, 0.15);
+    --background-hover: rgba(255, 255, 255, 0.15);
+    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --border-radius: 50%;
+    
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    &::part(native) {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    ion-icon {
+      font-size: 1.5rem;
+      color: white;
+      transition: transform 0.2s ease;
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+    
+    &.loading {
+      ion-icon {
+        opacity: 0;
+      }
+    }
+  }
+  
+  &__share,
+  &__download {
+    --background: rgba(255, 255, 255, 0.08);
+    --background-activated: rgba(255, 255, 255, 0.15);
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    ion-icon {
+      font-size: 1.2rem;
+      color: white;
+    }
+    
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+  
+  &__loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  &__label {
+    font-size: 12px;
+    color: white;
+    opacity: 0.9;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.3),
+      0 2px 6px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(0.5px);
+    -webkit-backdrop-filter: blur(0.5px);
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    font-family: 'TsangerYuYang', sans-serif;
+    white-space: nowrap;
+  }
+  
+  // 展开状态
+  &.expanded {
+    .save-button-container__secondary {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      
+      &:nth-child(1) {
+        transition-delay: 0.1s;
+      }
+      
+      &:nth-child(2) {
+        transition-delay: 0.2s;
+      }
+    }
+    
+    .save-button-container__main {
+      transform: rotate(45deg);
+    }
+  }
+}
+
+// 旋转动画
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// 脉冲动画（用于加载状态）
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.save-button-container__main.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+// 响应式调整
+@media (max-width: 480px) {
+  .save-button-container {
+    &__main {
+      --size: 48px;
+      
+      ion-icon {
+        font-size: 1.3rem;
+      }
+    }
+    
+    &__share,
+    &__download {
+      --size: 40px;
+      
+      ion-icon {
+        font-size: 1.1rem;
+      }
+    }
+    
+    &__label {
+      font-size: 11px;
+    }
+  }
+}
+
+// 暗色主题适配
+@media (prefers-color-scheme: dark) {
+  .save-button-container {
+    &__main {
+      --background: rgba(255, 255, 255, 0.15);
+      --background-activated: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    &__share,
+    &__download {
+      --background: rgba(255, 255, 255, 0.12);
+      --background-activated: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    &__label {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// 高对比度模式适配
+@media (prefers-contrast: high) {
+  .save-button-container {
+    &__main,
+    &__share,
+    &__download {
+      border-width: 2px;
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    &__label {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// 减少动画模式适配
+@media (prefers-reduced-motion: reduce) {
+  .save-button-container {
+    &__secondary {
+      transition: opacity 0.2s ease;
+      transform: none;
+    }
+    
+    &__main {
+      transition: none;
+      
+      &:active {
+        transform: none;
+      }
+      
+      ion-icon {
+        transition: none;
+      }
+    }
+    
+    &.expanded .save-button-container__main {
+      transform: none;
+    }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}

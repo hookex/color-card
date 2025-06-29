@@ -1,0 +1,217 @@
+/**
+ * 错误边界组件样式
+ * 提供优雅的错误显示界面
+ */
+
+.error-boundary {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+  box-sizing: border-box;
+
+  &__container {
+    max-width: 500px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    
+    @media (max-width: 480px) {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+  }
+
+  &__icon {
+    margin-bottom: 1.5rem;
+    
+    ion-icon {
+      font-size: 4rem;
+      color: #ff4757;
+    }
+  }
+
+  &__content {
+    text-align: left;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: 'TsangerYuYang', sans-serif;
+  }
+
+  &__message {
+    font-size: 1rem;
+    color: #5a6c7d;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-family: 'TsangerYuYang', sans-serif;
+  }
+
+  &__details {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    border-left: 4px solid #ff4757;
+    
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-family: 'TsangerYuYang', sans-serif;
+    }
+  }
+
+  &__error-info {
+    font-size: 0.875rem;
+    color: #5a6c7d;
+    
+    p {
+      margin-bottom: 0.5rem;
+      
+      strong {
+        color: #2c3e50;
+      }
+    }
+  }
+
+  &__stack,
+  &__component-stack {
+    margin-top: 1rem;
+    
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background: #e9ecef;
+      border-radius: 0.25rem;
+      
+      &:hover {
+        background: #dee2e6;
+      }
+    }
+    
+    pre {
+      background: #f1f3f4;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+}
+
+// 暗色主题适配
+@media (prefers-color-scheme: dark) {
+  .error-boundary {
+    &__container {
+      background: rgba(30, 30, 30, 0.95);
+      color: #e9ecef;
+    }
+
+    &__title {
+      color: #f8f9fa;
+    }
+
+    &__message {
+      color: #adb5bd;
+    }
+
+    &__details {
+      background: #212529;
+      border-left-color: #ff6b6b;
+      
+      h3 {
+        color: #f8f9fa;
+      }
+    }
+
+    &__error-info {
+      color: #adb5bd;
+      
+      p strong {
+        color: #f8f9fa;
+      }
+    }
+
+    &__stack,
+    &__component-stack {
+      summary {
+        background: #495057;
+        color: #f8f9fa;
+        
+        &:hover {
+          background: #6c757d;
+        }
+      }
+      
+      pre {
+        background: #343a40;
+        color: #e9ecef;
+      }
+    }
+  }
+}
+
+// 高对比度模式适配
+@media (prefers-contrast: high) {
+  .error-boundary {
+    &__container {
+      border: 2px solid #000;
+    }
+
+    &__icon ion-icon {
+      color: #d00;
+    }
+
+    &__details {
+      border-left-width: 6px;
+    }
+  }
+}
+
+// 减少动画模式适配
+@media (prefers-reduced-motion: reduce) {
+  .error-boundary {
+    &__container {
+      transition: none;
+    }
+  }
+}

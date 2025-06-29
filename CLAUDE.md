@@ -1,17 +1,170 @@
-# ColorCard 项目记忆文件
+# ColorCard Project - Claude Context
 
 ## 项目概述
-ColorCard 是一个跨平台的移动应用，主要用于生成彩色壁纸。基于 Ionic React 和 Capacitor 构建，支持 iOS、Android 和 Web 平台。
+
+ColorCard是一个基于React + Ionic + Capacitor的跨平台颜色管理应用，支持颜色展示、纹理预览、收藏管理等功能。经过完整的React最佳实践重构，采用现代化架构和性能优化。
 
 ## 技术栈
-- **前端框架**: React 18.2.0 + Ionic React 8.0.0
+
+- **前端框架**: React 18.2.0
+- **UI框架**: Ionic React 8.0.0
 - **跨平台**: Capacitor 6.2.0
-- **3D渲染**: Babylon.js 7.41.1
-- **状态管理**: Zustand 5.0.2
+- **3D渲染**: Babylon.js
+- **动画**: React Spring
+- **状态管理**: Zustand
 - **样式**: SCSS + Tailwind CSS
-- **国际化**: i18next
-- **构建工具**: Vite 5.2.0
-- **测试**: Vitest + Cypress
+- **类型**: TypeScript
+- **测试**: Vitest + Testing Library
+- **构建**: Vite
+
+## 项目结构
+
+```
+src/
+├── components/           # 通用组件
+│   ├── features/        # 功能组件
+│   ├── ui/             # UI组件
+│   └── ErrorBoundary.tsx
+├── containers/          # 容器组件
+├── hooks/               # 自定义Hooks
+│   ├── business/       # 业务逻辑Hooks
+│   ├── ui/            # UI相关Hooks
+│   └── utils/         # 工具Hooks
+├── pages/              # 页面组件
+├── services/           # 服务层
+│   ├── animation/     # 动画服务
+│   ├── storage/       # 存储服务
+│   ├── platform/      # 平台服务
+│   └── monitoring/    # 性能监控
+├── stores/             # 状态管理
+│   └── slices/        # Zustand切片
+├── types/              # 类型定义
+├── utils/              # 工具函数
+└── data/               # 静态数据
+```
+
+## 已完成的重构阶段
+
+### Phase 1: 架构重构 ✅
+1.1. 创建基础架构目录结构
+1.2. 建立服务层 - 动画服务
+1.3. 建立服务层 - 存储服务  
+1.4. 建立服务层 - 平台服务
+1.5. 重构状态管理为切片
+1.6. 提取自定义Hooks
+1.7. 拆分Home.tsx为容器组件
+1.8. 创建功能组件
+
+### Phase 2: 性能优化 ✅
+2.1. 实施代码分割
+2.2. 性能优化 - memo和callback
+2.3. 移除死代码和内联CSS
+
+### Phase 3: 质量保证 ✅
+3.1. 添加错误边界
+3.2. 建设测试框架
+3.3. 添加性能监控
+3.4. 完善文档和类型
+
+## 核心服务
+
+### 动画服务 (AnimationService)
+- 统一的React Spring动画配置
+- 页面转场动画
+- 手势动画
+- 缓动函数预设
+
+### 存储服务 (StorageService)
+- 跨平台存储抽象
+- 用户偏好管理
+- 缓存机制
+- 文件操作
+
+### 平台服务 (PlatformService)
+- 设备检测
+- 触觉反馈
+- 网络状态监控
+- 平台特性检测
+
+### 性能监控 (PerformanceService)
+- Web Vitals监控
+- 内存使用跟踪
+- 动画帧率监控
+- 用户交互延迟测量
+
+## 状态管理架构
+
+使用Zustand实现模块化状态管理：
+
+- **colorSlice**: 颜色选择、收藏、历史
+- **textureSlice**: 纹理管理、预设
+- **appSlice**: 应用级状态、偏好设置
+
+## 测试策略
+
+- **单元测试**: 所有服务和Hooks
+- **组件测试**: 关键UI组件
+- **集成测试**: 容器组件
+- **E2E测试**: 核心用户流程
+
+## 开发命令
+
+```bash
+# 开发环境
+npm run dev
+
+# 构建
+npm run build
+
+# 测试
+npm run test
+npm run test:coverage
+
+# 类型检查
+npm run type-check
+
+# 代码格式化
+npm run format
+
+# 代码检查
+npm run lint
+```
+
+## 代码规范
+
+1. **组件**: 使用函数组件 + Hooks
+2. **类型**: 严格的TypeScript类型定义
+3. **样式**: SCSS模块 + Tailwind工具类
+4. **状态**: Zustand切片模式
+5. **错误处理**: 错误边界 + 异常捕获
+6. **性能**: React.memo + useCallback优化
+7. **测试**: 全面的测试覆盖
+
+## 注意事项
+
+- 所有异步操作需要错误处理
+- 组件性能优化使用React.memo
+- 状态更新使用不可变模式
+- 跨平台兼容性考虑
+- 无障碍访问支持
+- 国际化支持(i18n)
+
+## 性能指标
+
+- FCP < 1.5s
+- LCP < 2.5s  
+- FID < 100ms
+- CLS < 0.1
+- 内存使用 < 50MB
+- 帧率 > 50fps
+
+## 部署流程
+
+1. 类型检查: `npm run type-check`
+2. 代码检查: `npm run lint`
+3. 测试: `npm run test`
+4. 构建: `npm run build`
+5. 平台构建: `npm run build:ios` / `npm run build:android`
 
 ## 核心功能
 
