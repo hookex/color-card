@@ -14,7 +14,6 @@ import {
   leafOutline,
   leaf
 } from 'ionicons/icons';
-import AppleLiquidGlass from './AppleLiquidGlass';
 import { TextureType } from './TextureTools';
 import { getEnabledTextures } from '../config/textureConfig';
 import useStore from '../stores/useStore';
@@ -46,15 +45,6 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
     getEnabledTextures().includes(t.type)
   );
 
-  // 计算液态玻璃颜色
-  const getGlassColor = (isActive: boolean) => {
-    if (isActive) {
-      return color;
-    }
-    
-    const luminance = getLuminance(color);
-    return luminance > 0.5 ? '#000000' : '#FFFFFF';
-  };
 
   // 响应式计算按钮尺寸和布局
   const screenWidth = window.innerWidth;
@@ -63,41 +53,58 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
   const buttonGap = 8; // 按钮间距
   const labelHeight = 16; // 标签高度
   
-  // 计算最佳按钮尺寸
+  // 计算最佳按钮尺寸 - 减小尺寸
   const totalGapWidth = (totalButtons - 1) * buttonGap;
   const availableWidth = screenWidth - containerPadding - totalGapWidth;
   const idealButtonSize = availableWidth / totalButtons;
-  const minButtonSize = 48;
-  const maxButtonSize = 64;
+  const minButtonSize = 40; // 减小最小尺寸
+  const maxButtonSize = 52; // 减小最大尺寸
   const buttonSize = Math.max(minButtonSize, Math.min(maxButtonSize, idealButtonSize));
 
   return (
-    <div className="liquid-glass-texture-tools">
-      <div className="tools-container" style={{ gap: `${buttonGap}px` }}>
-        {enabledTextures.map((textureItem) => {
-          const isActive = textureItem.type === texture;
-          const glassColor = getGlassColor(isActive);
-          const luminance = getLuminance(color);
-          
-          return (
-            <div key={textureItem.type} className="texture-button-wrapper">
-              <LiquidGlassWebGL
-                width={buttonSize}
-                height={buttonSize}
-                backgroundColor={glassColor}
-                borderRadius={buttonSize / 2} // 完全圆形
-                opacity={isActive ? 0.9 : 0.5}
-                animated={true}
-                isActive={isActive}
-                intensity={isActive ? 1.3 : 0.9}
-                className="texture-button"
-                onClick={() => onTextureChange(textureItem.type)}
-              >
-                <div className="button-content">
+    <div 
+      className="liquid-glass-texture-tools"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        padding: '8px 24px calc(8px + env(safe-area-inset-bottom, 0px)) 24px'
+      }}
+    >
+      <div className="glass-background">
+        <div className="tools-container" style={{ gap: `${buttonGap}px` }}>
+          {enabledTextures.map((textureItem) => {
+            const isActive = textureItem.type === texture;
+            const luminance = getLuminance(color);
+            
+            return (
+              <div key={textureItem.type} className="texture-button-wrapper">
+                <div
+                  className={`texture-button ${isActive ? 'active' : ''}`}
+                  style={{
+                    width: buttonSize + 'px',
+                    height: buttonSize + 'px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    background: isActive 
+                      ? `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.2)`
+                      : `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.1)`,
+                    border: `1px solid rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, ${isActive ? '0.3' : '0.15'})`,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                  onClick={() => onTextureChange(textureItem.type)}
+                >
                   <IonIcon 
                     icon={isActive ? textureItem.activeIcon : textureItem.icon}
                     style={{
-                      fontSize: Math.min(24, buttonSize * 0.4) + 'px', // 响应式图标大小
+                      fontSize: Math.min(24, buttonSize * 0.4) + 'px',
                       color: isActive 
                         ? luminance > 0.5 ? '#000000' : '#FFFFFF'
                         : luminance > 0.5 ? '#555555' : '#BBBBBB',
@@ -106,24 +113,24 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
                     }}
                   />
                 </div>
-              </LiquidGlassWebGL>
-              
-              {/* 标签 */}
-              <div 
-                className={`button-label ${isActive ? 'active' : ''}`}
-                style={{
-                  color: isActive 
-                    ? luminance > 0.5 ? '#000000' : '#FFFFFF'
-                    : luminance > 0.5 ? '#666666' : '#AAAAAA',
-                  fontSize: Math.max(10, Math.min(12, buttonSize * 0.2)) + 'px', // 响应式字体大小
-                  marginTop: Math.max(4, buttonSize * 0.08) + 'px' // 响应式间距
-                }}
-              >
-                {textureItem.label}
+                
+                {/* 标签 */}
+                <div 
+                  className={`button-label ${isActive ? 'active' : ''}`}
+                  style={{
+                    color: isActive 
+                      ? luminance > 0.5 ? '#000000' : '#FFFFFF'
+                      : luminance > 0.5 ? '#666666' : '#AAAAAA',
+                    fontSize: Math.max(9, Math.min(11, buttonSize * 0.2)) + 'px', // 稍微减小字体大小
+                    marginTop: Math.max(2, buttonSize * 0.06) + 'px' // 减少间距
+                  }}
+                >
+                  {textureItem.label}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

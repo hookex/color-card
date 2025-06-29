@@ -1,21 +1,25 @@
 .liquid-glass-texture-tools {
-  padding: 12px 24px 16px 24px; // 调整padding，顶部减少，左右增加
-  backdrop-filter: blur(25px) saturate(150%);
-  -webkit-backdrop-filter: blur(25px) saturate(150%);
+  // 定位和padding现在由此组件自己处理
+  
+  .glass-background {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
   
   .tools-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    flex-wrap: nowrap; // 不换行，保持一行显示
-    padding: 10px 16px 8px 16px; // 优化内边距
-    border-radius: 28px; // 减小圆角
-    background: rgba(255, 255, 255, 0.06); // 更低的背景透明度
-    border: 0.5px solid rgba(255, 255, 255, 0.12); // 更细的边框
-    box-shadow: 
-      0 6px 24px rgba(0, 0, 0, 0.06),
-      0 2px 8px rgba(0, 0, 0, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08); // 添加内阴影
+    flex-wrap: nowrap;
+    padding: 6px 12px 4px 12px;
+    border-radius: 24px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
   
   .texture-button-wrapper {
@@ -25,23 +29,20 @@
     flex-shrink: 0; // 防止按钮被压缩
     
     .texture-button {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); // 稍微快一点的过渡
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       transform-origin: center;
       
       &:hover {
-        transform: scale(1.05) translateY(-1px); // 更细微的hover效果
+        transform: scale(1.05) translateY(-1px);
+        background: rgba(255, 255, 255, 0.15) !important;
       }
       
       &:active {
         transform: scale(0.96) translateY(0px);
       }
       
-      .button-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
+      &.active {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
       }
     }
     
@@ -65,11 +66,8 @@
 // 响应式调整
 @media (max-width: 480px) {
   .liquid-glass-texture-tools {
-    padding: 12px;
-    
     .tools-container {
       gap: 12px;
-      padding: 8px;
     }
     
     .texture-button-wrapper {
@@ -84,11 +82,8 @@
 
 @media (max-width: 360px) {
   .liquid-glass-texture-tools {
-    padding: 8px;
-    
     .tools-container {
       gap: 8px;
-      padding: 6px;
     }
     
     .texture-button-wrapper {

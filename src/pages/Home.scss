@@ -235,97 +235,7 @@ $font-size-lg: 1.5rem;
   }
 }
 
-// Glass Toolbar
-.glass-toolbar {
-  @include glass-effect;
-  position: fixed;
-  z-index: 1000;
-  bottom: calc($base-unit * 2);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: $content-width;
-  border-radius: $base-unit;
-  padding: calc($base-unit / 2);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  ion-toolbar {
-    --background: transparent;
-    --border-style: none;
-    --min-height: auto;
-    --padding-top: 0;
-    --padding-bottom: 0;
-    
-    ion-buttons {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      
-      ion-button {
-        --padding-start: 8px;
-        --padding-end: 8px;
-        height: auto;
-        --background: transparent;
-        --background-hover: transparent;
-        --background-activated: transparent;
-        --box-shadow: none;
-        flex: 1;
-        min-height: 36px;
-        
-        &.active {
-          .button-content {
-            ion-icon {
-              color: white;
-              opacity: 1;
-              transform: scale(1.1);
-            }
-            
-            .button-label {
-              color: white;
-              opacity: 1;
-              font-weight: 700;
-            }
-          }
-        }
-        
-        .button-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-          justify-content: center;
-          
-          ion-icon {
-            font-size: 16px;
-            color: white;
-            opacity: 0.7;
-            transition: all 0.2s ease;
-          }
-          
-          .button-label {
-            font-size: 10px;
-            margin-top: 2px;
-            color: white;
-            opacity: 0.7;
-            text-align: center;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-            text-shadow: 
-              0 1px 3px rgba(0, 0, 0, 0.3),
-              0 2px 6px rgba(0, 0, 0, 0.2),
-              0 3px 8px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-            transition: all 0.2s ease;
-          }
-        }
-      }
-    }
-  }
-}
+// 移除旧的glass-toolbar样式，现在由LiquidGlassTextureTools处理
 
 ion-content {
   --overflow: hidden;
@@ -336,27 +246,7 @@ ion-content {
   }
 }
 
-.toolbar-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding: 8px 16px;
-  --background: rgba(255, 255, 255, 0.5);
-  --border-style: solid;
-  --border-width: 1px;
-  --border-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 
-    0 -2px 10px rgba(0, 0, 0, 0.1),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-
-  @media (prefers-color-scheme: dark) {
-    --background: rgba(28, 28, 30, 0.5);
-  }
-}
+// 移除旧的toolbar-wrapper样式，现在由LiquidGlassTextureTools处理
 
 .wallpaper-button-container {
   position: fixed;
@@ -508,15 +398,14 @@ ion-content {
 
   .color-cards {
     padding: calc(var(--base-unit, 0.5rem) * 2);
-    padding-top: calc(var(--base-unit, 0.5rem) * 10 + var(--ion-safe-area-top, 2.9375rem)); 
-    padding-bottom: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-bottom, 2.125rem));
+    padding-top: calc(var(--base-unit, 0.5rem) * 4); // 大幅减少顶部padding
+    padding-bottom: calc(var(--base-unit, 0.5rem) * 20); // 增加底部padding为底部tab留空间
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: calc(var(--base-unit, 0.5rem) * 1.5);
     overflow-y: auto;
     flex: 1;
-    // React Spring handles all animations now
-    // No CSS transitions or animations needed
+    margin-top: 60px; // 为顶部tab留出空间
     
     &::-webkit-scrollbar {
       display: none;
@@ -526,9 +415,10 @@ ion-content {
     
     @media (max-width: $content-width) {
       padding: var(--base-unit, 0.5rem);
-      padding-top: calc(var(--base-unit, 0.5rem) * 8 + var(--ion-safe-area-top, 2.9375rem)); 
-      padding-bottom: calc(var(--base-unit, 0.5rem) * 7);
+      padding-top: calc(var(--base-unit, 0.5rem) * 2); 
+      padding-bottom: calc(var(--base-unit, 0.5rem) * 18);
       gap: var(--base-unit, 0.5rem);
+      margin-top: 60px;
     }
   }
 
@@ -591,92 +481,7 @@ ion-content {
     }
   }
 
-  .glass-toolbar {
-    @include glass-effect;
-    position: fixed;
-    z-index: 1000;
-    bottom: calc($base-unit * 2);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: $content-width;
-    border-radius: $base-unit;
-    padding: calc($base-unit / 2);
-
-    ion-toolbar {
-      --background: transparent;
-      --border-style: none;
-      --min-height: auto;
-      --padding-top: 0;
-      --padding-bottom: 0;
-      
-      ion-buttons {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-        
-        ion-button {
-          --padding-start: 8px;
-          --padding-end: 8px;
-          height: auto;
-          --background: transparent;
-          --background-hover: transparent;
-          --background-activated: transparent;
-          --box-shadow: none;
-          flex: 1;
-          min-height: 36px;
-          
-          &.active {
-            .button-content {
-              ion-icon {
-                color: white;
-                opacity: 1;
-                transform: scale(1.1);
-              }
-              
-              .button-label {
-                color: white;
-                opacity: 1;
-                font-weight: 700;
-              }
-            }
-          }
-          
-          .button-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-            
-            ion-icon {
-              font-size: 16px;
-              color: white;
-              opacity: 0.7;
-              transition: all 0.2s ease;
-            }
-            
-            .button-label {
-              font-size: 10px;
-              margin-top: 2px;
-              color: white;
-              opacity: 0.7;
-              text-align: center;
-              font-weight: 500;
-              letter-spacing: 0.02em;
-              text-shadow: 
-                0 1px 3px rgba(0, 0, 0, 0.3),
-                0 2px 6px rgba(0, 0, 0, 0.2),
-                0 3px 8px rgba(0, 0, 0, 0.1);
-              white-space: nowrap;
-              transition: all 0.2s ease;
-            }
-          }
-        }
-      }
-    }
-  }
+  // 移除重复的glass-toolbar样式
 
   .wallpaper-button-container {
     position: fixed;
@@ -689,72 +494,9 @@ ion-content {
 }
 
 .color-type-segment {
-  @include glass-effect;
-  position: fixed;
-  top: calc(var(--ion-safe-area-top, 2.9375rem) + var(--base-unit, 0.5rem));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 90%;
-  max-width: $content-width;
-  border-radius: var(--base-unit, 0.5rem);
-  padding: calc(var(--base-unit, 0.5rem) / 2);
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  // 移除所有背景样式，现在由AppleLiquidGlassBackground处理
 
-  ion-segment {
-    background: transparent;
-    border-radius: calc(var(--base-unit, 0.5rem) / 2);
-    margin: 0;
-    overflow: hidden;
-    
-    &::part(scroll) {
-      padding: 0 calc(var(--base-unit, 0.5rem) / 4);
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    
-    ion-segment-button {
-      --background-checked: transparent;
-      --background-hover: transparent;
-      --background-focused: transparent;
-      --border-radius: calc(var(--base-unit, 0.5rem) / 2);
-      --border-width: 0;
-      --margin-top: 0;
-      --margin-bottom: 0;
-      --margin-start: calc(var(--base-unit, 0.5rem) / 4);
-      --margin-end: calc(var(--base-unit, 0.5rem) / 4);
-      --padding-top: calc(var(--base-unit, 0.5rem) / 4);
-      --padding-bottom: calc(var(--base-unit, 0.5rem) / 4);
-      --padding-start: calc(var(--base-unit, 0.5rem) / 2);
-      --padding-end: calc(var(--base-unit, 0.5rem) / 2);
-      --color: rgba(255, 255, 255, 0.7);
-      --color-checked: #fff;
-      --indicator-color: transparent;
-      min-height: calc(var(--base-unit, 0.5rem) * 2);
-      font-size: clamp(0.675rem, 3vw, 0.875rem);
-      font-weight: 400;
-      letter-spacing: 0.02em;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-      
-      ion-label {
-        font-weight: 400;
-        transition: font-weight 0.2s ease;
-      }
-      
-      &.segment-button-checked {
-        ion-label {
-          font-weight: 600;
-        }
-      }
-    }
-  }
+  // ion-segment样式已迁移至LiquidGlassSegment组件
 }
 
 // Animations are now handled by React Spring
@@ -768,16 +510,4 @@ ion-content {
   }
 }
 
-.color-type-segment {
-  ion-segment {
-    ion-segment-button {
-      --color: #fff;
-      --color-checked: #fff;
-      --indicator-color: rgba(255, 255, 255, 0.3);
-      
-      ion-label {
-        font-weight: 500;
-      }
-    }
-  }
-}
+// 移除重复的color-type-segment样式，现在由LiquidGlassSegment组件处理

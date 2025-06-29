@@ -1,6 +1,5 @@
 import React from 'react';
 import { IonLabel } from '@ionic/react';
-import AppleLiquidGlass from './AppleLiquidGlass';
 import { ColorType } from '../stores/useStore';
 import useStore from '../stores/useStore';
 import { tabs } from '../config/tabConfig';
@@ -14,71 +13,86 @@ interface LiquidGlassSegmentProps {
 
 const LiquidGlassSegment: React.FC<LiquidGlassSegmentProps> = ({ value, onSelectionChange }) => {
   const color = useStore(state => state.color);
-  
-  // 计算基于当前颜色的液态玻璃颜色
-  const getGlassColor = (isActive: boolean) => {
-    if (isActive) {
-      return color;
-    }
-    
-    // 非活跃状态使用半透明的当前颜色
-    const luminance = getLuminance(color);
-    return luminance > 0.5 ? '#000000' : '#FFFFFF';
-  };
 
-  // 响应式计算tab尺寸
+  // 响应式计算tab尺寸 - 更紧凑的设计
   const screenWidth = window.innerWidth;
   const totalTabs = tabs.length;
-  const containerPadding = 32; // 左右各16px
-  const tabGap = 4; // tab之间的间距
+  const containerPadding = 48; // 增加容器边距
+  const tabGap = 3; // 减小tab间距，更紧凑
   const totalGapWidth = (totalTabs - 1) * tabGap;
   const availableWidth = screenWidth - containerPadding - totalGapWidth;
   
-  // 计算最佳tab宽度，确保美观和可用性
+  // 计算更小的tab尺寸
   const idealTabWidth = availableWidth / totalTabs;
-  const minTabWidth = 72;
-  const maxTabWidth = 110;
+  const minTabWidth = 58; // 减小最小宽度
+  const maxTabWidth = 85; // 减小最大宽度
   const tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
-  const tabHeight = 36; // 减小高度，更加精致
+  const tabHeight = 30; // 进一步减小高度
 
   return (
-    <div className="liquid-glass-segment">
-      <div className="segment-container" style={{ gap: `${tabGap}px` }}>
-        {tabs.map((tab) => {
-          const isActive = tab.value === value;
-          const glassColor = getGlassColor(isActive);
-          
-          return (
-            <AppleLiquidGlass
-              key={tab.value}
-              width={tabWidth}
-              height={tabHeight}
-              backgroundColor={color} // 使用当前颜色作为背景
-              borderRadius={18}
-              isActive={isActive}
-              adaptiveMode="auto" // 自动适应亮暗模式
-              className="segment-button"
-              onClick={() => onSelectionChange(tab.value as ColorType)}
-            >
-              <IonLabel
-                className={`segment-label ${isActive ? 'active' : ''}`}
+    <div 
+      className="liquid-glass-segment"
+      style={{
+        position: 'fixed',
+        top: 'calc(var(--ion-safe-area-top, 47px) + 6px)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 1000,
+        width: '86%',
+        maxWidth: '1000px',
+        padding: '6px 12px 3px 12px'
+      }}
+    >
+      <div className="glass-background">
+        <div className="segment-container" style={{ gap: `${tabGap}px` }}>
+          {tabs.map((tab) => {
+            const isActive = tab.value === value;
+            
+            return (
+              <div
+                key={tab.value}
+                className={`segment-button ${isActive ? 'active' : ''}`}
                 style={{
-                  color: isActive 
-                    ? getLuminance(color) > 0.5 ? '#000000' : '#FFFFFF'
-                    : getLuminance(color) > 0.5 ? '#666666' : '#AAAAAA',
-                  fontWeight: isActive ? '600' : '500',
-                  fontSize: '13px', // 稍微减小字体
-                  textAlign: 'center',
+                  width: tabWidth + 'px',
+                  height: tabHeight + 'px',
+                  borderRadius: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  background: isActive 
+                    ? `rgba(${getLuminance(color) > 0.5 ? '0,0,0' : '255,255,255'}, 0.1)`
+                    : 'transparent',
+                  border: isActive 
+                    ? `1px solid rgba(${getLuminance(color) > 0.5 ? '0,0,0' : '255,255,255'}, 0.2)`
+                    : '1px solid transparent',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  letterSpacing: '0.2px', // 添加字母间距
-                  textShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'
+                  backdropFilter: isActive ? 'blur(10px)' : 'none',
+                  WebkitBackdropFilter: isActive ? 'blur(10px)' : 'none'
                 }}
+                onClick={() => onSelectionChange(tab.value as ColorType)}
               >
-                {tab.label}
-              </IonLabel>
-            </AppleLiquidGlass>
-          );
-        })}
+                <IonLabel
+                  className={`segment-label ${isActive ? 'active' : ''}`}
+                  style={{
+                    color: isActive 
+                      ? getLuminance(color) > 0.5 ? '#000000' : '#FFFFFF'
+                      : getLuminance(color) > 0.5 ? '#666666' : '#AAAAAA',
+                    fontWeight: isActive ? '600' : '500',
+                    fontSize: '11px',
+                    textAlign: 'center',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    letterSpacing: '0.1px',
+                    textShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    margin: 0
+                  }}
+                >
+                  {tab.label}
+                </IonLabel>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

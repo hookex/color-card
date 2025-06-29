@@ -46,16 +46,41 @@ const CanvasBackground: React.FC = () => {
 
   // 更新材质
   const updateMaterial = () => {
-    if (!sceneRef.current || !planeRef.current || !state.color || !state.texture) return;
+    if (!sceneRef.current || !planeRef.current) return;
+    
+    // 确保有默认颜色
+    const currentColor = state.color || color || '#ff6b6b';
+    const currentTexture = state.texture || texture || 'paint';
 
-    const newMaterial = createMaterialByType(sceneRef.current, state.color, state.texture);
-    
-    // 直接应用新材质
-    planeRef.current.material = newMaterial;
-    materialRef.current = newMaterial;
-    
-    // 确保场景重新渲染
-    sceneRef.current.markAllMaterialsAsDirty(1);
+    try {
+      const newMaterial = createMaterialByType(sceneRef.current, currentColor, currentTexture);
+      
+      if (newMaterial) {
+        // 直接应用新材质
+        planeRef.current.material = newMaterial;
+        materialRef.current = newMaterial;
+        
+        // 确保材质准备就绪
+        if (newMaterial.isReady(planeRef.current) && sceneRef.current) {
+          sceneRef.current.render();
+        }
+      }
+      
+      // 同时更新背景平面颜色
+      if (backgroundPlaneRef.current && backgroundPlaneRef.current.material) {
+        const bgMaterial = backgroundPlaneRef.current.material as StandardMaterial;
+        bgMaterial.diffuseColor = Color3.FromHexString(currentColor);
+      }
+      
+      // 确保场景重新渲染
+      sceneRef.current.markAllMaterialsAsDirty(1);
+    } catch (error) {
+      console.error('Error updating material:', error);
+      // 备用方案：创建简单材质
+      const fallbackMaterial = new StandardMaterial('fallback', sceneRef.current);
+      fallbackMaterial.diffuseColor = Color3.FromHexString(currentColor);
+      planeRef.current.material = fallbackMaterial;
+    }
   };
 
   // 更新相机控制
@@ -93,8 +118,11 @@ const CanvasBackground: React.FC = () => {
 
     // 初始化场景
     const scene = new Scene(engine);
-    scene.clearColor = new Color4(0, 0, 0, 0);
-    scene.autoClear = false; // 禁用自动清除以提高性能
+    // 设置初始背景色（使用当前颜色或默认颜色）
+    const currentColor = state.color || color || '#ff6b6b';
+    const bgColor = Color3.FromHexString(currentColor);
+    scene.clearColor = new Color4(bgColor.r, bgColor.g, bgColor.b, 1.0); // 不透明背景
+    scene.autoClear = true; // 启用自动清除确保渲染正确
     scene.skipPointerMovePicking = true; // 禁用指针移动拾取以提高性能
     sceneRef.current = scene;
 
@@ -122,8 +150,10 @@ const CanvasBackground: React.FC = () => {
 
     // 创建背景材质（使用纯色）
     const backgroundMaterial = new StandardMaterial('backgroundMaterial', scene);
-    backgroundMaterial.diffuseColor = Color3.FromHexString(state.color);
+    // 确保有默认颜色
+    backgroundMaterial.diffuseColor = Color3.FromHexString(currentColor);
     backgroundMaterial.specularColor = new Color3(0.2, 0.2, 0.2);
+    backgroundMaterial.emissiveColor = new Color3(0.1, 0.1, 0.1); // 添加发光确保可见
     backgroundPlane.material = backgroundMaterial;
 
     // 创建主平面（玻璃效果，在后面）
@@ -134,8 +164,14 @@ const CanvasBackground: React.FC = () => {
     plane.position = new Vector3(0, 0, -2);  // 放在后面
     planeRef.current = plane;
 
-    // 创建并应用材质
-    updateMaterial();
+    // 创建并应用材质（延迟确保所有资源就绪）
+    setTimeout(() => {
+      updateMaterial();
+      // 强制渲染一帧确保显示
+      if (sceneRef.current) {
+        sceneRef.current.render();
+      }
+    }, 100);
 
     // 添加辉光效果
     const gl = new GlowLayer('glow', scene);
@@ -181,11 +217,16 @@ const CanvasBackground: React.FC = () => {
     };
   }, []);
 
-  // 更新材质
+  // 更新材质和场景背景色
   useEffect(() => {
     if (!sceneRef.current || !planeRef.current) return;
     updateMaterial();
-  }, [state.color, state.texture]);
+    
+    // 同时更新场景背景色
+    const currentColor = state.color || color || '#ff6b6b';
+    const bgColor = Color3.FromHexString(currentColor);
+    sceneRef.current.clearColor = new Color4(bgColor.r, bgColor.g, bgColor.b, 1.0);
+  }, [state.color, state.texture, color]);
 
   return (
     <canvas

@@ -1,7 +1,14 @@
 .liquid-glass-segment {
-  padding: 8px 16px 12px 16px; // 上方减少padding，下方保持
-  backdrop-filter: blur(25px) saturate(150%);
-  -webkit-backdrop-filter: blur(25px) saturate(150%);
+  // 定位和padding现在由此组件自己处理
+  
+  .glass-background {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
   
   .segment-container {
     display: flex;
@@ -9,14 +16,11 @@
     align-items: center;
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 6px 8px; // 减少内边距
-    border-radius: 24px; // 稍微减小圆角
-    background: rgba(255, 255, 255, 0.08); // 降低背景透明度
-    border: 0.5px solid rgba(255, 255, 255, 0.15); // 更细的边框
-    box-shadow: 
-      0 4px 20px rgba(0, 0, 0, 0.08),
-      0 1px 4px rgba(0, 0, 0, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1); // 添加内阴影
+    padding: 3px 4px; // 进一步减小内边距
+    border-radius: 16px; // 减小圆角匹配更小的尺寸
+    background: transparent;
+    border: none;
+    box-shadow: none;
     
     // 隐藏滚动条但保持滚动功能
     &::-webkit-scrollbar {
@@ -28,15 +32,15 @@
   
   .segment-button {
     flex-shrink: 0;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // 更快的过渡
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
     
     &:hover {
-      transform: scale(1.02) translateY(-1px); // 更细微的hover效果
+      transform: scale(1.01) translateY(-0.5px); // 更加细微的hover效果
     }
     
     &:active {
-      transform: scale(0.98) translateY(0px);
+      transform: scale(0.99) translateY(0px);
     }
   }
   
@@ -55,22 +59,18 @@
 // 针对不同屏幕尺寸的响应式调整
 @media (max-width: 480px) {
   .liquid-glass-segment {
-    padding: 8px 12px;
-    
     .segment-container {
-      gap: 4px;
-      padding: 3px;
+      gap: 2px; // 更紧凑的间距
+      padding: 2px 3px;
     }
   }
 }
 
 @media (max-width: 360px) {
   .liquid-glass-segment {
-    padding: 6px 8px;
-    
     .segment-container {
-      gap: 3px;
-      padding: 2px;
+      gap: 2px;
+      padding: 1px 2px;
     }
   }
 }

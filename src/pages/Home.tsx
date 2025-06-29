@@ -54,7 +54,12 @@ const Home: React.FC = () => {
   const [springProps, api] = useSpring(() => ({
     opacity: 1,
     transform: 'translateX(0%)',
-    config: config.gentle
+    config: {
+      tension: 280,
+      friction: 60,
+      mass: 1,
+      clamp: true // 防止过度振荡
+    }
   }));
 
   // 从URL参数初始化texture和colorType
@@ -231,7 +236,7 @@ const Home: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      if (mode === 'canvas') {
+      if (shouldUseCanvas()) {
         await handleCanvasSave();
       } else {
         await handleDivSave();
@@ -243,7 +248,7 @@ const Home: React.FC = () => {
 
   const handleCanvasSave = async () => {
     try {
-      const result = await takeScreenshot(currentMode);
+      const result = await takeScreenshot('canvas');
       if (result.success) {
         console.log('Wallpaper saved:', result.fileName);
       } else {
@@ -256,7 +261,7 @@ const Home: React.FC = () => {
 
   const handleDivSave = async () => {
     try {
-      const result = await takeScreenshot(currentMode);
+      const result = await takeScreenshot('div');
       if (result.success) {
         console.log('Wallpaper saved:', result.fileName);
       } else {
@@ -290,11 +295,16 @@ const Home: React.FC = () => {
     const slideInTransform = slideDirection === 'left' ? 'translateX(100%)' : 'translateX(-100%)';
     
     try {
-      // Start slide out animation
+      // Start slide out animation with no overshoot
       await api.start({
         opacity: 0,
         transform: slideOutTransform,
-        config: config.wobbly
+        config: {
+          tension: 300,
+          friction: 40,
+          mass: 1,
+          clamp: true
+        }
       });
       
       // Change content during transition
@@ -307,11 +317,16 @@ const Home: React.FC = () => {
         transform: slideInTransform
       });
       
-      // Start slide in animation
+      // Start slide in animation with smooth deceleration
       await api.start({
         opacity: 1,
         transform: 'translateX(0%)',
-        config: config.gentle
+        config: {
+          tension: 280,
+          friction: 60,
+          mass: 1,
+          clamp: true // 完全防止弹跳
+        }
       });
       
       setIsTransitioning(false);
@@ -357,9 +372,14 @@ const Home: React.FC = () => {
     return hasRequiredProps;
   });
 
+  // 根据纹理类型决定渲染方式
+  const shouldUseCanvas = () => {
+    return texture === 'paint' || texture === 'frosted'; // 玉石和毛玻璃使用canvas
+  };
+
   return (
     <IonPage className="home-page">
-      {mode === 'canvas' ? <CanvasBackground /> : <DivBackground />}
+      {shouldUseCanvas() ? <CanvasBackground /> : <DivBackground />}
       <IonContent ref={contentRef} className="ion-content-transparent">
         <div className="container">
           {!isMinimized && (

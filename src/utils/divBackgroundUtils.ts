@@ -21,9 +21,10 @@ const toRGBA = (hex: string): string => {
 export const getTextureStyles = ({ texture, startColor, endColor }: TextureStylesProps): CSSProperties => {
   switch (texture) {
     case 'solid':
+      // 原色：纯色背景，没有任何纹理
       return {};
     case 'linear':
-      // 线性类型：纯色背景，没有任何纹理或渐变
+      // 线性：纯色背景，没有任何纹理或渐变
       return {};
     case 'leather':
       return {
@@ -31,9 +32,8 @@ export const getTextureStyles = ({ texture, startColor, endColor }: TextureStyle
         backgroundSize: '20px 20px',
       };
     case 'paint':
-      return {
-        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%)',
-      };
+      // 玉石：使用canvas渲染，这里返回空样式
+      return {};
     case 'glass':
       if (!startColor) return {};
       return {
@@ -44,13 +44,12 @@ export const getTextureStyles = ({ texture, startColor, endColor }: TextureStyle
         border: '1px solid rgba(255, 255, 255, 0.18)'
       };
     case 'frosted':
-      if (!startColor) return {};
+      // 毛玻璃：使用canvas渲染，这里返回空样式
+      return {};
+    case 'glow':
       return {
-        backgroundColor: `${toRGBA(startColor)}`,
-        backdropFilter: 'blur(10px) saturate(120%)',
-        WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-        boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.15)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        backgroundImage: `radial-gradient(circle at center, ${startColor || '#ffffff'} 0%, rgba(255,255,255,0) 70%)`,
+        filter: 'blur(1px)',
       };
     default:
       return {};
