@@ -117,7 +117,7 @@ const DevTools: React.FC<Props> = ({ children }) => {
       logger.info('Taking screenshot...');
       let canvas: HTMLCanvasElement;
       
-      if (mode === 'canvas') {
+      if (mode === 'normal') {
         // Canvas 模式：直接获取 canvas 元素
         const canvasElement = document.querySelector('canvas') as HTMLCanvasElement;
         if (!canvasElement) {
@@ -233,10 +233,10 @@ const DevTools: React.FC<Props> = ({ children }) => {
 
   // 切换渲染模式
   const toggleMode = () => {
-    const nextMode = mode === 'canvas' ? 'div' : 'canvas';
+    const nextMode = mode === 'normal' ? 'fullscreen' : mode === 'fullscreen' ? 'minimal' : 'normal';
     logger.info('Toggling render mode:', { currentMode: mode, nextMode });
     setMode(nextMode);
-    showToastMessage(t(nextMode === 'canvas' ? 'devtools.toast.mode_canvas' : 'devtools.toast.mode_div'));
+    showToastMessage(t(`devtools.toast.mode_${nextMode}`));
   };
 
   const handleResetTutorial = () => {
@@ -279,9 +279,9 @@ const DevTools: React.FC<Props> = ({ children }) => {
             <IonLabel className="fab-label">{t('devtools.mode')}</IonLabel>
             <IonFabButton 
               onClick={toggleMode}
-              color={mode === 'canvas' ? 'primary' : 'secondary'}
+              color={mode === 'normal' ? 'primary' : mode === 'fullscreen' ? 'tertiary' : 'secondary'}
             >
-              <IonIcon icon={mode === 'canvas' ? brushOutline : squareOutline} />
+              <IonIcon icon={mode === 'normal' ? brushOutline : mode === 'fullscreen' ? layersOutline : squareOutline} />
             </IonFabButton>
           </div>
 

@@ -14,22 +14,24 @@ import {
   leafOutline,
   leaf
 } from 'ionicons/icons';
-import { TextureType } from './TextureTools';
+import { TextureType } from '../types';
 import { getEnabledTextures } from '../config/textureConfig';
-import useStore from '../stores/useStore';
+import { useAppStore } from '../stores/useAppStore';
 import { getLuminance } from '../utils/backgroundUtils';
 import './LiquidGlassTextureTools.scss';
 
 interface LiquidGlassTextureToolsProps {
   texture: TextureType;
   onTextureChange: (texture: TextureType) => void;
+  disabled?: boolean;
 }
 
 const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({ 
   texture, 
-  onTextureChange 
+  onTextureChange,
+  disabled = false
 }) => {
-  const color = useStore(state => state.color);
+  const color = useAppStore(state => state.color);
   
   const allTextures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
     { type: 'solid', icon: squareOutline, activeIcon: square, label: '原色' },
@@ -90,7 +92,8 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    opacity: disabled ? 0.5 : 1,
                     background: isActive 
                       ? `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.2)`
                       : `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.1)`,
@@ -99,7 +102,7 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
                     WebkitBackdropFilter: 'blur(12px)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
-                  onClick={() => onTextureChange(textureItem.type)}
+                  onClick={() => !disabled && onTextureChange(textureItem.type)}
                 >
                   <IonIcon 
                     icon={isActive ? textureItem.activeIcon : textureItem.icon}

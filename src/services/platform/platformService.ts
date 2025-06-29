@@ -12,7 +12,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { Device, DeviceInfo } from '@capacitor/device';
-import { Haptics, ImpactStyle, NotificationStyle } from '@capacitor/haptics';
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App, AppState } from '@capacitor/app';
 import { Network } from '@capacitor/network';
@@ -330,13 +330,13 @@ export class PlatformService {
           await Haptics.impact({ style: ImpactStyle.Heavy });
           break;
         case HapticFeedbackType.Success:
-          await Haptics.notification({ type: NotificationStyle.Success });
+          await Haptics.notification({ type: NotificationType.Success });
           break;
         case HapticFeedbackType.Warning:
-          await Haptics.notification({ type: NotificationStyle.Warning });
+          await Haptics.notification({ type: NotificationType.Warning });
           break;
         case HapticFeedbackType.Error:
-          await Haptics.notification({ type: NotificationStyle.Error });
+          await Haptics.notification({ type: NotificationType.Error });
           break;
       }
     } catch (error) {

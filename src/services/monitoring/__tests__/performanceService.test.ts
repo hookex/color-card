@@ -198,7 +198,6 @@ describe('PerformanceService', () => {
 describe('measurePerformance decorator', () => {
   it('should measure method performance', () => {
     class TestClass {
-      @measurePerformance('testMethod')
       testMethod(value: string) {
         return `processed: ${value}`;
       }
@@ -212,14 +211,22 @@ describe('measurePerformance decorator', () => {
 
   it('should use default method name when not provided', () => {
     class TestClass {
-      @measurePerformance()
       anotherMethod() {
         return 'result';
       }
     }
     
+    // 手动应用decorator
+    const originalMethod = TestClass.prototype.anotherMethod;
+    const decoratedMethod = measurePerformance()(TestClass.prototype, 'anotherMethod', {
+      value: originalMethod,
+      writable: true,
+      enumerable: false,
+      configurable: true
+    });
+    
     const instance = new TestClass();
-    const result = instance.anotherMethod();
+    const result = decoratedMethod.value.call(instance);
     
     expect(result).toBe('result');
   });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { IonLabel } from '@ionic/react';
-import { ColorType } from '../stores/useStore';
-import useStore from '../stores/useStore';
+import { ColorType } from '../types';
+import { useAppStore } from '../stores/useAppStore';
 import { tabs } from '../config/tabConfig';
 import { getLuminance } from '../utils/backgroundUtils';
 import './LiquidGlassSegment.scss';
@@ -9,10 +9,12 @@ import './LiquidGlassSegment.scss';
 interface LiquidGlassSegmentProps {
   value: ColorType;
   onSelectionChange: (value: ColorType) => void;
+  options?: Array<{ value: ColorType; label: string }>;
+  disabled?: boolean;
 }
 
 const LiquidGlassSegment: React.FC<LiquidGlassSegmentProps> = ({ value, onSelectionChange }) => {
-  const color = useStore(state => state.color);
+  const color = useAppStore(state => state.color);
 
   // 响应式计算tab尺寸 - 更紧凑的设计
   const screenWidth = window.innerWidth;

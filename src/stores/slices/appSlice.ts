@@ -53,6 +53,11 @@ export interface AppState {
   toggleDebug: () => void;
   toggleMinimized: () => void;
   toggleColorCard: () => void;
+  resetScene: () => void;
+  
+  // 教程状态
+  hasCompletedTutorial: boolean;
+  setHasCompletedTutorial: (completed: boolean) => void;
   
   // 持久化操作
   saveAppPreferences: () => Promise<void>;
@@ -78,6 +83,9 @@ export const createAppSlice: StateCreator<AppState, [], [], AppState> = (set, ge
   // 设备信息
   isNativePlatform: false,
   deviceType: 'unknown',
+  
+  // 教程状态
+  hasCompletedTutorial: false,
 
   // 设置调试模式
   setDebug: (debug: boolean) => {
@@ -152,6 +160,18 @@ export const createAppSlice: StateCreator<AppState, [], [], AppState> = (set, ge
   toggleColorCard: () => {
     const { hideColorCard, setHideColorCard } = get();
     setHideColorCard(!hideColorCard);
+  },
+
+  // 重置场景
+  resetScene: () => {
+    logger.info('Scene reset requested');
+    // 这个方法可以被其他组件调用来重置3D场景
+  },
+
+  // 设置教程完成状态
+  setHasCompletedTutorial: (completed: boolean) => {
+    set({ hasCompletedTutorial: completed });
+    logger.info('Tutorial completion status changed:', completed);
   },
 
   // 保存应用偏好设置

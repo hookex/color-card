@@ -135,8 +135,11 @@ describe('ErrorBoundary', () => {
     
     // Mock window.location.reload
     const originalLocation = window.location;
-    delete (window as any).location;
-    window.location = { ...originalLocation, reload: vi.fn() };
+    const mockReload = vi.fn();
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, reload: mockReload },
+      writable: true
+    });
 
     render(
       <ErrorBoundary>
@@ -147,10 +150,13 @@ describe('ErrorBoundary', () => {
     const refreshButton = screen.getByText('刷新页面');
     await user.click(refreshButton);
 
-    expect(window.location.reload).toHaveBeenCalledTimes(1);
+    expect(mockReload).toHaveBeenCalledTimes(1);
 
     // Restore original location
-    window.location = originalLocation;
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true
+    });
   });
 
   it('should generate unique error IDs for different errors', () => {

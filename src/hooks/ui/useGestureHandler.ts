@@ -214,7 +214,7 @@ export const useGestureHandler = (
         const velocity = mergedConfig.swipe.horizontal ? detail.velocityX : detail.velocityY;
         const delta = mergedConfig.swipe.horizontal ? detail.deltaX : detail.deltaY;
         
-        if (Math.abs(velocity) > mergedConfig.swipe.velocity && Math.abs(delta) > 50) {
+        if (Math.abs(velocity) > (mergedConfig.swipe?.velocity ?? 0.2) && Math.abs(delta) > 50) {
           let gestureType: GestureType;
           
           if (mergedConfig.swipe.horizontal) {
@@ -259,8 +259,9 @@ export const useGestureHandler = (
     if (!elementRef.current) return;
 
     const handleContextMenu = (e: MouseEvent) => {
-      const mockDetail = {
-        event: e,
+      const mockDetail: GestureDetail = {
+        type: GestureType.RightClick,
+        event: e as any,
         startX: e.clientX,
         startY: e.clientY,
         currentX: e.clientX,
@@ -268,8 +269,10 @@ export const useGestureHandler = (
         deltaX: 0,
         deltaY: 0,
         velocityX: 0,
-        velocityY: 0
-      } as GestureDetail;
+        velocityY: 0,
+        startTime: Date.now(),
+        currentTime: Date.now()
+      };
 
       triggerGestureEvent(GestureType.RightClick, mockDetail, e);
     };

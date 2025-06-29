@@ -42,6 +42,11 @@ export const useAppStore = create<AppStoreState>()(
         ...createTextureSlice(set, get, api),
         ...createAppSlice(set, get, api),
 
+        // 选择器便捷属性
+        get selectedColor() { return get().color; },
+        get currentTexture() { return get().texture; },
+        get currentColorType() { return get().colorType; },
+
         // 全局操作方法
         resetStore: () => {
           // 重置到初始状态
@@ -153,40 +158,78 @@ export const useAppStoreSelectors = {
  */
 export const useAppStoreActions = {
   // 颜色操作
-  useColorActions: () => useAppStore(state => ({
-    setColor: state.setColor,
-    setColorType: state.setColorType,
-    addToFavorites: state.addToFavorites,
-    removeFromFavorites: state.removeFromFavorites,
-    clearHistory: state.clearHistory
-  })),
+  useColorActions: () => {
+    const setColor = useAppStore(state => state.setColor);
+    const setColorType = useAppStore(state => state.setColorType);
+    const addToFavorites = useAppStore(state => state.addToFavorites);
+    const removeFromFavorites = useAppStore(state => state.removeFromFavorites);
+    const clearHistory = useAppStore(state => state.clearColorHistory);
+    const isFavorite = useAppStore(state => state.isFavorite);
+    
+    return {
+      setColor,
+      setColorType,
+      addToFavorites,
+      removeFromFavorites,
+      clearHistory,
+      isFavorite
+    };
+  },
   
   // 纹理操作  
-  useTextureActions: () => useAppStore(state => ({
-    setTexture: state.setTexture,
-    setTextureConfig: state.setTextureConfig,
-    updateTextureParameter: state.updateTextureParameter,
-    savePreset: state.savePreset,
-    deletePreset: state.deletePreset,
-    applyPreset: state.applyPreset
-  })),
+  useTextureActions: () => {
+    const setTexture = useAppStore(state => state.setTexture);
+    const setTextureConfig = useAppStore(state => state.setTextureConfig);
+    const updateTextureParameter = useAppStore(state => state.updateTextureParameter);
+    const savePreset = useAppStore(state => state.savePreset);
+    const deletePreset = useAppStore(state => state.deletePreset);
+    const applyPreset = useAppStore(state => state.applyPreset);
+    const isCanvasTexture = useAppStore(state => state.isCanvasTexture);
+    const getTextureDisplayName = useAppStore(state => state.getTextureDisplayName);
+    
+    return {
+      setTexture,
+      setTextureConfig,
+      updateTextureParameter,
+      savePreset,
+      deletePreset,
+      applyPreset,
+      isCanvasTexture,
+      getTextureDisplayName
+    };
+  },
   
   // 应用操作
-  useAppActions: () => useAppStore(state => ({
-    setDebug: state.setDebug,
-    setMode: state.setMode,
-    setHideColorCard: state.setHideColorCard,
-    setIsMinimized: state.setIsMinimized,
-    toggleDebug: state.toggleDebug,
-    toggleMinimized: state.toggleMinimized,
-    toggleColorCard: state.toggleColorCard
-  })),
+  useAppActions: () => {
+    const setDebug = useAppStore(state => state.setDebug);
+    const setMode = useAppStore(state => state.setMode);
+    const setHideColorCard = useAppStore(state => state.setHideColorCard);
+    const setIsMinimized = useAppStore(state => state.setIsMinimized);
+    const toggleDebug = useAppStore(state => state.toggleDebug);
+    const toggleMinimized = useAppStore(state => state.toggleMinimized);
+    const toggleColorCard = useAppStore(state => state.toggleColorCard);
+    
+    return {
+      setDebug,
+      setMode,
+      setHideColorCard,
+      setIsMinimized,
+      toggleDebug,
+      toggleMinimized,
+      toggleColorCard
+    };
+  },
   
   // 全局操作
-  useGlobalActions: () => useAppStore(state => ({
-    resetStore: state.resetStore,
-    initializeStore: state.initializeStore
-  }))
+  useGlobalActions: () => {
+    const resetStore = useAppStore(state => state.resetStore);
+    const initializeStore = useAppStore(state => state.initializeStore);
+    
+    return {
+      resetStore,
+      initializeStore
+    };
+  }
 };
 
 /**

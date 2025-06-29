@@ -10,9 +10,33 @@
     "test.e2e": "cypress run",
     "test.unit": "vitest",
     "lint": "eslint",
-    "ios": "ionic cap sync ios && ionic cap open ios",
-    "build:ios": "ionic build && ionic cap sync ios",
-    "deploy:ios": "ionic build && ionic cap sync ios && ionic cap open ios"
+    
+    "cap:sync": "ionic cap sync",
+    "cap:sync:ios": "ionic cap sync ios",
+    "cap:sync:android": "ionic cap sync android",
+    
+    "cap:open:ios": "ionic cap open ios",
+    "cap:open:android": "ionic cap open android",
+    
+    "cap:run:ios": "ionic cap run ios",
+    "cap:run:android": "ionic cap run android",
+    
+    "build:web": "npm run build",
+    "build:ios": "npm run build && npm run cap:sync:ios",
+    "build:android": "npm run build && npm run cap:sync:android",
+    "build:all": "npm run build && npm run cap:sync",
+    
+    "deploy:ios": "npm run build:ios && npm run cap:open:ios",
+    "deploy:android": "npm run build:android && npm run cap:open:android",
+    
+    "cap:add:ios": "ionic cap add ios",
+    "cap:add:android": "ionic cap add android",
+    
+    "cap:update": "ionic cap update",
+    "cap:doctor": "ionic cap doctor",
+    
+    "clean:caps": "ionic cap sync --deployment && ionic cap update",
+    "clean:build": "rm -rf dist && npm run build"
   },
   "dependencies": {
     "@babylonjs/core": "^7.41.1",
@@ -27,10 +51,13 @@
     "@capacitor/camera": "^6.1.2",
     "@capacitor/cli": "^6.2.0",
     "@capacitor/core": "^6.2.0",
+    "@capacitor/device": "^6.0.2",
     "@capacitor/filesystem": "^6.0.2",
     "@capacitor/haptics": "6.0.2",
     "@capacitor/ios": "^6.2.0",
     "@capacitor/keyboard": "6.0.3",
+    "@capacitor/network": "^6.0.2",
+    "@capacitor/preferences": "^6.0.2",
     "@capacitor/share": "^6.0.3",
     "@capacitor/status-bar": "6.0.2",
     "@ionic/react": "^8.0.0",

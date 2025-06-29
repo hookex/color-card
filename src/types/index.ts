@@ -54,7 +54,7 @@ export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | '
  * 颜色类型分类
  * 定义颜色的分类标准
  */
-export type ColorType = 'all' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'gray';
+export type ColorType = 'brand' | 'chinese' | 'nature' | 'food' | 'mood' | 'space';
 
 /**
  * 页面转场方向

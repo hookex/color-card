@@ -2,15 +2,15 @@ import React from 'react';
 import { TextureType } from './TextureTools';
 import { getTextureStyles } from '../utils/divBackgroundUtils';
 import createLogger from '../utils/logger';
-import useStore from '../stores/useStore';
+import { useAppStore } from '../stores/useAppStore';
 import backgroundImage from '../assets/background.jpg';
 
 const logger = createLogger('divBackground');
 
 const DivBackground: React.FC = () => {
-  const color = useStore(state => state.color);
-  const texture = useStore(state => state.texture);
-  const debug = useStore(state => state.debug);
+  const color = useAppStore(state => state.color);
+  const texture = useAppStore(state => state.texture);
+  const debug = useAppStore(state => state.debug);
   
   // 获取纹理样式，但不包含背景色
   const textureStyles = getTextureStyles({ texture, startColor: color });

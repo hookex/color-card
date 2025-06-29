@@ -159,7 +159,7 @@ vi.mock('@capacitor/haptics', () => ({
     Medium: 'medium',
     Heavy: 'heavy',
   },
-  NotificationStyle: {
+  NotificationType: {
     Success: 'success',
     Warning: 'warning',
     Error: 'error',

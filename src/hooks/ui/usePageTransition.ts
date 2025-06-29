@@ -11,7 +11,7 @@
 
 import { useCallback, useState } from 'react';
 import { useSpring, SpringValue } from '@react-spring/web';
-import { AnimationService, SlideDirection, AnimationState } from '../../services/animation';
+import { AnimationService, ANIMATION_CONFIGS, SlideDirection, AnimationState } from '../../services/animation';
 import { useAppStoreSelectors } from '../../stores/useAppStore';
 import createLogger from '../../utils/logger';
 
@@ -53,7 +53,7 @@ export const usePageTransition = (): UsePageTransitionReturn => {
   const [springProps, api] = useSpring(() => ({
     opacity: 1,
     transform: 'translateX(0%) translateY(0%)',
-    config: AnimationService.ANIMATION_CONFIGS.smooth
+    config: ANIMATION_CONFIGS.smooth
   }));
 
   /**
@@ -196,7 +196,7 @@ export const usePageTransition = (): UsePageTransitionReturn => {
       const idleState = AnimationService.createPageTransitionState('idle');
       await api.start({
         ...idleState.state,
-        config: AnimationService.ANIMATION_CONFIGS.quick
+        config: ANIMATION_CONFIGS.quick
       });
       
       logger.info('Gesture transition cancelled');

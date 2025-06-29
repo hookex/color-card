@@ -11,3 +11,9 @@ export * from './storage';
 
 // 平台服务
 export * from './platform';
+
+// 性能监控服务
+export * from './monitoring';
+
+// Capacitor服务 - 提供原生功能集成
+export * from './capacitor';

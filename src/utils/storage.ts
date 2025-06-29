@@ -1,5 +1,5 @@
-import { TextureType } from '../components/TextureTools';
-import { ColorCardState } from '../stores/useStore';
+import { TextureType } from '../types';
+import { AppStoreState } from '../stores/useAppStore';
 import createLogger from './logger';
 
 const logger = createLogger('storage');
@@ -9,12 +9,12 @@ const STORE_KEY = 'colorcard_store_state';
 
 export interface DevToolsState {
   debug: boolean;
-  mode: 'canvas' | 'div';
+  mode: 'normal' | 'fullscreen' | 'minimal';
   language: string;
   texture: TextureType;
 }
 
-export type StoreState = ColorCardState;
+export type StoreState = AppStoreState;
 
 export const saveDevToolsState = (state: DevToolsState) => {
   try {

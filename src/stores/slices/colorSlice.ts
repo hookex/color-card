@@ -12,13 +12,12 @@
 import { StateCreator } from 'zustand';
 import { StorageService } from '../../services/storage';
 import createLogger from '../../utils/logger';
+import { ColorType } from '../../types';
 
 const logger = createLogger('ColorSlice');
 
-/**
- * 颜色类型定义
- */
-export type ColorType = 'brand' | 'chinese' | 'nature' | 'food' | 'mood' | 'space';
+// 重新导出类型
+export type { ColorType };
 
 /**
  * 颜色历史记录项
@@ -44,8 +43,8 @@ export interface ColorState {
   // 操作方法
   setColor: (color: string) => void;
   setColorType: (colorType: ColorType) => void;
-  addToHistory: (color: string, colorType: ColorType) => void;
-  clearHistory: () => void;
+  addToColorHistory: (color: string, colorType: ColorType) => void;
+  clearColorHistory: () => void;
   addToFavorites: (color: string) => void;
   removeFromFavorites: (color: string) => void;
   isFavorite: (color: string) => boolean;
@@ -70,8 +69,8 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
     set({ color });
     
     // 自动添加到历史记录
-    const { addToHistory, colorType } = get();
-    addToHistory(color, colorType);
+    const { addToColorHistory, colorType } = get();
+    addToColorHistory(color, colorType);
     
     // 自动保存偏好设置
     const { saveColorPreferences } = get();
@@ -92,7 +91,7 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
   },
 
   // 添加到历史记录
-  addToHistory: (color: string, colorType: ColorType) => {
+  addToColorHistory: (color: string, colorType: ColorType) => {
     const { colorHistory } = get();
     
     // 检查是否已存在相同颜色
@@ -127,7 +126,7 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
   },
 
   // 清空历史记录
-  clearHistory: () => {
+  clearColorHistory: () => {
     set({ colorHistory: [] });
     logger.info('Color history cleared');
   },

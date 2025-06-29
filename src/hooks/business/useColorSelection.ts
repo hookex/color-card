@@ -54,7 +54,12 @@ export const useColorSelection = (): UseColorSelectionReturn => {
   const favoriteColors = useAppStoreSelectors.useFavoriteColors();
   
   // 操作方法
-  const { setColor, setColorType, addToFavorites, removeFromFavorites, clearHistory, isFavorite } = useAppStoreActions.useColorActions();
+  const setColor = useAppStore(state => state.setColor);
+  const setColorType = useAppStore(state => state.setColorType);
+  const addToFavorites = useAppStore(state => state.addToFavorites);
+  const removeFromFavorites = useAppStore(state => state.removeFromFavorites);
+  const clearHistory = useAppStore(state => state.clearColorHistory);
+  const isFavorite = useAppStore(state => state.isFavorite);
 
   /**
    * 更新URL参数

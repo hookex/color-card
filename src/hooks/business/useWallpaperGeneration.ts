@@ -136,7 +136,7 @@ export const useWallpaperGeneration = (): UseWallpaperGenerationReturn => {
         
         const errorResult = {
           success: false,
-          error: result.error || 'Unknown error occurred'
+          error: result.error ? String(result.error) : 'Unknown error occurred'
         };
         
         setLastSaveResult(errorResult);
@@ -150,7 +150,7 @@ export const useWallpaperGeneration = (): UseWallpaperGenerationReturn => {
       
       const errorResult = {
         success: false,
-        error: String(error)
+        error: error instanceof Error ? error.message : String(error)
       };
       
       setLastSaveResult(errorResult);

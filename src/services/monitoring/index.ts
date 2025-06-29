@@ -10,4 +10,4 @@ export {
   type PerformanceConfig
 } from './performanceService';
 
-export default PerformanceService;
+export { PerformanceService as default } from './performanceService';

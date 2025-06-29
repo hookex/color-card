@@ -12,13 +12,12 @@
 import { StateCreator } from 'zustand';
 import { StorageService } from '../../services/storage';
 import createLogger from '../../utils/logger';
+import { TextureType } from '../../types';
 
 const logger = createLogger('TextureSlice');
 
-/**
- * 纹理类型定义
- */
-export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | 'glow' | 'frosted';
+// 重新导出类型
+export type { TextureType };
 
 /**
  * 纹理配置参数
@@ -69,8 +68,8 @@ export interface TextureState {
   setTexture: (texture: TextureType) => void;
   setTextureConfig: (config: TextureConfig) => void;
   updateTextureParameter: (key: string, value: any) => void;
-  addToHistory: (texture: TextureType, config?: TextureConfig) => void;
-  clearHistory: () => void;
+  addToTextureHistory: (texture: TextureType, config?: TextureConfig) => void;
+  clearTextureHistory: () => void;
   
   // 预设管理
   savePreset: (name: string, thumbnail?: string) => void;
@@ -119,8 +118,8 @@ export const createTextureSlice: StateCreator<TextureState, [], [], TextureState
     set({ texture });
     
     // 自动添加到历史记录
-    const { addToHistory, textureConfig } = get();
-    addToHistory(texture, textureConfig);
+    const { addToTextureHistory, textureConfig } = get();
+    addToTextureHistory(texture, textureConfig);
     
     // 自动保存偏好设置
     const { saveTexturePreferences } = get();
@@ -148,7 +147,7 @@ export const createTextureSlice: StateCreator<TextureState, [], [], TextureState
   },
 
   // 添加到历史记录
-  addToHistory: (texture: TextureType, config?: TextureConfig) => {
+  addToTextureHistory: (texture: TextureType, config?: TextureConfig) => {
     const { textureHistory } = get();
     
     // 检查是否已存在相同配置
@@ -186,7 +185,7 @@ export const createTextureSlice: StateCreator<TextureState, [], [], TextureState
   },
 
   // 清空历史记录
-  clearHistory: () => {
+  clearTextureHistory: () => {
     set({ textureHistory: [] });
     logger.info('Texture history cleared');
   },
@@ -232,8 +231,8 @@ export const createTextureSlice: StateCreator<TextureState, [], [], TextureState
     });
     
     // 添加到历史记录
-    const { addToHistory } = get();
-    addToHistory(preset.texture, preset.config);
+    const { addToTextureHistory } = get();
+    addToTextureHistory(preset.texture, preset.config);
     
     // 自动保存偏好设置
     const { saveTexturePreferences } = get();

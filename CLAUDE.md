@@ -160,11 +160,99 @@ npm run lint
 
 ## 部署流程
 
+### Web 部署
 1. 类型检查: `npm run type-check`
 2. 代码检查: `npm run lint`
 3. 测试: `npm run test`
 4. 构建: `npm run build`
-5. 平台构建: `npm run build:ios` / `npm run build:android`
+
+### Capacitor 开发和部署
+
+#### 构建和同步
+- `npm run build` - 构建Web应用
+- `npm run cap:sync` - 同步到所有平台  
+- `npm run cap:sync:ios` - 同步到iOS
+- `npm run cap:sync:android` - 同步到Android
+
+#### 构建平台应用
+- `npm run build:ios` - 构建并同步到iOS
+- `npm run build:android` - 构建并同步到Android
+- `npm run build:all` - 构建并同步到所有平台
+
+#### 开发和调试
+- `npm run cap:run:ios` - 在iOS模拟器中运行
+- `npm run cap:run:android` - 在Android模拟器中运行
+- `npm run cap:open:ios` - 打开Xcode项目
+- `npm run cap:open:android` - 打开Android Studio项目
+
+#### 完整部署
+- `npm run deploy:ios` - 构建、同步并打开Xcode
+- `npm run deploy:android` - 构建、同步并打开Android Studio
+
+#### 维护命令
+- `npm run cap:doctor` - 检查Capacitor配置
+- `npm run cap:update` - 更新Capacitor插件
+- `npm run clean:caps` - 清理并重新同步
+- `npm run clean:build` - 清理构建文件
+
+## Capacitor 服务架构
+
+### 核心服务
+- **capacitorService** - 核心平台服务，提供基础原生功能
+- **wallpaperService** - 壁纸生成和保存服务  
+- **deepLinkService** - 深度链接处理服务
+- **performanceOptimizer** - 性能优化服务
+
+### React Hook
+- **useCapacitor** - 统一的React Hook，提供所有Capacitor功能
+
+### 使用示例
+
+```typescript
+import { useCapacitor } from '../hooks/business/useCapacitor';
+
+function MyComponent() {
+  const {
+    // 状态信息
+    platformInfo, networkStatus, isInitialized,
+    
+    // 功能方法
+    hapticFeedback, share, 
+    generateWallpaperFromElement,
+    shareCurrentConfig
+  } = useCapacitor();
+
+  const handleSaveWallpaper = async () => {
+    const element = document.getElementById('wallpaper-content');
+    if (element) {
+      await generateWallpaperFromElement(element, {
+        format: 'png',
+        quality: 1.0,
+        saveToGallery: true
+      });
+    }
+  };
+
+  return <div>...</div>;
+}
+```
+
+### 深度链接配置
+
+应用支持以下URL方案：
+- `colorcard://share/color/{colorCode}` - 分享颜色
+- `colorcard://share/texture/{textureType}` - 分享纹理  
+- `colorcard://share/wallpaper/{config}` - 分享壁纸配置
+- `colorcard://share/config?color=xxx&texture=xxx` - 分享完整配置
+
+### 性能优化
+
+性能优化器会自动：
+- 根据平台调整WebView配置
+- 监控内存使用并自动清理
+- 检测FPS性能并自适应质量
+- 在后台模式下启用节能优化
+- 优化网络请求和缓存策略
 
 ## 核心功能
 
