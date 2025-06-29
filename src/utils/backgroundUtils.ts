@@ -147,43 +147,48 @@ export const createMetallicMaterial = (scene: Scene, color: string): PBRMaterial
 };
 
 /**
- * 创建光泽材质（车漆）
+ * 创建光泽材质（玉石）
  * @param scene Babylon Scene 对象
  * @param color 十六进制颜色值
  * @returns PBRMaterial 对象
  */
 export const createGlossyMaterial = (scene: Scene, color: string): PBRMaterial => {
   return getMaterialFromCache(scene, 'glossy', color, () => {
-    const material = new PBRMaterial('paintMaterial', scene);
+    const material = new PBRMaterial('jadeMaterial', scene);
     const colorValue = hexToColor3(color);
     
-    // 基础颜色
-    material.albedoColor = colorValue;
+    // 基础颜色 - 稍微增加亮度
+    material.albedoColor = colorValue.scale(1.1);
     
-    // 创建噪声纹理作为斑点效果
-    const noiseTexture = new NoiseProceduralTexture('noiseTexture', 256, scene);
-    noiseTexture.octaves = 4;  // 噪声的细节层级
-    noiseTexture.persistence = 0.8;  // 每层噪声的持续度
+    // 创建细腻的噪声纹理模拟玉石纹理
+    const noiseTexture = new NoiseProceduralTexture('jadeNoise', 512, scene);
+    noiseTexture.octaves = 6;  // 适中的细节层级
+    noiseTexture.persistence = 0.4;  // 较低的持续度，使纹理更自然
     noiseTexture.animationSpeedFactor = 0;  // 禁用动画
-    noiseTexture.brightness = 0.5;  // 亮度调整
+    noiseTexture.brightness = 0.8;  // 增加亮度
     
-    // 使用噪声纹理作为金属度贴图
-    material.metallicTexture = noiseTexture;
+    // 玉石材质特性设置
+    material.metallic = 0.1;  // 玉石不是金属，但有轻微的金属感
+    material.roughness = 0.15;  // 很低的粗糙度，表面很光滑
     
-    // 金属度和粗糙度设置
-    material.metallic = 0.9;  // 较高的金属度
-    material.roughness = 0.2;  // 较低的粗糙度，使表面更光滑
+    // 使用噪声纹理作为微表面纹理
+    material.microSurfaceTexture = noiseTexture;
     
     // 环境反射设置
-    material.environmentIntensity = 1.0;  // 环境贴图强度
-    material.clearCoat.isEnabled = true;  // 启用清漆层
-    material.clearCoat.intensity = 1.0;   // 清漆强度
-    material.clearCoat.roughness = 0.1;   // 清漆粗糙度
-    material.clearCoat.indexOfRefraction = 1.5;  // 清漆层的折射率
+    material.environmentIntensity = 0.8;  // 适中的环境反射
+    material.clearCoat.isEnabled = true;  // 启用清漆层模拟玉石光泽
+    material.clearCoat.intensity = 0.8;   // 清漆强度
+    material.clearCoat.roughness = 0.05;  // 非常光滑的清漆层
+    material.clearCoat.indexOfRefraction = 1.6;  // 清漆层的折射率
     
-    // 基础层折射率
-    material.indexOfRefraction = 1.5;      // 基础涂层的折射率
+    // 基础层设置
+    material.indexOfRefraction = 1.55;     // 玉石的折射率
     material.subSurface.isRefractionEnabled = true;  // 启用折射
+    material.subSurface.refractionIntensity = 0.3;   // 适度的折射强度
+    
+    // 增加发光效果模拟玉石的内在光泽
+    material.emissiveColor = colorValue.scale(0.05);
+    material.emissiveIntensity = 0.2;
     
     return material;
   });

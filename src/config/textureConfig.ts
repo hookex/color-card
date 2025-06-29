@@ -25,14 +25,14 @@ export const textureConfigs: TextureConfig[] = [
     enabled: false  // 暂时禁用
   },
   {
-    type: 'glass',
-    renderMode: 'div',
-    enabled: true  // 启用毛玻璃效果
-  },
-  {
     type: 'paint',
     renderMode: 'canvas',
     enabled: true
+  },
+  {
+    type: 'glass',
+    renderMode: 'div',
+    enabled: false  // 暂时禁用玻璃效果
   },
   {
     type: 'glow',

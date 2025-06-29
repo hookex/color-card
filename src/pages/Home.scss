@@ -515,21 +515,8 @@ ion-content {
     gap: calc(var(--base-unit, 0.5rem) * 1.5);
     overflow-y: auto;
     flex: 1;
-    transform: translateX(0);
-    transition: transform 0.3s ease-out;
-    will-change: transform;
-    
-    &.slide-left {
-      transform: translateX(-100%);
-    }
-    
-    &.slide-right {
-      transform: translateX(100%);
-    }
-    
-    &.slide-reset {
-      transform: translateX(0);
-    }
+    // React Spring handles all animations now
+    // No CSS transitions or animations needed
     
     &::-webkit-scrollbar {
       display: none;
@@ -769,6 +756,8 @@ ion-content {
     }
   }
 }
+
+// Animations are now handled by React Spring
 
 :root {
   --glass-opacity: 0.15;

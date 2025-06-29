@@ -23,11 +23,8 @@ export const getTextureStyles = ({ texture, startColor, endColor }: TextureStyle
     case 'solid':
       return {};
     case 'linear':
-      if (!startColor) return {};
-      // 使用原色到淡白色的渐变
-      return {
-        background: `linear-gradient(to bottom, ${startColor}, ${toRGBA(startColor)})`
-      };
+      // 线性类型：纯色背景，没有任何纹理或渐变
+      return {};
     case 'leather':
       return {
         backgroundImage: 'linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%)',

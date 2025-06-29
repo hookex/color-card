@@ -49,8 +49,8 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
       logger.debug('Creating glass material');
       material = createGlassMaterial(scene, color);
       break;
-    case 'linear':  // 线性渐变效果使用标准材质
-      logger.debug('Creating linear gradient material');
+    case 'linear':  // 线性效果：纯色材质，无纹理
+      logger.debug('Creating linear solid material');
       material = createSolidMaterial(scene, color);
       break;
     case 'glow':    // 发光效果使用标准材质
@@ -72,7 +72,7 @@ export const createMaterialByType = (scene: Scene, color: string, type: TextureT
 export const setupScene = (scene: Scene) => {
   // 设置透明背景
   scene.clearColor = new Color4(0, 0, 0, 0);
-  scene.ambientColor = new Color3(0.3, 0.3, 0.3);
+  scene.ambientColor = new Color3(0.8, 0.8, 0.8);  // 增加环境光亮度
   
   // 启用透明度排序
   scene.getEngine().setAlphaMode(Engine.ALPHA_COMBINE);
@@ -83,7 +83,8 @@ export const setupScene = (scene: Scene) => {
     scene
   );
   scene.environmentTexture = envTexture;
-  scene.createDefaultSkybox(envTexture, true, 1000);
+  // 移除天空盒以避免黑色背景
+  // scene.createDefaultSkybox(envTexture, true, 1000);
 };
 
 /**
@@ -120,8 +121,8 @@ export const setupLights = (scene: Scene) => {
     new Vector3(0, 1, 0),
     scene
   );
-  mainLight.intensity = 0.7;
-  mainLight.groundColor = new Color3(0.2, 0.2, 0.2);
+  mainLight.intensity = 1.2;  // 增加主光源强度
+  mainLight.groundColor = new Color3(0.6, 0.6, 0.6);  // 增加地面反射光
 
   // 补光
   const pointLight = new PointLight(
@@ -129,5 +130,14 @@ export const setupLights = (scene: Scene) => {
     new Vector3(0, 0, -5),
     scene
   );
-  pointLight.intensity = 0.5;
+  pointLight.intensity = 0.8;  // 增加补光强度
+  
+  // 添加额外的侧光
+  const sideLight = new PointLight(
+    'sideLight',
+    new Vector3(3, 2, 0),
+    scene
+  );
+  sideLight.intensity = 0.6;
+  sideLight.diffuse = new Color3(1, 1, 1);
 };

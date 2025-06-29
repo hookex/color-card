@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { IonContent, IonPage, IonFabButton, IonIcon, IonSegment, IonSegmentButton, IonLabel, createGesture } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
+import { useHistory, useLocation } from 'react-router-dom';
 import { save } from 'ionicons/icons';
+import { useSpring, animated, config } from '@react-spring/web';
 import useStore, { ColorType } from '../stores/useStore';
 import ColorCard from '../components/ColorCard';
 import TextureTools from '../components/TextureTools';
+import LiquidGlassSegment from '../components/LiquidGlassSegment';
+import LiquidGlassTextureTools from '../components/LiquidGlassTextureTools';
 import { takeScreenshot } from '../utils/screenshot';
 import createLogger  from '../utils/logger';
 import CanvasBackground from '../components/CanvasBackground';
@@ -24,6 +28,8 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
   const logger = createLogger('Home');
   const contentRef = useRef<HTMLIonContentElement>(null);
+  const history = useHistory();
+  const location = useLocation();
 
   const {
     color,
@@ -40,8 +46,60 @@ const Home: React.FC = () => {
   } = useStore();
 
   const [showSaveButton, setShowSaveButton] = useState(false);
-  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'reset'>('reset');
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isGestureProcessing, setIsGestureProcessing] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // React Spring animation for smooth transitions
+  const [springProps, api] = useSpring(() => ({
+    opacity: 1,
+    transform: 'translateX(0%)',
+    config: config.gentle
+  }));
+
+  // 从URL参数初始化texture和colorType
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const urlTexture = urlParams.get('texture') as TextureType;
+    const urlColorType = urlParams.get('colorType') as ColorType;
+    
+    if (urlTexture && urlTexture !== texture) {
+      // 验证texture类型是否有效
+      const validTextures: TextureType[] = ['solid', 'leather', 'paint', 'glass', 'linear', 'glow', 'frosted'];
+      if (validTextures.includes(urlTexture)) {
+        updateTexture(urlTexture);
+        logger.info('Initialized texture from URL:', urlTexture);
+      }
+    }
+    
+    if (urlColorType && urlColorType !== colorType) {
+      // 验证colorType是否有效
+      const validColorTypes: ColorType[] = ['brand', 'chinese', 'nature', 'food', 'mood', 'space'];
+      if (validColorTypes.includes(urlColorType)) {
+        setColorType(urlColorType);
+        logger.info('Initialized colorType from URL:', urlColorType);
+      }
+    }
+  }, [location.search, texture, colorType, updateTexture, setColorType]);
+
+  // 更新URL参数
+  const updateUrlParams = (newTexture?: TextureType, newColorType?: ColorType) => {
+    const urlParams = new URLSearchParams(location.search);
+    
+    if (newTexture) {
+      urlParams.set('texture', newTexture);
+    }
+    
+    if (newColorType) {
+      urlParams.set('colorType', newColorType);
+    }
+    
+    // 使用replace而不是push，避免在浏览器历史中创建过多条目
+    history.replace({
+      pathname: location.pathname,
+      search: urlParams.toString()
+    });
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,10 +119,13 @@ const Home: React.FC = () => {
       threshold: 15,
       gestureName: 'swipe-segment',
       onMove: (detail) => {
+        if (isGestureProcessing) return;
+        
         const velocity = detail.velocityX;
         const deltaX = detail.deltaX;
         
         if (Math.abs(velocity) > 0.2 && Math.abs(deltaX) > 50) {
+          setIsGestureProcessing(true);
           const colorTypes: ColorType[] = ['brand', 'chinese', 'nature', 'food', 'mood', 'space'];
           const currentIndex = colorTypes.indexOf(colorType);
           
@@ -75,13 +136,16 @@ const Home: React.FC = () => {
             // Swipe right - go to previous
             handleColorTypeChange(colorTypes[currentIndex - 1]);
           }
+          
+          // Reset processing flag after gesture completes
+          setTimeout(() => setIsGestureProcessing(false), 500);
         }
       }
     });
 
     gesture.enable();
     return () => gesture.destroy();
-  }, [colorType]);
+  }, [colorType, isGestureProcessing]);
 
   useEffect(() => {
     if (!contentRef.current) return;
@@ -150,6 +214,7 @@ const Home: React.FC = () => {
   const handleTextureChange = async (newTexture: TextureType) => {
     logger.info('Setting new texture:', newTexture);
     updateTexture(newTexture);
+    updateUrlParams(newTexture);
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
@@ -211,26 +276,51 @@ const Home: React.FC = () => {
   };
 
   const handleColorTypeChange = async (newType: ColorType) => {
-    if (!newType) return;
+    if (!newType || newType === colorType || isTransitioning) return;
+    
+    setIsTransitioning(true);
     
     const colorTypes: ColorType[] = ['brand', 'chinese', 'nature', 'food', 'mood', 'space'];
     const currentIndex = colorTypes.indexOf(colorType);
     const newIndex = colorTypes.indexOf(newType);
     
     // Determine slide direction based on index change
-    const direction = newIndex > currentIndex ? 'left' : 'right';
-    setSlideDirection(direction);
-    
-    // Reset the slide after animation
-    setTimeout(() => {
-      setColorType(newType);
-      setSlideDirection('reset');
-    }, 300); // Match this with the CSS transition duration
+    const slideDirection = newIndex > currentIndex ? 'left' : 'right';
+    const slideOutTransform = slideDirection === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
+    const slideInTransform = slideDirection === 'left' ? 'translateX(100%)' : 'translateX(-100%)';
     
     try {
+      // Start slide out animation
+      await api.start({
+        opacity: 0,
+        transform: slideOutTransform,
+        config: config.wobbly
+      });
+      
+      // Change content during transition
+      setColorType(newType);
+      updateUrlParams(undefined, newType);
+      
+      // Set initial position for slide in
+      api.set({
+        opacity: 0,
+        transform: slideInTransform
+      });
+      
+      // Start slide in animation
+      await api.start({
+        opacity: 1,
+        transform: 'translateX(0%)',
+        config: config.gentle
+      });
+      
+      setIsTransitioning(false);
+      
+      // Haptic feedback
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (error) {
-      logger.error('Haptics not available:', error);
+      logger.error('Animation or haptics error:', error);
+      setIsTransitioning(false);
     }
   };
 
@@ -263,15 +353,8 @@ const Home: React.FC = () => {
 
   const filteredCards = getColorCards().filter(card => {
     // Ensure required properties exist before filtering
-    const hasRequiredProps = card.name && card.zhName && card.description;
-    return hasRequiredProps && 
-      (colorType === 'brand' || 
-       colorType === 'nature' || 
-       colorType === 'food' || 
-       colorType === 'mood' || 
-       colorType === 'space' || 
-       card.zhName.includes(colorType) || 
-       card.description.includes(colorType));
+    const hasRequiredProps = card.zhName && card.description;
+    return hasRequiredProps;
   });
 
   return (
@@ -282,16 +365,13 @@ const Home: React.FC = () => {
           {!isMinimized && (
             <div>
               <div className="color-type-segment">
-                <IonSegment value={colorType} onIonChange={e => handleColorTypeChange(e.detail.value as ColorType)} scrollable>
-                  {tabs.map(tab => (
-                    <IonSegmentButton key={tab.value} value={tab.value}>
-                      <IonLabel>{tab.label}</IonLabel>
-                    </IonSegmentButton>
-                  ))}
-                </IonSegment>
+                <LiquidGlassSegment 
+                  value={colorType}
+                  onSelectionChange={handleColorTypeChange}
+                />
               </div>
               
-              <div className={`color-cards slide-${slideDirection}`}>
+              <animated.div className="color-cards" style={springProps}>
                 {filteredCards.map((card) => (
                   <ColorCard
                     key={card.color} 
@@ -309,10 +389,8 @@ const Home: React.FC = () => {
                     getCardStyle={getCardStyle}
                   />
                 ))}
-              </div>
-              <TextureTools
-                color={color}
-                onColorChange={updateColor}
+              </animated.div>
+              <LiquidGlassTextureTools
                 texture={texture}
                 onTextureChange={handleTextureChange}
               />

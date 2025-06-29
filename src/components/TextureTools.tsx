@@ -39,7 +39,7 @@ const TextureTools: React.FC<Props> = ({ color, onColorChange, texture, onTextur
 
   const allTextures: { type: TextureType; icon: string; activeIcon: string; label: string }[] = [
     { type: 'solid', icon: squareOutline, activeIcon: square, label: '原色' },
-    { type: 'linear', icon: ellipseOutline, activeIcon: ellipse, label: '平滑' },
+    { type: 'linear', icon: ellipseOutline, activeIcon: ellipse, label: '线性' },
     { type: 'glow', icon: sparklesOutline, activeIcon: sparkles, label: '光芒' },
     { type: 'leather', icon: leafOutline, activeIcon: leaf, label: '小羊皮' },
     { type: 'paint', icon: prismOutline, activeIcon: prism, label: '玉石' },

@@ -86,14 +86,14 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div'): Promise<Sc
       }
       canvas = canvasElement;
     } else {
-      // Div mode: convert div to canvas using html2canvas
-      const backgroundDiv = document.querySelector('.background') as HTMLElement;
-      if (!backgroundDiv) {
-        return { success: false, error: 'Background div not found' };
+      // Div mode: convert entire page to canvas using html2canvas
+      const pageElement = document.querySelector('.home-page') as HTMLElement;
+      if (!pageElement) {
+        return { success: false, error: 'Page element not found' };
       }
       
       // 创建一个克隆的元素用于截图
-      const clonedDiv = backgroundDiv.cloneNode(true) as HTMLElement;
+      const clonedDiv = pageElement.cloneNode(true) as HTMLElement;
       clonedDiv.style.position = 'absolute';
       clonedDiv.style.top = '-9999px';
       clonedDiv.style.left = '-9999px';
@@ -106,8 +106,8 @@ export const takeScreenshot = async (mode: 'canvas' | 'div' = 'div'): Promise<Sc
           logging: false,
           allowTaint: true,
           useCORS: true,
-          width: backgroundDiv.offsetWidth,
-          height: backgroundDiv.offsetHeight
+          width: pageElement.offsetWidth,
+          height: pageElement.offsetHeight
         });
       } finally {
         // 清理克隆的元素

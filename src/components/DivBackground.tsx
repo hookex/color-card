@@ -42,7 +42,8 @@ const DivBackground: React.FC = () => {
     height: '100%',
     zIndex: -1,
     transition: 'all 0.3s ease-in-out',
-    ...(texture === 'linear' || texture === 'glass' || texture === 'frosted' ? textureStyles : { backgroundColor: color }),
+    backgroundColor: color, // 所有类型都有基础背景色
+    ...textureStyles, // 纹理样式在上面覆盖
   };
   
   logger.info('Rendering DivBackground:', { color, texture, debug });

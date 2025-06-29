@@ -20,4 +20,4 @@ export interface ColorInfo {
   year: number;
 }
 
-export type TextureType = 'none' | 'ink' | 'paper' | 'xuan' | 'silk';
+export type TextureType = 'solid' | 'leather' | 'paint' | 'glass' | 'linear' | 'glow' | 'frosted';
