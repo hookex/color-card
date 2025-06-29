@@ -96,13 +96,6 @@ const ColorGrid: React.FC<ColorGridProps> = ({
       }));
   }, [getColorCards]);
 
-  /**
-   * 获取卡片样式
-   */
-  const getCardStyle = useCallback((color: string) => ({
-    '--card-color': color,
-    '--text-color': getContrastColor(color)
-  } as React.CSSProperties), []);
 
   /**
    * 处理颜色选择
@@ -160,7 +153,6 @@ const ColorGrid: React.FC<ColorGridProps> = ({
               isFavorite={isFavoriteColor(card.color)}
               onClick={handleColorSelect}
               onToggleFavorite={handleToggleFavorite}
-              getCardStyle={getCardStyle}
             />
           </div>
         ))}

@@ -3,8 +3,10 @@
  * 专注于布局和容器级别的样式定义
  */
 
-// 导入全局变量
-@import '../pages/Home.scss';
+// 导入设计系统和变量
+@use '../styles/variables' as *;
+@use '../styles/design-system' as *;
+@use '../pages/Home.scss' as *;
 
 .home-container {
   position: relative;

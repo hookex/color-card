@@ -1,13 +1,29 @@
+/**
+ * 纹理工具栏样式
+ * 使用设计系统变量
+ */
+
+@use '../styles/design-system' as *;
+
 .liquid-glass-texture-tools {
-  // 定位和padding现在由此组件自己处理
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky);
+  padding: var(--space-sm) var(--space-xl);
+  @include safe-area-padding(bottom);
   
   .glass-background {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 24px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    @include glass-effect(medium, lg);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    @include transition(all, 300, out);
+    
+    &:hover {
+      @include glass-effect(strong, lg);
+      box-shadow: var(--shadow-2xl);
+    }
   }
   
   .tools-container {
@@ -15,63 +31,131 @@
     justify-content: center;
     align-items: flex-start;
     flex-wrap: nowrap;
-    padding: 6px 12px 4px 12px;
-    border-radius: 24px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
+    padding: var(--space-md) var(--space-lg) var(--space-sm);
+    gap: var(--space-md);
+    
+    @include respond-to(sm) {
+      gap: var(--space-lg);
+      padding: var(--space-lg) var(--space-xl) var(--space-md);
+    }
   }
   
   .texture-button-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex-shrink: 0; // 防止按钮被压缩
+    flex-shrink: 0;
+    gap: var(--space-xs);
     
     .texture-button {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      border: 1px solid transparent;
+      @include transition(all, 200, spring);
       
-      &:hover {
-        transform: scale(1.05) translateY(-1px);
-        background: rgba(255, 255, 255, 0.15) !important;
+      // 尺寸变量
+      --button-size: 48px;
+      --icon-size: 20px;
+      
+      width: var(--button-size);
+      height: var(--button-size);
+      
+      @include respond-to(sm) {
+        --button-size: 52px;
+        --icon-size: 24px;
       }
       
+      // 默认状态
+      background: var(--glass-bg-light);
+      border-color: var(--glass-border-light);
+      backdrop-filter: var(--glass-blur-md);
+      -webkit-backdrop-filter: var(--glass-blur-md);
+      
+      // 悬停状态
+      &:hover:not(.active) {
+        transform: translateY(-2px) scale(1.05);
+        background: var(--glass-bg-medium);
+        border-color: var(--glass-border-medium);
+        box-shadow: var(--shadow-lg);
+      }
+      
+      // 激活状态
       &:active {
-        transform: scale(0.96) translateY(0px);
+        transform: translateY(0) scale(0.96);
       }
       
+      // 选中状态
       &.active {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        background: var(--glass-bg-strong);
+        border-color: var(--glass-border-strong);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-1px);
+        
+        &:hover {
+          transform: translateY(-3px) scale(1.05);
+          box-shadow: var(--shadow-xl);
+        }
+      }
+      
+      // 禁用状态
+      &:disabled,
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+      
+      // 图标样式
+      ion-icon {
+        font-size: var(--icon-size);
+        @include transition(all, 200, out);
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
       }
     }
     
     .button-label {
-      font-size: 11px;
-      font-weight: 500;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      font-family: var(--font-primary);
       text-align: center;
       white-space: nowrap;
       user-select: none;
-      transition: all 0.3s ease;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      @include transition(all, 200, out);
       
       &.active {
-        font-weight: 600;
+        font-weight: var(--font-weight-semibold);
         transform: scale(1.05);
+      }
+      
+      @include respond-to(sm) {
+        font-size: var(--font-size-sm);
       }
     }
   }
 }
 
-// 响应式调整
-@media (max-width: 480px) {
+// ============================================================================
+// 响应式优化
+// ============================================================================
+
+@include respond-to(xs) {
   .liquid-glass-texture-tools {
+    padding: var(--space-xs) var(--space-lg);
+    
     .tools-container {
-      gap: 12px;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
     }
     
     .texture-button-wrapper {
-      gap: 6px;
+      .texture-button {
+        --button-size: 44px;
+        --icon-size: 18px;
+      }
       
       .button-label {
         font-size: 10px;
@@ -80,17 +164,117 @@
   }
 }
 
+// 超小屏幕适配
 @media (max-width: 360px) {
   .liquid-glass-texture-tools {
     .tools-container {
-      gap: 8px;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
     }
     
     .texture-button-wrapper {
-      gap: 4px;
+      .texture-button {
+        --button-size: 40px;
+        --icon-size: 16px;
+      }
       
       .button-label {
         font-size: 9px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 主题适配
+// ============================================================================
+
+// 深色背景适配
+@media (prefers-color-scheme: dark) {
+  .liquid-glass-texture-tools {
+    .glass-background {
+      --glass-bg-light: rgba(0, 0, 0, 0.2);
+      --glass-bg-medium: rgba(0, 0, 0, 0.3);
+      --glass-bg-strong: rgba(0, 0, 0, 0.4);
+      --glass-border-light: rgba(255, 255, 255, 0.1);
+      --glass-border-medium: rgba(255, 255, 255, 0.2);
+      --glass-border-strong: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// 高对比度模式
+@media (prefers-contrast: high) {
+  .liquid-glass-texture-tools {
+    .texture-button-wrapper {
+      .texture-button {
+        border-width: 2px;
+        
+        &.active {
+          border-width: 3px;
+        }
+      }
+      
+      .button-label {
+        font-weight: var(--font-weight-bold);
+        text-shadow: none;
+      }
+    }
+  }
+}
+
+// 减少动画偏好
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass-texture-tools {
+    .texture-button-wrapper {
+      .texture-button {
+        transition: none;
+        
+        &:hover {
+          transform: none;
+        }
+      }
+      
+      .button-label {
+        transition: none;
+        
+        &.active {
+          transform: none;
+        }
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 动态颜色适配 (通过 CSS 变量)
+// ============================================================================
+
+.liquid-glass-texture-tools {
+  // 这些变量将由组件动态设置
+  --button-text-color: rgba(255, 255, 255, 0.8);
+  --button-text-color-active: rgba(255, 255, 255, 1);
+  --button-icon-color: rgba(255, 255, 255, 0.7);
+  --button-icon-color-active: rgba(255, 255, 255, 1);
+  
+  .texture-button-wrapper {
+    .texture-button {
+      ion-icon {
+        color: var(--button-icon-color);
+      }
+      
+      &.active {
+        ion-icon {
+          color: var(--button-icon-color-active);
+        }
+      }
+    }
+    
+    .button-label {
+      color: var(--button-text-color);
+      
+      &.active {
+        color: var(--button-text-color-active);
       }
     }
   }

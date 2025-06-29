@@ -13,6 +13,8 @@ import React, { useCallback } from 'react';
 import { IonIcon } from '@ionic/react';
 import { heart, heartOutline } from 'ionicons/icons';
 import { ColorInfo } from '../types';
+import { getContrastColor } from '../utils/backgroundUtils';
+import './ColorCard.scss';
 
 /**
  * 颜色卡片Props
@@ -23,7 +25,6 @@ interface ColorCardProps {
   isFavorite?: boolean;
   onClick: (color: string) => void;
   onToggleFavorite?: (color: string, event: React.MouseEvent) => void;
-  getCardStyle?: (color: string) => React.CSSProperties;
   className?: string;
 }
 
@@ -36,7 +37,6 @@ const ColorCard: React.FC<ColorCardProps> = ({
   isFavorite = false,
   onClick,
   onToggleFavorite,
-  getCardStyle,
   className = ''
 }) => {
 
@@ -66,7 +66,10 @@ const ColorCard: React.FC<ColorCardProps> = ({
   return (
     <div
       className={`color-card ${isActive ? 'active' : ''} ${isFavorite ? 'favorite' : ''} ${className}`}
-      style={getCardStyle?.(card.color)}
+      style={{
+        '--card-color': card.color,
+        '--text-color': getContrastColor(card.color)
+      } as React.CSSProperties}
       onClick={handleCardClick}
       role="button"
       tabIndex={0}

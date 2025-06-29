@@ -1,4 +1,4 @@
-@import '../styles/components/GlassToolbar.scss';
+@use '../styles/components/GlassToolbar.scss' as *;
 
 .texture-tools {
   position: fixed;

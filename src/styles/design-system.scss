@@ -1,0 +1,425 @@
+/**
+ * 设计系统核心文件
+ * 统一管理所有样式变量、混合器和工具类
+ */
+
+// ============================================================================
+// 导入基础样式
+// ============================================================================
+@use 'variables' as *;
+@use 'mixins' as *;
+@use 'theme/colors' as *;
+
+// ============================================================================
+// 设计系统变量
+// ============================================================================
+
+// 基础单位系统
+:root {
+  // 基础单位
+  --base-unit: 0.5rem; // 8px
+  --unit-2xs: calc(var(--base-unit) * 0.5); // 4px
+  --unit-xs: calc(var(--base-unit) * 1); // 8px
+  --unit-sm: calc(var(--base-unit) * 1.5); // 12px
+  --unit-md: calc(var(--base-unit) * 2); // 16px
+  --unit-lg: calc(var(--base-unit) * 2.5); // 20px
+  --unit-xl: calc(var(--base-unit) * 3); // 24px
+  --unit-2xl: calc(var(--base-unit) * 4); // 32px
+  --unit-3xl: calc(var(--base-unit) * 5); // 40px
+  --unit-4xl: calc(var(--base-unit) * 6); // 48px
+
+  // 字体系统
+  --font-primary: 'TsangerYuYang', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  
+  // 字体大小
+  --font-size-2xs: 0.625rem; // 10px
+  --font-size-xs: 0.75rem;   // 12px
+  --font-size-sm: 0.875rem;  // 14px
+  --font-size-base: 1rem;    // 16px
+  --font-size-lg: 1.125rem;  // 18px
+  --font-size-xl: 1.25rem;   // 20px
+  --font-size-2xl: 1.5rem;   // 24px
+  --font-size-3xl: 1.875rem; // 30px
+  --font-size-4xl: 2.25rem;  // 36px
+  
+  // 字重
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  
+  // 行高
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  // 间距系统
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: calc(var(--base-unit) * 0.125); // 1px
+  --space-1: calc(var(--base-unit) * 0.25);    // 2px
+  --space-1-5: calc(var(--base-unit) * 0.375); // 3px
+  --space-2: calc(var(--base-unit) * 0.5);     // 4px
+  --space-2-5: calc(var(--base-unit) * 0.625); // 5px
+  --space-3: calc(var(--base-unit) * 0.75);    // 6px
+  --space-3-5: calc(var(--base-unit) * 0.875); // 7px
+  --space-4: var(--base-unit);                 // 8px
+  --space-5: calc(var(--base-unit) * 1.25);    // 10px
+  --space-6: calc(var(--base-unit) * 1.5);     // 12px
+  --space-7: calc(var(--base-unit) * 1.75);    // 14px
+  --space-8: calc(var(--base-unit) * 2);       // 16px
+  --space-9: calc(var(--base-unit) * 2.25);    // 18px
+  --space-10: calc(var(--base-unit) * 2.5);    // 20px
+  --space-11: calc(var(--base-unit) * 2.75);   // 22px
+  --space-12: calc(var(--base-unit) * 3);      // 24px
+  --space-14: calc(var(--base-unit) * 3.5);    // 28px
+  --space-16: calc(var(--base-unit) * 4);      // 32px
+  --space-20: calc(var(--base-unit) * 5);      // 40px
+  --space-24: calc(var(--base-unit) * 6);      // 48px
+  --space-28: calc(var(--base-unit) * 7);      // 56px
+  --space-32: calc(var(--base-unit) * 8);      // 64px
+  --space-36: calc(var(--base-unit) * 9);      // 72px
+  --space-40: calc(var(--base-unit) * 10);     // 80px
+  --space-44: calc(var(--base-unit) * 11);     // 88px
+  --space-48: calc(var(--base-unit) * 12);     // 96px
+  --space-52: calc(var(--base-unit) * 13);     // 104px
+  --space-56: calc(var(--base-unit) * 14);     // 112px
+  --space-60: calc(var(--base-unit) * 15);     // 120px
+  --space-64: calc(var(--base-unit) * 16);     // 128px
+  --space-72: calc(var(--base-unit) * 18);     // 144px
+  --space-80: calc(var(--base-unit) * 20);     // 160px
+  --space-96: calc(var(--base-unit) * 24);     // 192px
+
+  // 边框半径
+  --radius-none: 0;
+  --radius-sm: 0.125rem;  // 2px
+  --radius-base: 0.25rem; // 4px
+  --radius-md: 0.375rem;  // 6px
+  --radius-lg: 0.5rem;    // 8px
+  --radius-xl: 0.75rem;   // 12px
+  --radius-2xl: 1rem;     // 16px
+  --radius-3xl: 1.5rem;   // 24px
+  --radius-full: 9999px;
+
+  // 阴影系统
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  // z-index层级
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-fixed: 1000;
+  --z-modal: 10000;
+  --z-popover: 10010;
+  --z-tooltip: 10020;
+
+  // 透明度
+  --opacity-0: 0;
+  --opacity-5: 0.05;
+  --opacity-10: 0.1;
+  --opacity-20: 0.2;
+  --opacity-25: 0.25;
+  --opacity-30: 0.3;
+  --opacity-40: 0.4;
+  --opacity-50: 0.5;
+  --opacity-60: 0.6;
+  --opacity-70: 0.7;
+  --opacity-75: 0.75;
+  --opacity-80: 0.8;
+  --opacity-90: 0.9;
+  --opacity-95: 0.95;
+  --opacity-100: 1;
+
+  // 过渡动画
+  --transition-none: none;
+  --transition-all: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-default: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-colors: color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-opacity: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-shadow: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-transform: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  // 颜色系统 - 主色调
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  // 中性色
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+
+  // 玻璃效果
+  --glass-bg-light: rgba(255, 255, 255, 0.1);
+  --glass-bg-medium: rgba(255, 255, 255, 0.15);
+  --glass-bg-strong: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  --glass-blur: 10px;
+  --glass-blur-sm: 6px;
+  --glass-blur-md: 10px;
+  --glass-blur-lg: 16px;
+  --glass-blur-xl: 24px;
+}
+
+// ============================================================================
+// 断点系统
+// ============================================================================
+$breakpoints: (
+  xs: 0,
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px
+);
+
+// ============================================================================
+// 混合器增强
+// ============================================================================
+
+// 响应式混合器
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $value: map-get($breakpoints, $breakpoint);
+    @if $value == 0 {
+      @content;
+    } @else {
+      @media (min-width: $value) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Breakpoint #{$breakpoint} not found in $breakpoints.";
+  }
+}
+
+// 玻璃效果混合器（增强版）
+@mixin glass-effect($strength: medium, $blur: md) {
+  $bg: var(--glass-bg-#{$strength});
+  $blur-value: var(--glass-blur-#{$blur});
+  
+  background: $bg;
+  backdrop-filter: blur($blur-value);
+  -webkit-backdrop-filter: blur($blur-value);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+// 过渡动画混合器
+@mixin transition($property: all, $duration: 150, $timing: ease) {
+  $timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @if $timing == spring {
+    $timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  } @else if $timing == in {
+    $timing-function: cubic-bezier(0.4, 0, 1, 1);
+  } @else if $timing == out {
+    $timing-function: cubic-bezier(0, 0, 0.2, 1);
+  } @else if $timing == in-out {
+    $timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  transition: #{$property} #{$duration}ms #{$timing-function};
+}
+
+// 安全区域混合器
+@mixin safe-area-padding($sides: all) {
+  @if $sides == all {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  } @else if $sides == vertical {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  } @else if $sides == horizontal {
+    padding-right: env(safe-area-inset-right);
+    padding-left: env(safe-area-inset-left);
+  } @else if $sides == top {
+    padding-top: env(safe-area-inset-top);
+  } @else if $sides == bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+// 文本截断混合器
+@mixin text-truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// 硬件加速混合器
+@mixin hardware-accelerate {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+// Flex 布局快捷混合器
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// ============================================================================
+// 工具类
+// ============================================================================
+
+// 显示/隐藏
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+.visible {
+  visibility: visible !important;
+}
+
+// Flex 工具类
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+// 文本工具类
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.truncate {
+  @include text-truncate(1);
+}
+
+// 硬件加速工具类
+.gpu {
+  @include hardware-accelerate;
+}
+
+// 玻璃效果工具类
+.glass-light {
+  @include glass-effect(light, sm);
+}
+
+.glass-medium {
+  @include glass-effect(medium, md);
+}
+
+.glass-strong {
+  @include glass-effect(strong, lg);
+}

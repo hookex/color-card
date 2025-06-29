@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IonIcon } from '@ionic/react';
 import { 
   squareOutline,
@@ -43,90 +43,71 @@ const LiquidGlassTextureTools: React.FC<LiquidGlassTextureToolsProps> = ({
   ];
 
   // 只显示启用的材质
-  const enabledTextures = allTextures.filter(t => 
-    getEnabledTextures().includes(t.type)
+  const enabledTextures = useMemo(() => 
+    allTextures.filter(t => getEnabledTextures().includes(t.type)),
+    []
   );
 
+  // 根据背景亮度计算动态颜色
+  const dynamicColors = useMemo(() => {
+    const luminance = getLuminance(color);
+    const isDark = luminance <= 0.5;
+    
+    return {
+      '--button-text-color': isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+      '--button-text-color-active': isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+      '--button-icon-color': isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+      '--button-icon-color-active': isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+      '--glass-bg-light': isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+      '--glass-bg-medium': isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+      '--glass-bg-strong': isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+      '--glass-border-light': isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+      '--glass-border-medium': isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+      '--glass-border-strong': isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+    } as React.CSSProperties;
+  }, [color]);
 
-  // 响应式计算按钮尺寸和布局
-  const screenWidth = window.innerWidth;
-  const totalButtons = enabledTextures.length;
-  const containerPadding = 48; // 左右各24px
-  const buttonGap = 8; // 按钮间距
-  const labelHeight = 16; // 标签高度
-  
-  // 计算最佳按钮尺寸 - 减小尺寸
-  const totalGapWidth = (totalButtons - 1) * buttonGap;
-  const availableWidth = screenWidth - containerPadding - totalGapWidth;
-  const idealButtonSize = availableWidth / totalButtons;
-  const minButtonSize = 40; // 减小最小尺寸
-  const maxButtonSize = 52; // 减小最大尺寸
-  const buttonSize = Math.max(minButtonSize, Math.min(maxButtonSize, idealButtonSize));
+  const handleTextureChange = (textureType: TextureType) => {
+    if (!disabled) {
+      onTextureChange(textureType);
+    }
+  };
 
   return (
     <div 
       className="liquid-glass-texture-tools"
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        padding: '8px 24px calc(8px + env(safe-area-inset-bottom, 0px)) 24px'
-      }}
+      style={dynamicColors}
     >
       <div className="glass-background">
-        <div className="tools-container" style={{ gap: `${buttonGap}px` }}>
+        <div className="tools-container">
           {enabledTextures.map((textureItem) => {
             const isActive = textureItem.type === texture;
-            const luminance = getLuminance(color);
             
             return (
               <div key={textureItem.type} className="texture-button-wrapper">
                 <div
-                  className={`texture-button ${isActive ? 'active' : ''}`}
-                  style={{
-                    width: buttonSize + 'px',
-                    height: buttonSize + 'px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: disabled ? 'not-allowed' : 'pointer',
-                    opacity: disabled ? 0.5 : 1,
-                    background: isActive 
-                      ? `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.2)`
-                      : `rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, 0.1)`,
-                    border: `1px solid rgba(${luminance > 0.5 ? '0,0,0' : '255,255,255'}, ${isActive ? '0.3' : '0.15'})`,
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  className={`texture-button ${isActive ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
+                  onClick={() => handleTextureChange(textureItem.type)}
+                  role="button"
+                  tabIndex={disabled ? -1 : 0}
+                  aria-label={`选择${textureItem.label}纹理`}
+                  aria-pressed={isActive}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+                      e.preventDefault();
+                      handleTextureChange(textureItem.type);
+                    }
                   }}
-                  onClick={() => !disabled && onTextureChange(textureItem.type)}
                 >
                   <IonIcon 
                     icon={isActive ? textureItem.activeIcon : textureItem.icon}
-                    style={{
-                      fontSize: Math.min(24, buttonSize * 0.4) + 'px',
-                      color: isActive 
-                        ? luminance > 0.5 ? '#000000' : '#FFFFFF'
-                        : luminance > 0.5 ? '#555555' : '#BBBBBB',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      filter: isActive ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' : 'none'
-                    }}
+                    aria-hidden="true"
                   />
                 </div>
                 
-                {/* 标签 */}
                 <div 
                   className={`button-label ${isActive ? 'active' : ''}`}
-                  style={{
-                    color: isActive 
-                      ? luminance > 0.5 ? '#000000' : '#FFFFFF'
-                      : luminance > 0.5 ? '#666666' : '#AAAAAA',
-                    fontSize: Math.max(9, Math.min(11, buttonSize * 0.2)) + 'px', // 稍微减小字体大小
-                    marginTop: Math.max(2, buttonSize * 0.06) + 'px' // 减少间距
-                  }}
+                  aria-hidden="true"
                 >
                   {textureItem.label}
                 </div>
