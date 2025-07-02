@@ -55,7 +55,7 @@
 }
 
 // ============================================================================
-// 色卡网格
+// 黄金比例色卡网格布局
 // ============================================================================
 
 .color-cards {
@@ -63,9 +63,12 @@
   width: 100%;
   height: 100%;
   display: grid;
+  
+  // 黄金比例网格系统
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
-  padding: var(--space-lg);
+  gap: var(--space-phi1); // φ¹ ≈ 25.9px - 基于黄金比例的间距
+  padding: var(--space-phi2); // φ² ≈ 41.9px
+  
   @include safe-area-padding(vertical);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -76,22 +79,39 @@
   }
   scrollbar-width: none;
   
-  // 响应式调整
+  // 响应式调整（基于黄金比例断点）
   @include respond-to(sm) {
-    gap: var(--space-lg);
-    padding: var(--space-xl);
+    gap: var(--space-phi2); // φ² ≈ 41.9px
+    padding: var(--space-phi3); // φ³ ≈ 67.8px
   }
   
+  // 在中等屏幕上使用黄金比例网格：2列 vs 3列 ≈ 1:1.5 接近 φ
   @include respond-to(md) {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-xl);
-    padding: var(--space-2xl);
+    gap: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+    padding: var(--space-phi3); // φ³ ≈ 67.8px
+    
+    // 黄金比例容器约束
+    max-width: calc(100vh * var(--golden-ratio)); // 基于视口高度的黄金比例宽度
+    margin: 0 auto;
   }
   
+  // 大屏幕：3列 vs 4列的比例优化
   @include respond-to(lg) {
     grid-template-columns: repeat(4, 1fr);
-    max-width: 1200px;
-    margin: 0 auto;
+    gap: var(--space-phi3); // φ³ ≈ 67.8px
+    
+    // 黄金比例最大宽度约束
+    max-width: calc(1200px * var(--golden-ratio-inverse)); // ≈ 741px，避免过宽
+    max-width: 1200px; // 保持实用性
+  }
+  
+  // 超大屏幕：保持黄金比例布局平衡
+  @include respond-to(xl) {
+    gap: calc(var(--space-phi3) * 1.272); // φ³·⁵ ≈ 86.3px
+    padding: var(--space-phi4); // φ⁴ ≈ 109.7px
+    max-width: calc(100vw * var(--golden-ratio-inverse)); // 基于视口宽度
+    max-width: 1440px; // 实际最大值
   }
 }
 
@@ -116,14 +136,19 @@
 .color-type-tabs {
   display: flex;
   justify-content: center;
-  padding: var(--space-lg) var(--space-lg) 0;
-  gap: var(--space-sm);
+  padding: var(--space-phi2) var(--space-phi2) 0; // φ² 上下，左右
+  gap: var(--space-phi-2); // φ⁻² ≈ 9.9px - 精细间距
   
   .tab-button {
-    padding: var(--space-sm) var(--space-lg);
+    // 黄金比例内边距：高度 vs 宽度
+    padding: var(--space-phi-2) var(--space-phi1); // 垂直：φ⁻² 水平：φ¹
     border-radius: var(--radius-full);
-    font-size: var(--font-size-sm);
+    
+    // 黄金比例字体大小
+    font-size: var(--font-size-sm); // φ⁻¹·⁵ ≈ 12.2px
     font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-snug); // 1.0
+    
     border: none;
     cursor: pointer;
     @include glass-effect(light, sm);
@@ -131,15 +156,21 @@
     
     color: rgba(255, 255, 255, 0.8);
     
+    // 按钮最小尺寸基于黄金比例
+    min-width: calc(var(--space-phi2) * 2); // 确保触摸友好
+    min-height: calc(var(--space-phi1) * 1.272); // φ¹·⁵ ≈ 33px
+    
     &.active {
       @include glass-effect(strong, md);
       color: white;
       box-shadow: var(--shadow-md);
+      transform: scale(1.05); // 微妙的强调
     }
     
     &:hover:not(.active) {
       @include glass-effect(medium, sm);
       color: rgba(255, 255, 255, 0.9);
+      transform: translateY(calc(var(--space-phi-4) * -1)); // 轻微上浮
     }
   }
 }
@@ -164,17 +195,25 @@
 .save-button-container {
   position: absolute;
   top: 50%;
-  right: var(--space-xl);
+  
+  // 基于黄金比例的定位
+  right: var(--space-phi2); // φ² ≈ 41.9px
   transform: translateY(-50%);
   z-index: var(--z-fixed);
   
   @include respond-to(sm) {
-    right: var(--space-2xl);
+    right: var(--space-phi3); // φ³ ≈ 67.8px
+  }
+  
+  @include respond-to(lg) {
+    // 在大屏幕上使用黄金比例定位
+    right: calc(var(--space-phi4) * var(--golden-ratio-inverse)); // 更优雅的位置
   }
   
   .save-button {
-    width: 56px;
-    height: 56px;
+    // 黄金比例尺寸：基于 φ² 
+    width: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+    height: calc(var(--space-phi2) * 1.272);
     border-radius: var(--radius-full);
     border: none;
     @include glass-effect(strong, lg);
@@ -186,17 +225,40 @@
     align-items: center;
     justify-content: center;
     
+    // 响应式尺寸调整
+    @include respond-to(sm) {
+      width: var(--space-phi3); // φ³ ≈ 67.8px
+      height: var(--space-phi3);
+    }
+    
+    @include respond-to(lg) {
+      width: calc(var(--space-phi3) * 1.272); // φ³·⁵ ≈ 86.3px
+      height: calc(var(--space-phi3) * 1.272);
+    }
+    
     &:hover {
-      transform: scale(1.1);
+      // 基于黄金比例的缩放
+      transform: scale(var(--golden-ratio-inverse)); // 1.618 的倒数 ≈ 1.05
+      transform: scale(1.05); // 实际使用更温和的值
       box-shadow: var(--shadow-xl);
     }
     
     &:active {
-      transform: scale(0.95);
+      transform: scale(var(--golden-ratio-inverse)); // 0.618 缩放
+      transform: scale(0.95); // 实际使用
     }
     
     .icon {
-      font-size: 24px;
+      // 基于按钮大小的黄金比例图标
+      font-size: calc(var(--space-phi1) * 1.272); // φ¹·⁵ ≈ 33px
+      
+      @include respond-to(sm) {
+        font-size: var(--space-phi2); // φ² ≈ 41.9px
+      }
+      
+      @include respond-to(lg) {
+        font-size: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+      }
     }
   }
 }
@@ -207,24 +269,39 @@
 
 .dev-tools {
   position: absolute;
-  top: var(--space-xl);
-  left: var(--space-xl);
+  top: var(--space-phi2); // φ² ≈ 41.9px
+  left: var(--space-phi2);
   z-index: var(--z-fixed);
   @include safe-area-padding(top);
   
   .dev-toggle {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
+    // 黄金比例按钮尺寸
+    width: calc(var(--space-phi2) * var(--golden-ratio-inverse)); // φ² × φ⁻¹ ≈ 25.9px
+    height: calc(var(--space-phi2) * var(--golden-ratio-inverse));
+    border-radius: var(--radius-sm); // φ⁻² ≈ 9.9px
     border: none;
     @include glass-effect(light, sm);
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     @include transition(all, 200, out);
     
+    // 响应式尺寸
+    @include respond-to(sm) {
+      width: var(--space-phi2); // φ² ≈ 41.9px
+      height: var(--space-phi2);
+      border-radius: var(--radius-md); // φ⁰ = 16px
+    }
+    
+    @include respond-to(lg) {
+      width: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+      height: calc(var(--space-phi2) * 1.272);
+      border-radius: var(--radius-lg); // φ¹ ≈ 25.9px
+    }
+    
     &:hover {
       @include glass-effect(medium, md);
       color: rgba(255, 255, 255, 0.8);
+      transform: scale(1.05); // 微妙缩放
     }
   }
 }
@@ -246,12 +323,26 @@
   z-index: var(--z-modal);
   
   .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid white;
+    // 黄金比例加载器尺寸
+    width: var(--space-phi2); // φ² ≈ 41.9px
+    height: var(--space-phi2);
+    border: var(--space-phi-3) solid rgba(255, 255, 255, 0.3); // φ⁻³ ≈ 6.1px
+    border-top: var(--space-phi-3) solid white;
     border-radius: var(--radius-full);
     animation: spin 1s linear infinite;
+    
+    // 响应式尺寸
+    @include respond-to(sm) {
+      width: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+      height: calc(var(--space-phi2) * 1.272);
+      border-width: var(--space-phi-2); // φ⁻² ≈ 9.9px
+    }
+    
+    @include respond-to(lg) {
+      width: var(--space-phi3); // φ³ ≈ 67.8px
+      height: var(--space-phi3);
+      border-width: var(--space-phi-1); // φ⁻¹ = 16px
+    }
   }
 }
 
@@ -285,15 +376,6 @@
   }
 }
 
-// 深色模式支持
-@media (prefers-color-scheme: dark) {
-  .tabs-container,
-  .texture-tools-container {
-    --glass-bg-light: rgba(0, 0, 0, 0.1);
-    --glass-bg-medium: rgba(0, 0, 0, 0.15);
-    --glass-bg-strong: rgba(0, 0, 0, 0.2);
-  }
-}
 
 // ============================================================================
 // Ionic 兼容

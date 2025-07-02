@@ -4,7 +4,7 @@
  */
 
 // 设计系统核心 - 必须首先使用 @use
-@use 'design-system' as *;
+@use 'design-system' as ds;
 
 // Ionic 基础样式
 @use 'index' as *;
@@ -180,25 +180,36 @@ ion-button {
 }
 
 // ============================================================================
-// 响应式字体大小
+// 响应式字体大小（改进版）
 // ============================================================================
 
 html {
-  // 基础字体大小
-  font-size: 16px;
+  // 基础字体大小 - 使用 clamp() 实现流体字体
+  font-size: clamp(14px, 2.5vw, 18px);
   
-  // 小屏幕稍微减小字体
-  @include respond-to(xs) {
-    font-size: 15px;
+  // 针对特定断点的精细调整
+  @include ds.respond-to(xs) {
+    font-size: clamp(14px, 2.2vw, 15px);
   }
   
-  // 大屏幕稍微增大字体
-  @include respond-to(lg) {
-    font-size: 17px;
+  @include ds.respond-to(sm) {
+    font-size: clamp(15px, 2.3vw, 16px);
   }
   
-  @include respond-to(xl) {
-    font-size: 18px;
+  @include ds.respond-to(md) {
+    font-size: clamp(16px, 2.4vw, 17px);
+  }
+  
+  @include ds.respond-to(lg) {
+    font-size: clamp(16px, 2.5vw, 18px);
+  }
+  
+  @include ds.respond-to(xl) {
+    font-size: clamp(17px, 2.6vw, 19px);
+  }
+  
+  @include ds.respond-to(2xl) {
+    font-size: clamp(18px, 2.7vw, 20px);
   }
 }
 
@@ -293,21 +304,265 @@ img[width][height] {
 // 暗色模式支持
 // ============================================================================
 
-@media (prefers-color-scheme: dark) {
-  body {
-    color: var(--color-gray-100);
+
+// ============================================================================
+// 现代响应式设计增强
+// ============================================================================
+
+// 容器查询支持（现代浏览器）
+@supports (container-type: inline-size) {
+  .responsive-container {
+    container-type: inline-size;
   }
   
-  // 调整滚动条颜色
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    
-    &:hover {
-      background: rgba(255, 255, 255, 0.4);
+  // 基于容器大小的样式调整
+  @container (min-width: 300px) {
+    .container-aware {
+      font-size: var(--font-size-sm);
+      padding: var(--space-4);
     }
   }
   
-  html {
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  @container (min-width: 500px) {
+    .container-aware {
+      font-size: var(--font-size-base);
+      padding: var(--space-6);
+    }
+  }
+  
+  @container (min-width: 700px) {
+    .container-aware {
+      font-size: var(--font-size-lg);
+      padding: var(--space-8);
+    }
+  }
+}
+
+// ============================================================================
+// 视口单位优化（避免移动端视口变化问题）
+// ============================================================================
+
+// 使用新的视口单位（支持的浏览器）
+@supports (height: 100dvh) {
+  .full-height {
+    height: 100dvh;
+  }
+  
+  .min-full-height {
+    min-height: 100dvh;
+  }
+}
+
+// 回退到传统视口单位
+@supports not (height: 100dvh) {
+  .full-height {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+  }
+  
+  .min-full-height {
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+// 为 JavaScript 动态设置的 --vh 变量提供样式支持
+:root {
+  --vh: 1vh;
+}
+
+// ============================================================================
+// 可折叠设备支持
+// ============================================================================
+
+// 折叠屏设备适配
+@media (spanning: single-fold-vertical) {
+  .foldable-layout {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .main-content {
+    flex: 1;
+  }
+  
+  .sidebar-content {
+    width: 50%;
+    border-left: 1px solid var(--color-gray-300);
+  }
+}
+
+@media (spanning: single-fold-horizontal) {
+  .foldable-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .main-content {
+    flex: 1;
+  }
+  
+  .sidebar-content {
+    height: 50%;
+    border-top: 1px solid var(--color-gray-300);
+  }
+}
+
+// ============================================================================
+// 高刷新率屏幕优化
+// ============================================================================
+
+@media (update: fast) {
+  // 在支持高刷新率的设备上启用更丰富的动画
+  .smooth-animation {
+    animation-duration: var(--duration-slow);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .hover-effect {
+    transition: all var(--duration-normal) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+// ============================================================================
+// 网络状态适配
+// ============================================================================
+
+// 当连接速度较慢时减少动画
+@media (prefers-reduced-data: reduce) {
+  * {
+    animation-duration: var(--duration-fast) !important;
+    transition-duration: var(--duration-fast) !important;
+  }
+  
+  // 禁用非关键动画
+  .decorative-animation {
+    animation: none !important;
+  }
+  
+  // 减少阴影和模糊效果
+  .expensive-effect {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    filter: none !important;
+  }
+}
+
+// ============================================================================
+// 方向感知设计
+// ============================================================================
+
+@media (orientation: portrait) {
+  .orientation-aware {
+    // 竖屏时的样式调整
+    .grid-layout {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sidebar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40vh;
+    }
+  }
+}
+
+@media (orientation: landscape) {
+  .orientation-aware {
+    // 横屏时的样式调整
+    .grid-layout {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 30vw;
+    }
+  }
+}
+
+// ============================================================================
+// 超宽屏优化
+// ============================================================================
+
+@media (min-width: 1920px) {
+  .ultra-wide-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 var(--space-16);
+  }
+  
+  // 防止内容过于分散
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr minmax(auto, 1200px) 1fr;
+    
+    > * {
+      grid-column: 2;
+    }
+  }
+}
+
+// ============================================================================
+// 小屏幕密度优化
+// ============================================================================
+
+@media (max-width: 375px) {
+  // 针对小屏手机的特殊优化
+  .compact-layout {
+    .spacing-normal {
+      padding: var(--space-2);
+      margin: var(--space-2);
+    }
+    
+    .font-normal {
+      font-size: var(--font-size-sm);
+    }
+    
+    .button-group {
+      gap: var(--space-1);
+    }
+  }
+}
+
+// ============================================================================
+// 悬停能力检测
+// ============================================================================
+
+// 支持精确悬停的设备（鼠标等）
+@media (hover: hover) and (pointer: fine) {
+  .hover-enabled {
+    transition: all var(--duration-normal) ease-out;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}
+
+// 触摸设备或粗糙指针设备
+@media (hover: none) or (pointer: coarse) {
+  .touch-optimized {
+    // 增大触摸目标
+    min-height: 44px;
+    min-width: 44px;
+    
+    // 增强触摸反馈
+    &:active {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+  }
+  
+  // 禁用悬停效果
+  .hover-enabled:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
   }
 }

@@ -6,7 +6,6 @@
  * - 当前选中颜色
  * - 颜色类型（品牌、中国色、自然色等）
  * - 颜色历史记录
- * - 颜色收藏功能
  */
 
 import { StateCreator } from 'zustand';
@@ -38,16 +37,12 @@ export interface ColorState {
   
   // 历史记录
   colorHistory: ColorHistoryItem[];
-  favoriteColors: string[];
   
   // 操作方法
   setColor: (color: string) => void;
   setColorType: (colorType: ColorType) => void;
   addToColorHistory: (color: string, colorType: ColorType) => void;
   clearColorHistory: () => void;
-  addToFavorites: (color: string) => void;
-  removeFromFavorites: (color: string) => void;
-  isFavorite: (color: string) => boolean;
   
   // 持久化操作
   saveColorPreferences: () => Promise<void>;
@@ -62,7 +57,6 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
   color: '#ff6b6b',
   colorType: 'brand',
   colorHistory: [],
-  favoriteColors: [],
 
   // 设置当前颜色
   setColor: (color: string) => {
@@ -131,53 +125,16 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
     logger.info('Color history cleared');
   },
 
-  // 添加到收藏
-  addToFavorites: (color: string) => {
-    const { favoriteColors } = get();
-    
-    if (!favoriteColors.includes(color)) {
-      const updatedFavorites = [...favoriteColors, color];
-      set({ favoriteColors: updatedFavorites });
-      
-      // 自动保存偏好设置
-      const { saveColorPreferences } = get();
-      saveColorPreferences();
-      
-      logger.info('Color added to favorites:', color);
-    }
-  },
-
-  // 从收藏中移除
-  removeFromFavorites: (color: string) => {
-    const { favoriteColors } = get();
-    const updatedFavorites = favoriteColors.filter(c => c !== color);
-    set({ favoriteColors: updatedFavorites });
-    
-    // 自动保存偏好设置
-    const { saveColorPreferences } = get();
-    saveColorPreferences();
-    
-    logger.info('Color removed from favorites:', color);
-  },
-
-  // 检查是否为收藏颜色
-  isFavorite: (color: string) => {
-    const { favoriteColors } = get();
-    return favoriteColors.includes(color);
-  },
 
   // 保存颜色偏好设置
   saveColorPreferences: async () => {
     try {
-      const { color, colorType, favoriteColors } = get();
+      const { color, colorType } = get();
       
       await StorageService.saveUserPreferences({
         color,
         colorType,
       });
-
-      // 单独保存收藏列表
-      await StorageService.setCache('favoriteColors', favoriteColors);
       
       logger.info('Color preferences saved successfully');
     } catch (error) {
@@ -189,7 +146,6 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
   loadColorPreferences: async () => {
     try {
       const preferences = await StorageService.loadUserPreferences();
-      const favoriteColors = await StorageService.getCache<string[]>('favoriteColors') || [];
       
       const updates: Partial<ColorState> = {};
       
@@ -200,8 +156,6 @@ export const createColorSlice: StateCreator<ColorState, [], [], ColorState> = (s
       if (preferences.colorType) {
         updates.colorType = preferences.colorType as ColorType;
       }
-      
-      updates.favoriteColors = favoriteColors;
       
       set(updates);
       logger.info('Color preferences loaded successfully');

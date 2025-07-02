@@ -138,57 +138,6 @@
   }
 }
 
-// 暗色主题适配
-@media (prefers-color-scheme: dark) {
-  .error-boundary {
-    &__container {
-      background: rgba(30, 30, 30, 0.95);
-      color: #e9ecef;
-    }
-
-    &__title {
-      color: #f8f9fa;
-    }
-
-    &__message {
-      color: #adb5bd;
-    }
-
-    &__details {
-      background: #212529;
-      border-left-color: #ff6b6b;
-      
-      h3 {
-        color: #f8f9fa;
-      }
-    }
-
-    &__error-info {
-      color: #adb5bd;
-      
-      p strong {
-        color: #f8f9fa;
-      }
-    }
-
-    &__stack,
-    &__component-stack {
-      summary {
-        background: #495057;
-        color: #f8f9fa;
-        
-        &:hover {
-          background: #6c757d;
-        }
-      }
-      
-      pre {
-        background: #343a40;
-        color: #e9ecef;
-      }
-    }
-  }
-}
 
 // 高对比度模式适配
 @media (prefers-contrast: high) {

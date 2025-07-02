@@ -1,40 +1,306 @@
-@use '../styles/components/GlassToolbar.scss' as *;
+/**
+ * TextureTools 组件样式
+ * 现代化的纹理选择工具栏，使用设计系统规范
+ */
+
+@use '../styles/design-system' as *;
+
+// ============================================================================
+// 工具栏容器
+// ============================================================================
 
 .texture-tools {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  padding: 8px 16px;
-
-  .texture-buttons {
-    width: 100%;
-    justify-content: space-around;
+  z-index: var(--z-sticky);
+  @include safe-area-padding(bottom);
+  
+  // 背景和布局 - 黄金比例间距
+  padding: var(--space-phi-2) var(--space-phi-2) var(--space-phi1); // 顶部：φ⁻² 底部：φ¹
+  @include glass-effect(medium, lg);
+  border-top: calc(var(--space-phi-4) / 2) solid rgba(255, 255, 255, 0.1); // φ⁻⁴/2 ≈ 1.9px
+  
+  // 响应式设计
+  @include respond-to(sm) {
+    padding: var(--space-phi-1) var(--space-phi1) var(--space-phi1); // φ⁻¹ 左右，φ¹ 底部
   }
+  
+  @include respond-to(md) {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0; // φ² 圆角
+    margin: 0 var(--space-phi-2);
+    left: var(--space-phi-2);
+    right: var(--space-phi-2);
+  }
+}
 
-  .texture-button {
-    height: auto;
-    margin: 0 4px;
+// ============================================================================
+// 按钮容器
+// ============================================================================
 
-    &.active {
-      --background: var(--ion-color-primary);
-      --color: var(--ion-color-primary-contrast);
-    }
+.texture-buttons {
+  @include flex-center;
+  width: 100%;
+  gap: var(--space-phi-3); // φ⁻³ ≈ 6.1px - 精细间距
+  flex-wrap: wrap;
+  justify-content: space-around;
+  
+  // 响应式间距调整
+  @include respond-to(sm) {
+    gap: var(--space-phi-2); // φ⁻² ≈ 9.9px
+  }
+  
+  @include respond-to(md) {
+    gap: var(--space-phi-1); // φ⁻¹ = 16px
+    justify-content: center;
+  }
+  
+  @include respond-to(lg) {
+    // 黄金比例最大宽度
+    max-width: calc(600px * var(--golden-ratio-inverse)); // ≈ 371px
+    max-width: 600px; // 保持实用性
+    margin: 0 auto;
+    gap: var(--space-phi1); // φ¹ ≈ 25.9px
+  }
+}
 
+// ============================================================================
+// 纹理按钮
+// ============================================================================
+
+.texture-button {
+  // 基础样式重置
+  --background: transparent;
+  --background-hover: rgba(255, 255, 255, 0.1);
+  --background-activated: rgba(255, 255, 255, 0.2);
+  --color: rgba(255, 255, 255, 0.8);
+  --border-radius: #{var(--radius-lg)};
+  --border-width: 1px;
+  --border-color: rgba(255, 255, 255, 0.15);
+  --box-shadow: #{var(--shadow-sm)};
+  --transition: #{var(--transition-default)};
+  
+  // 布局和间距 - 黄金比例尺寸
+  height: auto;
+  min-height: calc(var(--space-phi2) * 1.272); // φ²·⁵ ≈ 53.3px
+  margin: 0;
+  padding: var(--space-phi-2) var(--space-phi-1); // 垂直：φ⁻² 水平：φ⁻¹
+  flex: 1;
+  max-width: calc(var(--space-phi3) * 1.272); // φ³·⁵ ≈ 86.3px
+  
+  // 触摸优化
+  @include touch-optimize;
+  
+  // 响应式调整
+  @include respond-to(sm) {
+    min-height: var(--space-phi3); // φ³ ≈ 67.8px
+    padding: var(--space-phi-1) var(--space-phi1); // φ⁻¹ × φ¹
+    max-width: var(--space-phi4); // φ⁴ ≈ 109.7px
+  }
+  
+  @include respond-to(md) {
+    min-height: calc(var(--space-phi3) * 1.272); // φ³·⁵ ≈ 86.3px
+    padding: var(--space-phi-1) var(--space-phi1); // 保持比例
+    max-width: calc(var(--space-phi4) * 1.272); // φ⁴·⁵ ≈ 139.5px
+  }
+  
+  // ============================================================================
+  // 激活状态
+  // ============================================================================
+  
+  &.active {
+    --background: rgba(255, 255, 255, 0.2);
+    --color: white;
+    --border-color: rgba(255, 255, 255, 0.3);
+    --box-shadow: #{var(--shadow-md)}, inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    
     .texture-button-content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      ion-icon {
-        font-size: 24px;
+      .texture-icon {
+        transform: scale(1.1);
+        color: white;
       }
-
+      
       .texture-name {
-        font-size: 14px;
-        font-weight: 500;
+        font-weight: var(--font-weight-semibold);
+        color: white;
       }
+    }
+  }
+  
+  // ============================================================================
+  // 悬停和焦点状态
+  // ============================================================================
+  
+  &:hover:not(.active) {
+    --background: rgba(255, 255, 255, 0.12);
+    --color: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(255, 255, 255, 0.2);
+    
+    .texture-button-content .texture-icon {
+      transform: scale(1.05);
+    }
+  }
+  
+  &:focus,
+  &:focus-visible {
+    --border-color: var(--color-primary-400);
+    --box-shadow: #{var(--shadow-md)}, 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  // 激活动画
+  &:active {
+    transform: scale(0.98);
+    @include transition(transform, fast, ease-out);
+  }
+}
+
+// ============================================================================
+// 按钮内容
+// ============================================================================
+
+.texture-button-content {
+  @include flex-column-center;
+  gap: var(--space-phi-3); // φ⁻³ ≈ 6.1px - 精细间距
+  width: 100%;
+  pointer-events: none;
+  
+  // 响应式间距
+  @include respond-to(sm) {
+    gap: var(--space-phi-2); // φ⁻² ≈ 9.9px
+  }
+  
+  @include respond-to(md) {
+    gap: var(--space-phi-1); // φ⁻¹ = 16px
+  }
+}
+
+// ============================================================================
+// 图标样式 - 黄金比例大小
+// ============================================================================
+
+.texture-icon {
+  font-size: var(--font-size-xl); // φ¹ ≈ 25.9px
+  @include transition(all, normal, spring);
+  color: inherit;
+  
+  // 响应式图标大小
+  @include respond-to(sm) {
+    font-size: var(--font-size-2xl); // φ¹·⁵ ≈ 32.9px
+  }
+  
+  @include respond-to(md) {
+    font-size: var(--font-size-3xl); // φ² ≈ 41.9px
+  }
+  
+  @include respond-to(lg) {
+    font-size: calc(var(--font-size-3xl) * 1.272); // φ²·⁵ ≈ 53.3px
+  }
+}
+
+// ============================================================================
+// 文本标签 - 黄金比例字体层次
+// ============================================================================
+
+.texture-name {
+  font-size: var(--font-size-2xs); // φ⁻³ ≈ 6.1px
+  font-weight: var(--font-weight-medium);
+  color: inherit;
+  text-align: center;
+  line-height: var(--line-height-tight); // φ⁻¹ = 0.618
+  @include text-truncate(1);
+  @include transition(all, normal, ease-out);
+  
+  // 响应式字体大小
+  @include respond-to(sm) {
+    font-size: var(--font-size-xs); // φ⁻² ≈ 9.9px
+    line-height: var(--line-height-snug); // 1.0
+  }
+  
+  @include respond-to(md) {
+    font-size: var(--font-size-sm); // φ⁻¹·⁵ ≈ 12.2px
+    line-height: var(--line-height-normal); // φ⁰·⁵ ≈ 1.272
+  }
+  
+  @include respond-to(lg) {
+    font-size: var(--font-size-base); // φ⁰ = 16px
+  }
+}
+
+// ============================================================================
+// 触摸设备优化
+// ============================================================================
+
+@media (hover: none) and (pointer: coarse) {
+  .texture-button {
+    // 增大触摸区域
+    min-height: 56px;
+    padding: var(--space-4) var(--space-3);
+    
+    // 禁用悬停效果
+    &:hover:not(.active) {
+      --background: transparent;
+      --color: rgba(255, 255, 255, 0.8);
+      --border-color: rgba(255, 255, 255, 0.15);
+      
+      .texture-button-content .texture-icon {
+        transform: none;
+      }
+    }
+    
+    // 增强触摸反馈
+    &:active {
+      transform: scale(0.95);
+      @include transition(transform, fast, ease-out);
+    }
+  }
+  
+  .texture-icon {
+    font-size: 28px;
+  }
+  
+  .texture-name {
+    font-size: var(--font-size-sm);
+  }
+}
+
+// ============================================================================
+// 无障碍访问优化
+// ============================================================================
+
+// 减少动画（用户偏好）
+@media (prefers-reduced-motion: reduce) {
+  .texture-button,
+  .texture-icon,
+  .texture-name {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .texture-button:active {
+    transform: none !important;
+  }
+  
+  .texture-icon {
+    transform: none !important;
+  }
+}
+
+// 高对比度模式
+@media (prefers-contrast: high) {
+  .texture-tools {
+    background: rgba(0, 0, 0, 0.9);
+    border-top-color: white;
+  }
+  
+  .texture-button {
+    --border-color: rgba(255, 255, 255, 0.5);
+    --background: rgba(255, 255, 255, 0.1);
+    
+    &.active {
+      --background: rgba(255, 255, 255, 0.3);
+      --border-color: white;
     }
   }
 }
+

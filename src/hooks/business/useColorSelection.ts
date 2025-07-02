@@ -6,7 +6,6 @@
  * - 颜色选择和切换
  * - 颜色类型管理
  * - 颜色历史记录
- * - 收藏功能
  * - URL同步
  */
 
@@ -27,16 +26,13 @@ export interface UseColorSelectionReturn {
   color: string;
   colorType: ColorType;
   colorHistory: any[];
-  favoriteColors: string[];
   
   // 操作方法
   selectColor: (color: string) => Promise<void>;
   changeColorType: (colorType: ColorType) => Promise<void>;
-  toggleFavorite: (color: string) => Promise<void>;
   clearColorHistory: () => void;
   
   // 查询方法
-  isFavorite: (color: string) => boolean;
   getRecentColors: (limit?: number) => string[];
 }
 
@@ -51,15 +47,11 @@ export const useColorSelection = (): UseColorSelectionReturn => {
   const color = useAppStoreSelectors.useColor();
   const colorType = useAppStoreSelectors.useColorType();
   const colorHistory = useAppStoreSelectors.useColorHistory();
-  const favoriteColors = useAppStoreSelectors.useFavoriteColors();
   
   // 操作方法
   const setColor = useAppStore(state => state.setColor);
   const setColorType = useAppStore(state => state.setColorType);
-  const addToFavorites = useAppStore(state => state.addToFavorites);
-  const removeFromFavorites = useAppStore(state => state.removeFromFavorites);
   const clearHistory = useAppStore(state => state.clearColorHistory);
-  const isFavorite = useAppStore(state => state.isFavorite);
 
   /**
    * 更新URL参数
@@ -138,24 +130,6 @@ export const useColorSelection = (): UseColorSelectionReturn => {
     }
   }, [colorType, setColorType, updateUrlParams]);
 
-  /**
-   * 切换收藏状态
-   */
-  const toggleFavorite = useCallback(async (targetColor: string) => {
-    try {
-      if (isFavorite(targetColor)) {
-        removeFromFavorites(targetColor);
-        await PlatformService.triggerHapticFeedback(HapticFeedbackType.Warning);
-        logger.info('Color removed from favorites:', targetColor);
-      } else {
-        addToFavorites(targetColor);
-        await PlatformService.triggerHapticFeedback(HapticFeedbackType.Success);
-        logger.info('Color added to favorites:', targetColor);
-      }
-    } catch (error) {
-      logger.error('Failed to toggle favorite:', error);
-    }
-  }, [isFavorite, addToFavorites, removeFromFavorites]);
 
   /**
    * 清空颜色历史
@@ -179,16 +153,13 @@ export const useColorSelection = (): UseColorSelectionReturn => {
     color,
     colorType,
     colorHistory,
-    favoriteColors,
     
     // 操作方法
     selectColor,
     changeColorType,
-    toggleFavorite,
     clearColorHistory,
     
     // 查询方法
-    isFavorite,
     getRecentColors
   };
 };

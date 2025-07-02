@@ -185,8 +185,6 @@ const HomeContainer: React.FC = () => {
                   colorType={colorSelection.colorType}
                   selectedColor={colorSelection.color}
                   onColorSelect={colorSelection.selectColor}
-                  favoriteColors={colorSelection.favoriteColors}
-                  onToggleFavorite={colorSelection.toggleFavorite}
                 />
               </div>
               

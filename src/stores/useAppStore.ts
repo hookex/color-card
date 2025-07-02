@@ -55,7 +55,6 @@ export const useAppStore = create<AppStoreState>()(
             color: '#ff6b6b',
             colorType: 'brand',
             colorHistory: [],
-            favoriteColors: [],
             
             // 纹理状态重置
             texture: 'solid',
@@ -116,7 +115,6 @@ export const useAppStoreSelectors = {
   useColor: () => useAppStore(state => state.color),
   useColorType: () => useAppStore(state => state.colorType),
   useColorHistory: () => useAppStore(state => state.colorHistory),
-  useFavoriteColors: () => useAppStore(state => state.favoriteColors),
   
   // 纹理相关选择器
   useTexture: () => useAppStore(state => state.texture),
@@ -161,18 +159,12 @@ export const useAppStoreActions = {
   useColorActions: () => {
     const setColor = useAppStore(state => state.setColor);
     const setColorType = useAppStore(state => state.setColorType);
-    const addToFavorites = useAppStore(state => state.addToFavorites);
-    const removeFromFavorites = useAppStore(state => state.removeFromFavorites);
     const clearHistory = useAppStore(state => state.clearColorHistory);
-    const isFavorite = useAppStore(state => state.isFavorite);
     
     return {
       setColor,
       setColorType,
-      addToFavorites,
-      removeFromFavorites,
       clearHistory,
-      isFavorite
     };
   },
   

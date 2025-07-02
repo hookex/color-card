@@ -10,11 +10,16 @@
 // ============================================================================
 
 .color-card {
-  // 基础布局
+  // 基础布局 - 黄金比例卡片
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
-  border-radius: var(--radius-xl);
+  
+  // 黄金比例长宽比：约 1:1.618 或使用正方形保持网格整齐
+  aspect-ratio: 1; // 保持正方形以适配网格
+  // aspect-ratio: var(--golden-ratio-inverse); // 可选：黄金比例矩形 (约 0.618:1)
+  
+  // 黄金比例边框半径
+  border-radius: var(--radius-lg); // φ¹ ≈ 25.9px
   overflow: hidden;
   cursor: pointer;
   user-select: none;
@@ -25,8 +30,8 @@
   background-color: var(--card-color);
   color: var(--text-color);
   
-  // 边框和阴影
-  border: 2px solid transparent;
+  // 边框和阴影 - 基于黄金比例
+  border: calc(var(--space-phi-4) * 2) solid transparent; // φ⁻⁴ × 2 ≈ 2px
   box-shadow: var(--shadow-sm);
   
   // 基础过渡效果
@@ -107,7 +112,9 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: var(--space-12);
+  
+  // 黄金比例内边距：基于 φ¹
+  padding: var(--space-phi1); // φ¹ ≈ 25.9px
   z-index: var(--z-raised);
   
   // 背景遮罩（渐变）
@@ -133,40 +140,50 @@
   // 顶部信息区域
   &__header {
     @include flex-between;
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-phi-2); // φ⁻² ≈ 9.9px - 精细间距
     position: relative;
     z-index: var(--z-raised);
   }
   
-  // 中文名称
+  // 中文名称 - 黄金比例字体大小
   .zh-name {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-lg); // φ⁰·⁵ ≈ 20.4px
     font-weight: var(--font-weight-medium);
     color: inherit;
     margin: 0;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     @include text-truncate(1);
     flex: 1;
+    line-height: var(--line-height-tight); // φ⁻¹ = 0.618
     
     // 响应式字体大小
     @include respond-to(sm) {
-      font-size: var(--font-size-xl);
+      font-size: var(--font-size-xl); // φ¹ ≈ 25.9px
+    }
+    
+    @include respond-to(lg) {
+      font-size: var(--font-size-2xl); // φ¹·⁵ ≈ 32.9px
     }
   }
   
-  // 描述文本
+  // 描述文本 - 基于黄金比例的层次
   .description {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-xs); // φ⁻² ≈ 9.9px
     color: inherit;
     opacity: var(--opacity-90);
-    margin-bottom: var(--space-6);
-    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-phi-2); // φ⁻² ≈ 9.9px
+    line-height: var(--line-height-relaxed); // φ = 1.618
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     @include text-truncate(2);
     
     // 响应式字体大小
     @include respond-to(sm) {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-sm); // φ⁻¹·⁵ ≈ 12.2px
+      margin-bottom: var(--space-phi-1); // φ⁻¹ = 16px
+    }
+    
+    @include respond-to(lg) {
+      font-size: var(--font-size-base); // φ⁰ = 16px
     }
   }
   
@@ -197,25 +214,27 @@
 
 .favorite-button {
   position: relative;
-  width: var(--space-8);
-  height: var(--space-8);
+  
+  // 黄金比例按钮尺寸
+  width: var(--space-phi1); // φ¹ ≈ 25.9px
+  height: var(--space-phi1);
   border: none;
   background: none;
   cursor: pointer;
   padding: 0;
   z-index: var(--z-sticky);
   opacity: var(--opacity-70);
-  transform: scale(0.9);
+  transform: scale(var(--golden-ratio-inverse)); // 0.618 初始缩放
   @include transition(all, 200, spring);
   
-  // 背景圆形
+  // 背景圆形 - 基于黄金比例
   &::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: var(--space-10);
-    height: var(--space-10);
+    width: calc(var(--space-phi1) * var(--golden-ratio)); // φ² ≈ 41.9px
+    height: calc(var(--space-phi1) * var(--golden-ratio));
     background: rgba(0, 0, 0, 0.2);
     border-radius: var(--radius-full);
     transform: translate(-50%, -50%);
@@ -434,24 +453,6 @@
   }
 }
 
-// 深色模式适配
-@media (prefers-color-scheme: dark) {
-  .color-card {
-    .color-info::before {
-      background: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 40%,
-        rgba(255, 255, 255, 0.05) 70%,
-        rgba(255, 255, 255, 0.15) 100%
-      );
-    }
-    
-    .favorite-button::before {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-}
 
 // ============================================================================
 // 触摸设备优化

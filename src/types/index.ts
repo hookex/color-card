@@ -62,11 +62,6 @@ export type ColorType = 'brand' | 'chinese' | 'nature' | 'food' | 'mood' | 'spac
  */
 export type TransitionDirection = 'left' | 'right' | 'up' | 'down';
 
-/**
- * 应用主题类型
- * 定义应用的主题模式
- */
-export type ThemeMode = 'light' | 'dark' | 'auto';
 
 /**
  * 语言类型
@@ -103,8 +98,6 @@ export type ErrorType = 'network' | 'render' | 'permission' | 'unknown';
  * 存储用户的个性化配置
  */
 export interface UserPreferences {
-  /** 主题模式 */
-  theme: ThemeMode;
   /** 语言设置 */
   language: Language;
   /** 默认纹理类型 */
@@ -115,8 +108,6 @@ export interface UserPreferences {
   enableHapticFeedback: boolean;
   /** 是否启用动画 */
   enableAnimations: boolean;
-  /** 收藏的颜色列表 */
-  favoriteColors: string[];
   /** 颜色历史记录 */
   colorHistory: string[];
 }

@@ -5,7 +5,6 @@
  * @description 特性：
  * - 响应式网格布局
  * - React Spring动画支持
- * - 收藏功能集成
  * - 虚拟化滚动优化
  * - 触觉反馈
  */
@@ -33,8 +32,6 @@ export interface ColorGridProps {
   colorType: ColorType;
   selectedColor: string;
   onColorSelect: (color: string) => void;
-  favoriteColors: string[];
-  onToggleFavorite: (color: string) => void;
   className?: string;
 }
 
@@ -46,8 +43,6 @@ const ColorGrid: React.FC<ColorGridProps> = ({
   colorType,
   selectedColor,
   onColorSelect,
-  favoriteColors,
-  onToggleFavorite,
   className = ''
 }) => {
 
@@ -107,21 +102,6 @@ const ColorGrid: React.FC<ColorGridProps> = ({
     }
   }, [selectedColor, onColorSelect]);
 
-  /**
-   * 处理收藏切换
-   */
-  const handleToggleFavorite = useCallback((color: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // 防止触发颜色选择
-    logger.info('Toggle favorite from grid:', color);
-    onToggleFavorite(color);
-  }, [onToggleFavorite]);
-
-  /**
-   * 检查是否为收藏颜色
-   */
-  const isFavoriteColor = useCallback((color: string) => {
-    return favoriteColors.includes(color);
-  }, [favoriteColors]);
 
   if (filteredCards.length === 0) {
     return (
@@ -150,9 +130,7 @@ const ColorGrid: React.FC<ColorGridProps> = ({
             <ColorCard
               card={card}
               isActive={card.color === selectedColor}
-              isFavorite={isFavoriteColor(card.color)}
               onClick={handleColorSelect}
-              onToggleFavorite={handleToggleFavorite}
             />
           </div>
         ))}
